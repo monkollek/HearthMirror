@@ -355,6 +355,14 @@ double ToDouble(Byte* buffer, int start=0) {
     return f;
 }
 
+proc_address ReadPointer(const HANDLE task, const proc_address address, const bool is64bit) {
+    
+    if (is64bit) {
+        return ReadUInt64(task, address);
+    }
+    return ReadUInt32(task, address);
+}
+
 uint64_t ReadUInt64(HANDLE task, mach_vm_address_t address) {
     if (address == 0) throw std::runtime_error("Pointer is NULL");
     

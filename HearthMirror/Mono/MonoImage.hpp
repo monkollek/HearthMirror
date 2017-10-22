@@ -18,7 +18,7 @@
 namespace hearthmirror {
     class MonoImage {
     public:
-        MonoImage(HANDLE task, uint32_t pImage);
+        MonoImage(HANDLE task, proc_address pImage, bool is64bit = false);
         ~MonoImage();
         
         MonoClass* get(const std::string& key);
@@ -29,9 +29,11 @@ namespace hearthmirror {
         
     private:
 		HANDLE _task;
-        uint32_t _pImage;
+        proc_address _pImage;
+        const bool _is64bit;
         std::map<std::string,MonoClass*> _classes;
-        void LoadClasses();
+        
+        void loadClasses();
     };
     
     

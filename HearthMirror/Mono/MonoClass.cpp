@@ -11,13 +11,13 @@
 
 namespace hearthmirror {
     
-    MonoClass::MonoClass() {}
+    MonoClass::MonoClass(bool is64bit) : _is64bit(is64bit) {}
 
-    MonoClass::MonoClass(HANDLE task, uint32_t pClass) : _task(task), _pClass(pClass) {}
+    MonoClass::MonoClass(HANDLE task, proc_address pClass, bool is64bit) : _task(task), _pClass(pClass), _is64bit(is64bit) {}
 
     MonoClass::~MonoClass() {}
     
-    MonoClass::MonoClass(const MonoClass* other) {
+    MonoClass::MonoClass(const MonoClass* other) : _is64bit(other->_is64bit) {
         _task = other->_task;
         _pClass = other->_pClass;
     }

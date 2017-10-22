@@ -20,8 +20,8 @@ namespace hearthmirror {
 
     class MonoClass {
     public:
-        MonoClass();
-        MonoClass(HANDLE task, uint32_t pClass);
+        MonoClass(bool is64bit = false);
+        MonoClass(HANDLE task, proc_address pClass, bool is64bit = false);
         MonoClass(const MonoClass* other);
         ~MonoClass();
         
@@ -46,7 +46,8 @@ namespace hearthmirror {
         
     private:
 		HANDLE _task;
-        uint32_t _pClass;
+        proc_address _pClass;
+        const bool _is64bit;
     };
 
 } // HSReader namespace

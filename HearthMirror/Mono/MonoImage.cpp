@@ -11,9 +11,9 @@
 
 namespace hearthmirror {
     
-    MonoImage::MonoImage(HANDLE task, uint32_t pImage) : _task(task), _pImage(pImage) {
+    MonoImage::MonoImage(HANDLE task, proc_address pImage, bool is64bit) : _task(task), _pImage(pImage), _is64bit(is64bit) {
     
-        this->LoadClasses();
+        this->loadClasses();
     }
 
     MonoImage::~MonoImage() {
@@ -36,26 +36,26 @@ namespace hearthmirror {
         return NULL;
     }
 
-    void MonoImage::LoadClasses() {
+    void MonoImage::loadClasses() {
     
         for (auto it = _classes.begin(); it != _classes.end(); it++) {
             delete it->second;
         }
         _classes.clear();
         
-        uint32_t ht = _pImage + kMonoImageClassCache;
-        uint32_t size = ReadUInt32(_task, ht + kMonoInternalHashTableSize);
-        uint32_t table = ReadUInt32(_task, ht + kMonoInternalHashTableTable);
+        proc_address classCache = _is64bit ? _pImage + kMonoImageClassCache64 : _pImage + kMonoImageClassCache;
+        uint32_t size = ReadUInt32(_task, _is64bit ? classCache + kMonoInternalHashTableSize64 : classCache + kMonoInternalHashTableSize);
+        proc_address table = ReadPointer(_task, _is64bit ? classCache + kMonoInternalHashTableTable64 : classCache + kMonoInternalHashTableTable, _is64bit);
 
-        for(uint32_t i = 0; i < size; i++) {
-            uint32_t pClass = ReadUInt32(_task, table + 4*i);
+        for (uint32_t i = 0; i < size; i++) {
+            proc_address pClass = ReadPointer(_task, _is64bit ? table + 8*i : table + 4*i, _is64bit);
             while (pClass != 0) {
                 MonoClass* klass = new MonoClass(_task, pClass);
                 std::string cfname = klass->getFullName();
 				if (cfname != "") {
 					_classes[cfname] = klass;
 				}
-                pClass = ReadUInt32(_task, pClass + kMonoClassNextClassCache);
+                pClass = ReadPointer(_task, _is64bit ? pClass + kMonoClassNextClassCache64 : pClass + kMonoClassNextClassCache, _is64bit);
             }
         }
     
@@ -75,7 +75,7 @@ namespace hearthmirror {
 #endif
         
         do {
-            bool is64bit;
+            bool is64bit = false;
             proc_address baseaddress = getMonoLoadAddress(*handle, &is64bit);
             if (baseaddress == 0) return 4;
             
@@ -100,19 +100,22 @@ namespace hearthmirror {
             }
             if (rootDomain == 0) return 7;
             
-            uint32_t pImage = 0;
+            proc_address pImage = 0;
             try {
-                // iterate GSList *domain_assemblies;
-                uint32_t next = ReadUInt32(*handle, rootDomain+kMonoDomainDomainAssemblies); // GList*
+                // iterate domain_assemblies;
+                proc_address next = ReadPointer(*handle, is64bit ? rootDomain+kMonoDomainDomainAssemblies64 : rootDomain+kMonoDomainDomainAssemblies, is64bit);
                 
-                while(next != 0) {
-                    uint32_t data = ReadUInt32(*handle, (proc_address)next);
-                    next = ReadUInt32(*handle, (proc_address)next + 4);
-                    
-                    char* name = ReadCString(*handle, ReadUInt32(*handle, (proc_address)data + kMonoAssemblyName));
+                while (next != 0) {
+                    proc_address assemblyPtr = ReadPointer(*handle, next, is64bit);
+                    if (is64bit) {
+                        next = ReadPointer(*handle, next + 8, is64bit);
+                    } else {
+                        next = ReadPointer(*handle, next + 4, is64bit);
+                    }
+                    char* name = is64bit ? ReadCString(*handle, ReadPointer(*handle, (proc_address)assemblyPtr + kMonoAssemblyName64, true)) : ReadCString(*handle, ReadPointer(*handle, (proc_address)assemblyPtr + kMonoAssemblyName, false));
                     if(strcmp(name, "Assembly-CSharp") == 0) {
                         free(name);
-                        pImage = ReadUInt32(*handle, (proc_address)data + kMonoAssemblyImage);
+                        pImage = ReadPointer(*handle, is64bit ? assemblyPtr + kMonoAssemblyImage64 : assemblyPtr + kMonoAssemblyImage, is64bit);
                         break;
                     }
                     free(name);
@@ -123,7 +126,7 @@ namespace hearthmirror {
             
             // we have a pointer now to the right assembly image
             try {
-                *monoimage = new MonoImage(*handle, pImage); // apply life cycle
+                *monoimage = new MonoImage(*handle, pImage, is64bit); // apply life cycle
                 if ((*monoimage)->hasClasses()) break;
                 
                 delete *monoimage;

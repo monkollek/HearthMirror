@@ -16,6 +16,7 @@ typedef mach_vm_address_t proc_address;
 
 bool ReadBytes(HANDLE task, proc_address buf, uint32_t size, proc_address address);
 
+proc_address ReadPointer(const HANDLE task, const proc_address address, const bool is64bit);
 uint64_t ReadUInt64(HANDLE task, proc_address address);
 int64_t ReadInt64(HANDLE task, proc_address address);
 uint32_t ReadUInt32(HANDLE task, proc_address address);
