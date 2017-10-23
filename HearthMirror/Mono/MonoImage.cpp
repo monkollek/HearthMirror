@@ -42,7 +42,7 @@ namespace hearthmirror {
             delete it->second;
         }
         _classes.clear();
-        
+         
         proc_address classCache = _is64bit ? _pImage + kMonoImageClassCache64 : _pImage + kMonoImageClassCache;
         uint32_t size = ReadUInt32(_task, _is64bit ? classCache + kMonoInternalHashTableSize64 : classCache + kMonoInternalHashTableSize);
         proc_address table = ReadPointer(_task, _is64bit ? classCache + kMonoInternalHashTableTable64 : classCache + kMonoInternalHashTableTable, _is64bit);
@@ -126,7 +126,7 @@ namespace hearthmirror {
             
             // we have a pointer now to the right assembly image
             try {
-                *monoimage = new MonoImage(*handle, pImage, is64bit); // apply life cycle
+                *monoimage = new MonoImage(*handle, pImage, is64bit);
                 if ((*monoimage)->hasClasses()) break;
                 
                 delete *monoimage;

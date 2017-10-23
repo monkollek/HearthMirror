@@ -23,21 +23,26 @@
 #define kMonoImageClassCache offsetof(FakeMonoImage, class_cache) // 0x2a0
 #define kMonoImageClassCache64 offsetof(FakeMonoImage64, class_cache)
 
-#define kMonoInternalHashTableSize offsetof(MonoInternalHashTable, size) // 0xc
-#define kMonoInternalHashTableSize64 offsetof(MonoInternalHashTable64, size)
+#define kMonoInternalHashTableSize offsetof(FakeMonoInternalHashTable, size) // 0xc
+#define kMonoInternalHashTableSize64 offsetof(FakeMonoInternalHashTable64, size)
 
-#define kMonoInternalHashTableNumEntries offsetof(MonoInternalHashTable, num_entries) // 0x10
-#define kMonoInternalHashTableNumEntries64 offsetof(MonoInternalHashTable64, num_entries)
+#define kMonoInternalHashTableNumEntries offsetof(FakeMonoInternalHashTable, num_entries) // 0x10
+#define kMonoInternalHashTableNumEntries64 offsetof(FakeMonoInternalHashTable64, num_entries)
 
-#define kMonoInternalHashTableTable offsetof(MonoInternalHashTable, table) // 0x14
-#define kMonoInternalHashTableTable64 offsetof(MonoInternalHashTable64, table)
+#define kMonoInternalHashTableTable offsetof(FakeMonoInternalHashTable, table) // 0x14
+#define kMonoInternalHashTableTable64 offsetof(FakeMonoInternalHashTable64, table)
 
 #define kMonoClassNextClassCache offsetof(FakeMonoClass, next_class_cache) // 0x98
 #define kMonoClassNextClassCache64 offsetof(FakeMonoClass64, next_class_cache)
 
-#define kMonoClassName 0x28
+#define kMonoClassName offsetof(FakeMonoClass, name) // 0x28
+#define kMonoClassName64 offsetof(FakeMonoClass64, name)
+
 #define kMonoClassNameSpace 0x2c
-#define kMonoClassNestedIn 0x20
+
+#define kMonoClassNestedIn offsetof(FakeMonoClass, nested_in) // 0x20
+#define kMonoClassNestedIn64 offsetof(FakeMonoClass64, nested_in)
+
 #define kMonoClassRuntimeInfo 0x94
 #define kMonoClassRuntimeInfoDomainVtables 0x4
 #define kMonoClassBitfields 0x14
@@ -204,19 +209,31 @@ typedef enum {
     
 } FakeMonoMetaTableEnum;
 
-struct MonoTableInfo {
+struct FakeMonoTableInfo {
     const ptr32_t base;
     unsigned int       rows     : 24;
     unsigned int       row_size : 8;
     uint32_t   size_bitfield;
 };
 
-typedef struct {
+struct FakeMonoTableInfo64 {
+    const ptr64_t base;
+    unsigned int       rows     : 24;
+    unsigned int       row_size : 8;
+    uint32_t   size_bitfield;
+};
+
+struct FakeMonoStreamHeader {
     const ptr32_t data;
     uint32_t  size;
-} MonoStreamHeader;
+};
 
-struct MonoInternalHashTable
+struct FakeMonoStreamHeader64 {
+    const ptr64_t data;
+    uint32_t  size;
+};
+
+struct FakeMonoInternalHashTable
 {
     ptr32_t hash_func;
     ptr32_t key_extract;
@@ -226,7 +243,7 @@ struct MonoInternalHashTable
     ptr32_t table;
 };
 
-struct MonoInternalHashTable64
+struct FakeMonoInternalHashTable64
 {
     ptr64_t hash_func;
     ptr64_t key_extract;
@@ -274,13 +291,13 @@ struct FakeMonoImage {
     ptr32_t image_info;
     ptr32_t mempool;
     ptr32_t raw_metadata;
-    MonoStreamHeader     heap_strings;
-    MonoStreamHeader     heap_us;
-    MonoStreamHeader     heap_blob;
-    MonoStreamHeader     heap_guid;
-    MonoStreamHeader     heap_tables;
+    FakeMonoStreamHeader     heap_strings;
+    FakeMonoStreamHeader     heap_us;
+    FakeMonoStreamHeader     heap_blob;
+    FakeMonoStreamHeader     heap_guid;
+    FakeMonoStreamHeader     heap_tables;
     const ptr32_t tables_base;
-    MonoTableInfo        tables [MONO_TABLE_LAST + 1];
+    FakeMonoTableInfo        tables [MONO_TABLE_LAST + 1];
     ptr32_t references;
     ptr32_t modules;
     uint32_t module_count;
@@ -289,7 +306,7 @@ struct FakeMonoImage {
     ptr32_t aot_module;
     ptr32_t assembly;
     ptr32_t method_cache;
-    MonoInternalHashTable class_cache;
+    FakeMonoInternalHashTable class_cache;
     ptr32_t methodref_cache;
     ptr32_t field_cache;
     ptr32_t typespec_cache;
@@ -356,22 +373,23 @@ struct FakeMonoImage64 {
     uint8_t idx_guid_wide : 1;
     uint8_t idx_blob_wide : 1;
     uint8_t core_clr_platform_code : 1;
+    
     ptr64_t name;
     const ptr64_t assembly_name;
     const ptr64_t module_name;
     ptr64_t version;
     int16_t md_version_major, md_version_minor;
-    ptr64_t guid;
+    ptr64_t guid; // char*
     ptr64_t image_info;
     ptr64_t mempool;
-    ptr64_t raw_metadata;
-    MonoStreamHeader     heap_strings;
-    MonoStreamHeader     heap_us;
-    MonoStreamHeader     heap_blob;
-    MonoStreamHeader     heap_guid;
-    MonoStreamHeader     heap_tables;
+    ptr64_t raw_metadata; // char*
+    FakeMonoStreamHeader64     heap_strings;
+    FakeMonoStreamHeader64     heap_us;
+    FakeMonoStreamHeader64     heap_blob;
+    FakeMonoStreamHeader64     heap_guid;
+    FakeMonoStreamHeader64     heap_tables;
     const ptr64_t tables_base;
-    MonoTableInfo        tables [MONO_TABLE_LAST + 1];
+    FakeMonoTableInfo64        tables [MONO_TABLE_LAST + 1];
     ptr64_t references;
     ptr64_t modules;
     uint32_t module_count;
@@ -380,7 +398,7 @@ struct FakeMonoImage64 {
     ptr64_t aot_module;
     ptr64_t assembly;
     ptr64_t method_cache;
-    MonoInternalHashTable class_cache;
+    FakeMonoInternalHashTable64 class_cache;
     ptr64_t methodref_cache;
     ptr64_t field_cache;
     ptr64_t typespec_cache;
@@ -619,8 +637,8 @@ struct FakeMonoClass64 {
     ptr64_t  nested_in;
     
     ptr64_t image;
-    ptr64_t name;
-    ptr64_t name_space;
+    const ptr64_t name; // char*
+    const ptr64_t name_space; // char*
     
     uint32_t    type_token;
     int        vtable_size;
@@ -777,7 +795,7 @@ struct FakeMonoDomain {
     ptr32_t             friendly_name;
     ptr32_t             class_vtable_hash;
     ptr32_t             proxy_vtable_hash;
-    MonoInternalHashTable jit_code_hash;
+    FakeMonoInternalHashTable jit_code_hash;
     CRITICAL_SECTION    jit_code_hash_lock;
     int                 num_jit_info_tables;
     ptr32_t
@@ -847,7 +865,7 @@ struct FakeMonoDomain64 {
     ptr64_t             friendly_name;
     ptr64_t             class_vtable_hash;
     ptr64_t             proxy_vtable_hash;
-    MonoInternalHashTable jit_code_hash;
+    FakeMonoInternalHashTable64 jit_code_hash;
     CRITICAL_SECTION    jit_code_hash_lock;
     int                 num_jit_info_tables;
     ptr64_t

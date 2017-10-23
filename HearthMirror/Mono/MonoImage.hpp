@@ -28,8 +28,8 @@ namespace hearthmirror {
         static int getMonoImage(int pid, bool isBlocking, HANDLE* handle, MonoImage** monoimage);
         
     private:
-		HANDLE _task;
-        proc_address _pImage;
+		const HANDLE _task;
+        const proc_address _pImage;
         const bool _is64bit;
         std::map<std::string,MonoClass*> _classes;
         

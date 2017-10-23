@@ -23,7 +23,7 @@ namespace hearthmirror {
     }
     
     std::string MonoClass::getName() {
-        uint32_t addr = ReadUInt32(_task, _pClass + kMonoClassName);
+        proc_address addr = ReadPointer(_task, _is64bit ? _pClass + kMonoClassName64 : _pClass + kMonoClassName, _is64bit);
         if (addr == 0) {
             std::string result("");
             return result;
@@ -39,7 +39,7 @@ namespace hearthmirror {
     }
     
     std::string MonoClass::getNameSpace() {
-        uint32_t addr = ReadUInt32(_task, _pClass + kMonoClassNameSpace);
+        proc_address addr = ReadPointer(_task, _pClass + kMonoClassNameSpace, _is64bit);
         if (addr == 0) return "";
         char* pNamespace = ReadCString(_task, addr);
         if (pNamespace != NULL) {
@@ -72,7 +72,7 @@ namespace hearthmirror {
     }
     
     MonoClass* MonoClass::getNestedIn() {
-        uint32_t pNestedIn = ReadUInt32(_task, _pClass + kMonoClassNestedIn);
+        proc_address pNestedIn = ReadPointer(_task, _is64bit ? _pClass + kMonoClassNestedIn64 : _pClass + kMonoClassNestedIn, _is64bit);
         return pNestedIn == 0 ? NULL : new MonoClass(_task, pNestedIn);
     }
     
@@ -114,7 +114,6 @@ namespace hearthmirror {
     }
 
     std::vector<MonoClassField*> MonoClass::getFields() {
-
 		std::vector<MonoClassField*> result;
 		
 		// Add own fields first
@@ -150,7 +149,6 @@ namespace hearthmirror {
 			
 			delete parent;
         }
-
         return result;
     }
     
@@ -170,9 +168,6 @@ namespace hearthmirror {
             }
             delete mcf;
         }
-        
         return ret;
     }
-    
-    
 } // namespace hearthmirror
