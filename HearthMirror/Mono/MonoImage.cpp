@@ -42,15 +42,15 @@ namespace hearthmirror {
             delete it->second;
         }
         _classes.clear();
-         
+        
         proc_address classCache = _is64bit ? _pImage + kMonoImageClassCache64 : _pImage + kMonoImageClassCache;
-        uint32_t size = ReadUInt32(_task, _is64bit ? classCache + kMonoInternalHashTableSize64 : classCache + kMonoInternalHashTableSize);
+        int32_t size = ReadInt32(_task, _is64bit ? classCache + kMonoInternalHashTableSize64 : classCache + kMonoInternalHashTableSize);
         proc_address table = ReadPointer(_task, _is64bit ? classCache + kMonoInternalHashTableTable64 : classCache + kMonoInternalHashTableTable, _is64bit);
 
         for (uint32_t i = 0; i < size; i++) {
             proc_address pClass = ReadPointer(_task, _is64bit ? table + 8*i : table + 4*i, _is64bit);
             while (pClass != 0) {
-                MonoClass* klass = new MonoClass(_task, pClass);
+                MonoClass* klass = new MonoClass(_task, pClass, _is64bit);
                 std::string cfname = klass->getFullName();
 				if (cfname != "") {
 					_classes[cfname] = klass;
