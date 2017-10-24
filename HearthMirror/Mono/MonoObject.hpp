@@ -21,11 +21,10 @@ namespace hearthmirror {
     
     class MonoObject {
     public:
-        MonoObject();
-        MonoObject(HANDLE task, uint32_t pObject);
+        MonoObject(HANDLE task, proc_address pObject, bool is64bit);
         ~MonoObject();
         
-        uint32_t pObject;
+        const proc_address _pObject;
         
         MonoClass* getClass();
         std::map<std::string, MonoValue> getFields();
@@ -33,9 +32,9 @@ namespace hearthmirror {
         MonoValue operator[](const std::string& key);
         
     private:
-		HANDLE _task;
-        uint32_t _vtable;
-        
+		const HANDLE _task;
+        const proc_address _vtable;
+        const bool _is64bit;
     };
     
 } // end namespace

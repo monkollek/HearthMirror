@@ -10,17 +10,12 @@
 #include "../Helpers/offsets.h"
 
 namespace hearthmirror {
-    
-    MonoClass::MonoClass(bool is64bit) : _is64bit(is64bit) {}
 
     MonoClass::MonoClass(HANDLE task, proc_address pClass, bool is64bit) : _task(task), _pClass(pClass), _is64bit(is64bit) {}
 
     MonoClass::~MonoClass() {}
     
-    MonoClass::MonoClass(const MonoClass* other) : _is64bit(other->_is64bit) {
-        _task = other->_task;
-        _pClass = other->_pClass;
-    }
+    MonoClass::MonoClass(const MonoClass* other) : _task(other->_task), _pClass(other->_pClass), _is64bit(other->_is64bit) {}
     
     std::string MonoClass::getName() {
         proc_address addr = ReadPointer(_task, _is64bit ? _pClass + kMonoClassName64 : _pClass + kMonoClassName, _is64bit);
@@ -39,7 +34,7 @@ namespace hearthmirror {
     }
     
     std::string MonoClass::getNameSpace() {
-        proc_address addr = ReadPointer(_task, _pClass + kMonoClassNameSpace, _is64bit);
+        proc_address addr = ReadPointer(_task, _is64bit ? _pClass + kMonoClassNameSpace64 : _pClass + kMonoClassNameSpace, _is64bit);
         if (addr == 0) return "";
         char* pNamespace = ReadCString(_task, addr);
         if (pNamespace != NULL) {
@@ -73,40 +68,52 @@ namespace hearthmirror {
     
     MonoClass* MonoClass::getNestedIn() {
         proc_address pNestedIn = ReadPointer(_task, _is64bit ? _pClass + kMonoClassNestedIn64 : _pClass + kMonoClassNestedIn, _is64bit);
-        return pNestedIn == 0 ? NULL : new MonoClass(_task, pNestedIn);
+        return pNestedIn == 0 ? NULL : new MonoClass(_task, pNestedIn, _is64bit);
     }
     
-    uint32_t MonoClass::getVTable() {
-        uint32_t rti = ReadUInt32(_task, _pClass + kMonoClassRuntimeInfo);
-        return ReadUInt32(_task, rti + kMonoClassRuntimeInfoDomainVtables);
+    proc_address MonoClass::getVTable() {
+        proc_address runtimeInfoPtr = ReadPointer(_task, _is64bit ? _pClass + kMonoClassRuntimeInfo64 : _pClass + kMonoClassRuntimeInfo, _is64bit);
+        return ReadPointer(_task, _is64bit ? runtimeInfoPtr + kMonoClassRuntimeInfoDomainVtables64 : runtimeInfoPtr + kMonoClassRuntimeInfoDomainVtables, _is64bit);
     }
     
     bool MonoClass::isValueType() {
-        return 0 != (ReadByte(_task, _pClass + kMonoClassBitfields) & 8);
+        uint32_t monoClassSize = _is64bit ? sizeof(FakeMonoClass64) : sizeof(FakeMonoClass);
+        uint8_t* buf = new uint8_t[monoClassSize];
+        ReadBytes(_task, (proc_address)buf, monoClassSize, _pClass);
+        bool isValueType = 0 != _is64bit ? ((FakeMonoClass64*)buf)->valuetype : ((FakeMonoClass*)buf)->valuetype;
+        delete [] buf;
+        return isValueType;
+        //0 != (ReadByte(_task, _is64bit ? _pClass + kMonoClassBitfields64 : _pClass + kMonoClassBitfields) & 8);
     }
     
     bool MonoClass::isEnum() {
-        return 0 != (ReadUInt32(_task, _pClass + kMonoClassBitfields) & 0x10);
+        uint32_t monoClassSize = _is64bit ? sizeof(FakeMonoClass64) : sizeof(FakeMonoClass);
+        uint8_t* buf = new uint8_t[monoClassSize];
+        ReadBytes(_task, (proc_address)buf, monoClassSize, _pClass);
+        bool isEnum = 0 != _is64bit ? ((FakeMonoClass64*)buf)->enumtype : ((FakeMonoClass*)buf)->enumtype;
+        delete [] buf;
+        return isEnum;
+        //0 != (ReadUInt32(_task, _pClass + kMonoClassBitfields) & 0x10);
     }
     
-    uint32_t MonoClass::size() {
-        return ReadUInt32(_task, _pClass + kMonoClassSizes);
+    int32_t MonoClass::size() {
+        return ReadInt32(_task, _is64bit ? _pClass + kMonoClassSizes64 : _pClass + kMonoClassSizes);
     }
     
     MonoClass* MonoClass::getParent() {
-            uint32_t pParent = ReadUInt32(_task, _pClass + kMonoClassParent);
-            return pParent == 0 ? NULL : new MonoClass(_task, pParent);
+        proc_address pParent = ReadPointer(_task, _is64bit ? _pClass + kMonoClassParent64 : _pClass + kMonoClassParent, _is64bit);
+            return pParent == 0 ? NULL : new MonoClass(_task, pParent, _is64bit);
     }
     
     MonoType* MonoClass::byValArg() {
-        return new MonoType(_task, _pClass + kMonoClassByvalArg);
+        return new MonoType(_task, _is64bit ? _pClass + kMonoClassByvalArg64 : _pClass + kMonoClassByvalArg, _is64bit);
     }
 	
 	/** Number of own fields */
     uint32_t MonoClass::getNumFields() {
         uint32_t numFields = 0;
         try {
-            numFields = ReadUInt32(_task, _pClass + kMonoClassFieldCount);
+            numFields = ReadUInt32(_task, _is64bit ? _pClass + kMonoClassFieldCount64 : _pClass + kMonoClassFieldCount);
         } catch (std::runtime_error& e) {
             numFields = 0;
         }
@@ -122,13 +129,12 @@ namespace hearthmirror {
             // this is an ugly hack to prevent leak
             return result;
         }
-		uint32_t pFields = ReadUInt32(_task, _pClass + kMonoClassFields);
+        proc_address pFields = ReadPointer(_task, _is64bit ? _pClass + kMonoClassFields64 : _pClass + kMonoClassFields, _is64bit);
 		if (pFields != 0) {
-			
 			// add own fields first
             try {
-                for(uint32_t i = 0; i < nFields; i++) {
-                    MonoClassField* mcf = new MonoClassField(_task, pFields + (uint32_t) i*kMonoClassFieldSizeof);
+                for (uint32_t i = 0; i < nFields; i++) {
+                    MonoClassField* mcf = new MonoClassField(_task, _is64bit ? pFields + (uint32_t) i*kMonoClassFieldSizeof64 : pFields + (uint32_t) i*kMonoClassFieldSizeof, _is64bit);
                     result.push_back(mcf);
                 }
             } catch (std::runtime_error& e) {
@@ -143,10 +149,8 @@ namespace hearthmirror {
 		// add parent fields (if available)
         MonoClass* parent = getParent();
         if (parent) {
-			
 			std::vector<MonoClassField*> parent_fields = parent->getFields();
 			result.insert(result.end(), parent_fields.begin(), parent_fields.end());
-			
 			delete parent;
         }
         return result;

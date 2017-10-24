@@ -10,17 +10,13 @@
 #include "MonoClass.hpp"
 
 namespace hearthmirror {
-    
-    MonoObject::MonoObject() {}
 
-    MonoObject::MonoObject(HANDLE task, uint32_t pObject) : _task(task), pObject(pObject) {
-        _vtable = ReadUInt32(_task, pObject);
-    }
+    MonoObject::MonoObject(HANDLE task, proc_address pObject, bool is64bit) : _task(task), _pObject(pObject), _vtable(ReadPointer(_task, pObject, is64bit)), _is64bit(is64bit) {}
 
     MonoObject::~MonoObject() {}
     
     MonoClass* MonoObject::getClass() {
-        return new MonoClass(_task, ReadUInt32(_task,_vtable));
+        return new MonoClass(_task, ReadPointer(_task,_vtable, _is64bit), _is64bit);
     }
     
     std::map<std::string, MonoValue> MonoObject::getFields() {

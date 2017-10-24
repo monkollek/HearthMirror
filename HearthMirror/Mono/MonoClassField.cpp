@@ -14,15 +14,13 @@
 
 namespace hearthmirror {
     
-    MonoClassField::MonoClassField() {}
-    
-    MonoClassField::MonoClassField(HANDLE task, uint32_t pField) : _task(task), _pField(pField) {}
+    MonoClassField::MonoClassField(HANDLE task, proc_address pField, bool is64bit) : _task(task), _pField(pField), _is64bit(is64bit) {}
     
     MonoClassField::~MonoClassField() {}
 
     std::string MonoClassField::getName() {
         try {
-            char* pName = ReadCString(_task, ReadUInt32(_task, _pField + kMonoClassFieldName));
+            char* pName = ReadCString(_task, ReadPointer(_task, _is64bit ? _pField + kMonoClassFieldName64 : _pField + kMonoClassFieldName, _is64bit));
             if (pName == NULL) return std::string("");
             std::string name(pName);
             free(pName);
@@ -33,12 +31,12 @@ namespace hearthmirror {
     }
     
     int32_t MonoClassField::getOffset() {
-        return ReadInt32(_task, _pField + kMonoClassFieldOffset);
+        return ReadInt32(_task, _is64bit ? _pField + kMonoClassFieldOffset64 : _pField + kMonoClassFieldOffset);
     }
     
     MonoType* MonoClassField::getType() {
         try {
-            return new MonoType(_task, ReadUInt32(_task, _pField + kMonoClassFieldType));
+            return new MonoType(_task, ReadPointer(_task, _is64bit ? _pField + kMonoClassFieldType64 : _pField + kMonoClassFieldType, _is64bit), _is64bit);
         } catch (std::exception& ex) {
             return NULL;
         }
@@ -46,7 +44,7 @@ namespace hearthmirror {
     
     MonoClass* MonoClassField::getParent() {
         try {
-            auto parent = new MonoClass(_task, ReadUInt32(_task, _pField + kMonoClassFieldParent));
+            auto parent = new MonoClass(_task, ReadPointer(_task, _is64bit ? _pField + kMonoClassFieldParent64 : _pField + kMonoClassFieldParent, _is64bit), _is64bit);
             if (parent->getName().empty()) {
                 delete parent;
                 return NULL;
@@ -101,8 +99,8 @@ namespace hearthmirror {
                 isRef = true;
                 break;
             case MonoTypeEnum::GenericInst: {
-                uint32_t genericClass = type->getData();
-                MonoClass* container = new MonoClass(_task, ReadUInt32(_task, genericClass));
+                proc_address genericClass = type->getData();
+                MonoClass* container = new MonoClass(_task, ReadPointer(_task, genericClass, _is64bit), _is64bit);
                 isRef = !container->isValueType();
                 delete container;
                 break;
@@ -119,7 +117,7 @@ namespace hearthmirror {
                 delete type;
                 return MonoValue(0);
             }
-            int vtable = -1;
+            proc_address vtable = 0;
             try {
                 vtable = parent->getVTable();
             } catch (std::exception& ex) {
@@ -130,15 +128,15 @@ namespace hearthmirror {
             
             delete parent;
             
-            if (vtable == -1) {
+            if (vtable == 0) {
                 delete type;
                 return MonoValue(0);
             }
             
-            uint32_t data = ReadUInt32(_task, vtable + kMonoVTableData);
+            proc_address data = ReadPointer(_task, _is64bit ? vtable + kMonoVTableData64 : vtable + kMonoVTableData, _is64bit);
             
-            if(isRef) {
-                uint32_t po = ReadUInt32(_task, data + offset);
+            if (isRef) {
+                proc_address po = ReadPointer(_task, data + offset, _is64bit);
                 
                 delete type;
                 if (po == 0) {
@@ -146,7 +144,7 @@ namespace hearthmirror {
                 } else {
                     MonoValue mv;
                     mv.type = typeType;
-                    mv.value.obj.o = new MonoObject(_task, po);
+                    mv.value.obj.o = new MonoObject(_task, po, _is64bit);
                     
                     auto mclass = mv.value.obj.o->getClass();
                     if (mclass->getName().empty()) {
@@ -162,9 +160,9 @@ namespace hearthmirror {
             
             if(typeType == MonoTypeEnum::ValueType) {
                 
-                MonoClass* sClass = new MonoClass(_task, type->getData());
-                if(sClass->isEnum()) {
-                    MonoClass* c = new MonoClass(_task, ReadUInt32(_task,type->getData() ));
+                MonoClass* sClass = new MonoClass(_task, type->getData(), _is64bit);
+                if (sClass->isEnum()) {
+                    MonoClass* c = new MonoClass(_task, ReadPointer(_task, type->getData(), _is64bit), _is64bit);
                     MonoType* bva = c->byValArg();
                     delete c;
                     
@@ -179,7 +177,7 @@ namespace hearthmirror {
                 MonoValue mv;
                 mv.type = ValueType;
                 MonoClass* c2 = new MonoClass(sClass);
-                mv.value.obj.s = new MonoStruct(_task, c2, (uint32_t) (data + offset));
+                mv.value.obj.s = new MonoStruct(_task, c2, data + offset);
                 delete sClass;
                 return mv;
             }
@@ -198,27 +196,27 @@ namespace hearthmirror {
         
         if(isRef) {
             
-            uint32_t po = ReadUInt32(_task, o->pObject + offset);
+            proc_address po = ReadPointer(_task, o->_pObject + offset, _is64bit);
             delete type;
             if (po == 0) {
                 return MonoValue(0);
             } else {
                 MonoValue mv;
                 mv.type = Object;
-                mv.value.obj.o = new MonoObject(_task, po);
+                mv.value.obj.o = new MonoObject(_task, po, _is64bit);
                 return mv;
             }
         }
         
         if(typeType == MonoTypeEnum::ValueType) {
             
-            MonoClass* sClass = new MonoClass(_task, type->getData());
+            MonoClass* sClass = new MonoClass(_task, type->getData(), _is64bit);
             if(sClass->isEnum()) {
-                MonoClass* c = new MonoClass(_task, ReadUInt32(_task,type->getData() ));
+                MonoClass* c = new MonoClass(_task, ReadPointer(_task, type->getData(), _is64bit), _is64bit);
                 MonoType* bva = c->byValArg();
                 delete c;
                 
-                MonoValue res = ReadValue(bva->getType(), o->pObject + offset);
+                MonoValue res = ReadValue(bva->getType(), o->_pObject + offset);
                 delete bva;
                 
                 delete type;
@@ -231,7 +229,7 @@ namespace hearthmirror {
             mv.type = MonoTypeEnum::ValueType;
             
             MonoClass* c2 = new MonoClass(sClass);
-            mv.value.obj.s = new MonoStruct(_task, c2, (uint32_t) (o->pObject + offset));
+            mv.value.obj.s = new MonoStruct(_task, c2, o->_pObject + offset);
             delete sClass;
             return mv;
         }
@@ -241,7 +239,7 @@ namespace hearthmirror {
             MonoValue mv(0);
             return mv;
         } else {
-            return ReadValue(typeType, o->pObject + offset);
+            return ReadValue(typeType, o->_pObject + offset);
         }
     }
     
@@ -301,28 +299,29 @@ namespace hearthmirror {
                 return result;
             }
             case MonoTypeEnum::Szarray: {
-                addr = ReadUInt32(_task, addr); // deref object
+                addr = ReadPointer(_task, addr, _is64bit); // deref object
                 if (addr == 0) {
                     return MonoValue(0);
                 }
-                uint32_t vt = ReadUInt32(_task, addr);
-                uint32_t pArrClass = ReadUInt32(_task, vt);
-                MonoClass* arrClass = new MonoClass(_task, pArrClass);
-                MonoClass* elClass = new MonoClass(_task, ReadUInt32(_task, pArrClass));
+                proc_address vt = ReadPointer(_task, addr, _is64bit);
+                proc_address pArrClass = ReadPointer(_task, vt, _is64bit);
+                MonoClass* arrClass = new MonoClass(_task, pArrClass, _is64bit);
+                MonoClass* elClass = new MonoClass(_task, ReadPointer(_task, pArrClass, _is64bit), _is64bit);
        
+                // TODO: extract these numbers to defines
                 uint32_t count = ReadInt32(_task, addr + 12);
-                uint32_t start = (uint32_t)addr + 16;
+                proc_address start = addr + 16;
                 result.arrsize = count;
                 if (count > 0) {
                     result.value.arr = new MonoValue[count];
                     for (uint32_t i = 0; i < count; i++) {
                         
-                        uint32_t ea = start + (i * arrClass->size());
+                        proc_address ea = start + (i * arrClass->size());
                         if(elClass->isValueType()) {
                             MonoType* mt = elClass->byValArg();
                             if(mt->getType() == MonoTypeEnum::ValueType) {
                                 MonoClass* c2 = new MonoClass(elClass);
-                                MonoStruct* stc = new MonoStruct(_task, c2, (uint32_t) ea);
+                                MonoStruct* stc = new MonoStruct(_task, c2, ea);
                                 MonoValue mv;
                                 mv.type = MonoTypeEnum::ValueType;
                                 mv.value.obj.s = stc;
@@ -332,13 +331,13 @@ namespace hearthmirror {
                             }
                             delete mt;
                         } else {
-                            uint32_t po = ReadUInt32(_task, ea);
+                            proc_address po = ReadPointer(_task, ea, _is64bit);
                             MonoValue mv;
                             if (po == 0) {
                                 result[i] = MonoValue(0);
                             } else {
                                 mv.type = GenericInst;
-                                mv.value.obj.o = new MonoObject(_task, po);
+                                mv.value.obj.o = new MonoObject(_task, po, _is64bit);
                                 result[i] = mv;
                             }
                         }
@@ -350,7 +349,7 @@ namespace hearthmirror {
                 return result;
             }
             case MonoTypeEnum::String: {
-                uint32_t pArr = ReadUInt32(_task, addr);
+                proc_address pArr = ReadPointer(_task, addr, _is64bit);
                 result.str =  std::u16string();
                 if(pArr == 0) {
                     return result;

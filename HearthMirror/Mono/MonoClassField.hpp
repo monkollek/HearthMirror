@@ -20,8 +20,7 @@ namespace hearthmirror {
     
     class MonoClassField {
     public:
-        MonoClassField();
-        MonoClassField(HANDLE task, uint32_t pField);
+        MonoClassField(HANDLE task, proc_address pField, bool is64bit);
         ~MonoClassField();
         
         std::string getName();
@@ -33,8 +32,9 @@ namespace hearthmirror {
         MonoValue getValue(MonoObject* o);
         
     private:
-		HANDLE _task;
-        uint32_t _pField;
+		const HANDLE _task;
+        const proc_address _pField;
+        const bool _is64bit;
         
         MonoValue ReadValue(MonoTypeEnum type, proc_address);
     };

@@ -20,8 +20,7 @@ namespace hearthmirror {
 
     class MonoClass {
     public:
-        MonoClass(bool is64bit = false);
-        MonoClass(HANDLE task, proc_address pClass, bool is64bit = false);
+        MonoClass(HANDLE task, proc_address pClass, bool is64bit);
         MonoClass(const MonoClass* other);
         ~MonoClass();
         
@@ -30,11 +29,11 @@ namespace hearthmirror {
         std::string getFullName();
         
         MonoClass* getNestedIn();
-        uint32_t getVTable();
+        proc_address getVTable();
         
         bool isValueType();
         bool isEnum();
-        uint32_t size();
+        int32_t size();
         
         MonoClass* getParent();
         MonoType* byValArg();
@@ -45,8 +44,8 @@ namespace hearthmirror {
         MonoValue operator[](const std::string& key);
         
     private:
-		HANDLE _task;
-        proc_address _pClass;
+		const HANDLE _task;
+        const proc_address _pClass;
         const bool _is64bit;
     };
 

@@ -38,30 +38,64 @@
 #define kMonoClassName offsetof(FakeMonoClass, name) // 0x28
 #define kMonoClassName64 offsetof(FakeMonoClass64, name)
 
-#define kMonoClassNameSpace 0x2c
+#define kMonoClassNameSpace offsetof(FakeMonoClass, name_space) //0x2c
+#define kMonoClassNameSpace64 offsetof(FakeMonoClass64, name_space)
 
 #define kMonoClassNestedIn offsetof(FakeMonoClass, nested_in) // 0x20
 #define kMonoClassNestedIn64 offsetof(FakeMonoClass64, nested_in)
 
-#define kMonoClassRuntimeInfo 0x94
-#define kMonoClassRuntimeInfoDomainVtables 0x4
-#define kMonoClassBitfields 0x14
-#define kMonoClassSizes 0x50
-#define kMonoClassParent 0x1c
-#define kMonoClassByvalArg 0x7c
-#define kMonoClassFields 0x6c
-#define kMonoClassFieldCount 0x5c
+#define kMonoClassRuntimeInfo offsetof(FakeMonoClass, runtime_info)  // 0x94
+#define kMonoClassRuntimeInfo64 offsetof(FakeMonoClass, runtime_info)
 
-#define kMonoClassFieldSizeof 0x10
-#define kMonoClassFieldType 0x0
-#define kMonoClassFieldName 0x4
-#define kMonoClassFieldParent 0x8
-#define kMonoClassFieldOffset 0xc
+#define kMonoClassRuntimeInfoDomainVtables offsetof(FakeMonoClassRuntimeInfo, domain_vtables) // 0x4
+#define kMonoClassRuntimeInfoDomainVtables64 offsetof(FakeMonoClassRuntimeInfo64, domain_vtables) 
 
-#define kMonoTypeAttrs 0x4
+// bitfield address depends on compiler optimizer, thus they are computed on the fly
+//#define kMonoClassBitfields offsetof(FakeMonoClass, inited) // 0x14
+//#define kMonoClassBitfields64 offsetof(FakeMonoClass64, inited)
+
+#define kMonoClassSizes offsetof(FakeMonoClass, sizes) // 0x50
+#define kMonoClassSizes64 offsetof(FakeMonoClass64, sizes)
+
+#define kMonoClassParent offsetof(FakeMonoClass, parent) // 0x1c
+#define kMonoClassParent64 offsetof(FakeMonoClass64, parent)
+
+#define kMonoClassByvalArg offsetof(FakeMonoClass, byval_arg)// 0x7c
+#define kMonoClassByvalArg64 offsetof(FakeMonoClass64, byval_arg)
+
+#define kMonoClassFields offsetof(FakeMonoClass, fields)// 0x6c
+#define kMonoClassFields64 offsetof(FakeMonoClass64, fields)
+
+#define kMonoClassFieldCount offsetof(FakeMonoClass, field) + offsetof(FakeMonoElement, count) // 0x5c
+#define kMonoClassFieldCount64 offsetof(FakeMonoClass64, field) + offsetof(FakeMonoElement64, count)
+
+#define kMonoClassFieldSizeof sizeof(FakeMonoClassField) // 0x10
+#define kMonoClassFieldSizeof64 sizeof(FakeMonoClassField64)
+
+#define kMonoClassFieldType offsetof(FakeMonoClassField, type) // 0x0
+#define kMonoClassFieldType64 offsetof(FakeMonoClassField64, type)
+
+#define kMonoClassFieldName offsetof(FakeMonoClassField, name) // 0x4
+#define kMonoClassFieldName64 offsetof(FakeMonoClassField64, name)
+
+#define kMonoClassFieldParent offsetof(FakeMonoClassField, parent) // 0x8
+#define kMonoClassFieldParent64 offsetof(FakeMonoClassField64, parent)
+
+#define kMonoClassFieldOffset offsetof(FakeMonoClassField, offset) // 0xc
+#define kMonoClassFieldOffset64 offsetof(FakeMonoClassField64, offset)
+
+#define kMonoTypeData offsetof(FakeMonoType, data)
+#define kMonoTypeData64 offsetof(FakeMonoType64, data)
+
+// bitfield address depends on compiler optimizer, thus they are computed on the fly
+//#define kMonoTypeAttrs offsetof(FakeMonoType, attrs) //0x4
+//#define kMonoTypeAttrs64 offsetof(FakeMonoType64, attrs)
+
 #define kMonoTypeType 0x6
 #define kMonoTypeSizeof 0x8
-#define kMonoVTableData 0xc
+
+#define kMonoVTableData offsetof(FakeMonoVTable, data) // 0xc
+#define kMonoVTableData64 offsetof(FakeMonoVTable64, data)
 
 #else
 
@@ -114,7 +148,6 @@ typedef uint32_t ptr32_t;
 typedef uint64_t ptr64_t;
 
 #include <pthread.h>
-#include <glib.h>
 
 typedef enum {
     MONO_TYPE_END        = 0x00,
@@ -489,12 +522,12 @@ struct FakeMonoType {
 
 struct FakeMonoType64 {
     union {
-        ptr64_t klass; // for VALUETYPE and CLASS
-        ptr64_t type;   // for PTR
-        ptr64_t array; // for ARRAY
+        ptr64_t klass;
+        ptr64_t type;
+        ptr64_t array;
         ptr64_t method;
-        ptr64_t generic_param; // for VAR and MVAR
-        ptr64_t generic_class; // for GENERICINST
+        ptr64_t generic_param;
+        ptr64_t generic_class;
     } data;
     uint32_t attrs    : 16;
     FakeMonoTypeEnum type     : 8;
@@ -502,6 +535,58 @@ struct FakeMonoType64 {
     unsigned int byref    : 1;
     unsigned int pinned   : 1;
     MonoCustomMod modifiers [MONO_ZERO_LEN_ARRAY];
+};
+
+struct FakeMonoVTable {
+    ptr32_t klass;
+    ptr32_t gc_descr;
+    ptr32_t domain;
+    ptr32_t    data;
+    ptr32_t    type;
+    ptr32_t interface_bitmap;
+    uint16_t     max_interface_id;
+    uint8_t      rank;
+    USE_UINT8_BIT_FIELD(unsigned int, remote      : 1);
+    USE_UINT8_BIT_FIELD(unsigned int, initialized : 1);
+    USE_UINT8_BIT_FIELD(unsigned int, init_failed : 1);
+    uint32_t     imt_collisions_bitmap;
+    ptr32_t runtime_generic_context;
+    ptr32_t    vtable [MONO_ZERO_LEN_ARRAY];
+};
+
+struct FakeMonoVTable64 {
+    ptr64_t klass;
+    ptr64_t gc_descr;
+    ptr64_t domain;
+    ptr64_t    data;
+    ptr64_t    type;
+    ptr64_t interface_bitmap;
+    uint16_t     max_interface_id;
+    uint8_t      rank;
+    USE_UINT8_BIT_FIELD(unsigned int, remote      : 1);
+    USE_UINT8_BIT_FIELD(unsigned int, initialized : 1);
+    USE_UINT8_BIT_FIELD(unsigned int, init_failed : 1);
+    uint32_t     imt_collisions_bitmap;
+    ptr64_t runtime_generic_context;
+    ptr64_t    vtable [MONO_ZERO_LEN_ARRAY];
+};
+
+struct FakeMonoClassRuntimeInfo {
+    uint16_t max_domain;
+    FakeMonoVTable *domain_vtables [MONO_ZERO_LEN_ARRAY];
+};
+
+struct FakeMonoClassRuntimeInfo64 {
+    uint16_t max_domain;
+    FakeMonoVTable64 *domain_vtables [MONO_ZERO_LEN_ARRAY];
+};
+
+struct FakeMonoElement {
+    uint32_t first, count;
+};
+
+struct FakeMonoElement64 {
+    uint32_t first, count;
 };
 
 struct FakeMonoClass {
@@ -690,11 +775,18 @@ struct FakeMonoClass64 {
     ptr64_t user_data;
 };
 
-struct _MonoClassField {
-    FakeMonoType        *type;
-    const char      *name;
-    FakeMonoClass       *parent;
-    int              offset;
+struct FakeMonoClassField {
+    ptr32_t type; // MonoType*
+    ptr32_t name; // char*
+    ptr32_t parent; // MonoClass*
+    int     offset;
+};
+
+struct FakeMonoClassField64 {
+    ptr64_t type;
+    ptr64_t name;
+    ptr64_t parent;
+    int     offset;
 };
 
 #define MONO_PUBLIC_KEY_TOKEN_LENGTH    17
@@ -704,7 +796,6 @@ struct FakeMonoAssemblyName {
     const ptr32_t culture;
     const ptr32_t hash_value;
     const ptr32_t public_key;
-    // string of 16 hex chars + 1 NULL
     unsigned char public_key_token [MONO_PUBLIC_KEY_TOKEN_LENGTH];
     uint32_t hash_alg;
     uint32_t hash_len;
@@ -717,7 +808,6 @@ struct FakeMonoAssemblyName64 {
     const ptr64_t culture;
     const ptr64_t hash_value;
     const ptr64_t public_key;
-    // string of 16 hex chars + 1 NULL
     unsigned char public_key_token [MONO_PUBLIC_KEY_TOKEN_LENGTH];
     uint32_t hash_alg;
     uint32_t hash_len;

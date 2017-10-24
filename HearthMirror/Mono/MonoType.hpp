@@ -100,13 +100,12 @@ namespace hearthmirror {
     
     class MonoType {
     public:
-        MonoType();
-        MonoType(HANDLE task, uint32_t pType);
+        MonoType(HANDLE task, proc_address pType, bool is64bit);
         ~MonoType();
         
         uint32_t getAttrs();
         
-        uint32_t getData();
+        proc_address getData();
         
         bool isStatic();        
         bool isPublic();
@@ -117,8 +116,9 @@ namespace hearthmirror {
         MonoTypeEnum getType();
         
     private:
-		HANDLE _task;
-        uint32_t _pType;
+		const HANDLE _task;
+        const proc_address _pType;
+        const bool _is64bit;
     };
     
 } // end namespace
