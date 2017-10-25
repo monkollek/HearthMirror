@@ -16,7 +16,7 @@ namespace hearthmirror {
     MonoObject::~MonoObject() {}
     
     MonoClass* MonoObject::getClass() {
-        return new MonoClass(_task, ReadPointer(_task,_vtable, _is64bit), _is64bit);
+        return new MonoClass(_task, ReadPointer(_task, _vtable, _is64bit), _is64bit);
     }
     
     std::map<std::string, MonoValue> MonoObject::getFields() {

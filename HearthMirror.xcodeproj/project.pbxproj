@@ -86,6 +86,7 @@
 		BC1528151EF18FD600150479 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BC1528181EF18FD600150479 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		BC15281A1EF18FD600150479 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BCA8E4871FA05BB7001AA1F0 /* fakemonostructs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fakemonostructs.h; path = Helpers/fakemonostructs.h; sourceTree = "<group>"; };
 		BCB5AF6E1E196F0600244DDB /* HearthMirror.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = HearthMirror.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCB5AF701E196F0600244DDB /* HearthMirror.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HearthMirror.h; sourceTree = "<group>"; };
 		BCB5AF711E196F0600244DDB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -213,6 +214,7 @@
 				BCC527241E11406800F8DE94 /* machhelper.h */,
 				BCC527561E117DDE00F8DE94 /* security.c */,
 				BCC527571E117DDE00F8DE94 /* security.h */,
+				BCA8E4871FA05BB7001AA1F0 /* fakemonostructs.h */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";

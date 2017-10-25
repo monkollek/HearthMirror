@@ -100,7 +100,7 @@ namespace hearthmirror {
         return ReadInt32(_task, _is64bit ? _pClass + kMonoClassSizes64 : _pClass + kMonoClassSizes);
     }
     
-    MonoClass* MonoClass::getParent() {
+    MonoClass* MonoClass::getParent() const {
         proc_address pParent = ReadPointer(_task, _is64bit ? _pClass + kMonoClassParent64 : _pClass + kMonoClassParent, _is64bit);
             return pParent == 0 ? NULL : new MonoClass(_task, pParent, _is64bit);
     }
@@ -110,7 +110,7 @@ namespace hearthmirror {
     }
 	
 	/** Number of own fields */
-    uint32_t MonoClass::getNumFields() {
+    uint32_t MonoClass::getNumFields() const {
         uint32_t numFields = 0;
         try {
             numFields = ReadUInt32(_task, _is64bit ? _pClass + kMonoClassFieldCount64 : _pClass + kMonoClassFieldCount);
@@ -120,7 +120,7 @@ namespace hearthmirror {
         return numFields;
     }
 
-    std::vector<MonoClassField*> MonoClass::getFields() {
+    std::vector<MonoClassField*> MonoClass::getFields() const {
 		std::vector<MonoClassField*> result;
 		
 		// Add own fields first

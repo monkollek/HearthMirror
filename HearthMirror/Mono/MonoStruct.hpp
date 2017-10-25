@@ -20,22 +20,19 @@ namespace hearthmirror {
     
     class MonoStruct {
     public:
-        MonoStruct();
-        
         /** Class takes ownership of the passed MonoClass instance */
-        MonoStruct(HANDLE task, MonoClass* mClass, uint32_t pStruct);
+        MonoStruct(HANDLE task, MonoClass* mClass, proc_address pStruct, bool is64bit);
         ~MonoStruct();
-        
-        uint32_t pStruct;
-        MonoClass* monoClass;
         
         std::map<std::string, MonoValue> getFields();
         
         MonoValue operator[](const std::string& key);
         
     private:
-		HANDLE _task;
-        
+		const HANDLE _task;
+        const MonoClass* _monoClass;
+        const proc_address _pStruct;
+        const bool _is64bit;
     };
     
 } // end namespace

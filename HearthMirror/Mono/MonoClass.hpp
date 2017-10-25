@@ -35,11 +35,11 @@ namespace hearthmirror {
         bool isEnum();
         int32_t size();
         
-        MonoClass* getParent();
+        MonoClass* getParent() const;
         MonoType* byValArg();
         
-        uint32_t getNumFields();
-        std::vector<MonoClassField*> getFields();
+        uint32_t getNumFields() const;
+        std::vector<MonoClassField*> getFields() const;
         
         MonoValue operator[](const std::string& key);
         

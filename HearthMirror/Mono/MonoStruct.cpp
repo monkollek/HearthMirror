@@ -12,19 +12,15 @@
 
 namespace hearthmirror {
     
-    MonoStruct::MonoStruct() {}
-    
-    MonoStruct::MonoStruct(HANDLE task, MonoClass* mClass, uint32_t pStruct) : _task(task), pStruct(pStruct) {
-        monoClass = mClass;
-    }
+    MonoStruct::MonoStruct(HANDLE task, MonoClass* mClass, proc_address pStruct, bool is64bit) : _task(task), _monoClass(mClass), _pStruct(pStruct), _is64bit(is64bit) {}
     
     MonoStruct::~MonoStruct() {
-        delete monoClass;
+        delete _monoClass;
     }
     
     std::map<std::string, MonoValue> MonoStruct::getFields() {
         
-        std::vector<MonoClassField*> fields = monoClass->getFields();
+        std::vector<MonoClassField*> fields = _monoClass->getFields();
         
         std::map<std::string, MonoValue> res;
         
@@ -33,7 +29,7 @@ namespace hearthmirror {
             if (type) {
                 std::string fname = f->getName();
                 if (!type->isStatic() && (!fname.empty()) ) {
-                    MonoObject* o = new MonoObject(_task, pStruct - 8);
+                    MonoObject* o = new MonoObject(_task, _pStruct - 8, _is64bit);
                     res[fname] = f->getValue(o);
                     delete o;
                 }

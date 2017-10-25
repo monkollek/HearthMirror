@@ -89,16 +89,16 @@ namespace hearthmirror {
         // get data type
         switch(typeType)
         {
-            case MonoTypeEnum::String:
-            case MonoTypeEnum::Szarray:
+            case MonoTypeEnum::MONO_TYPE_STRING:
+            case MonoTypeEnum::MONO_TYPE_SZARRAY:
                 isRef = false;
                 break;
-            case MonoTypeEnum::Object:
-            case MonoTypeEnum::Class:
-            case MonoTypeEnum::Array:
+            case MonoTypeEnum::MONO_TYPE_OBJECT:
+            case MonoTypeEnum::MONO_TYPE_CLASS:
+            case MonoTypeEnum::MONO_TYPE_ARRAY:
                 isRef = true;
                 break;
-            case MonoTypeEnum::GenericInst: {
+            case MonoTypeEnum::MONO_TYPE_GENERICINST: {
                 proc_address genericClass = type->getData();
                 MonoClass* container = new MonoClass(_task, ReadPointer(_task, genericClass, _is64bit), _is64bit);
                 isRef = !container->isValueType();
@@ -158,7 +158,7 @@ namespace hearthmirror {
                 }
             }
             
-            if(typeType == MonoTypeEnum::ValueType) {
+            if(typeType == MonoTypeEnum::MONO_TYPE_VALUETYPE) {
                 
                 MonoClass* sClass = new MonoClass(_task, type->getData(), _is64bit);
                 if (sClass->isEnum()) {
@@ -175,14 +175,14 @@ namespace hearthmirror {
                 }
                 delete type;
                 MonoValue mv;
-                mv.type = ValueType;
+                mv.type = MonoTypeEnum::MONO_TYPE_VALUETYPE;
                 MonoClass* c2 = new MonoClass(sClass);
-                mv.value.obj.s = new MonoStruct(_task, c2, data + offset);
+                mv.value.obj.s = new MonoStruct(_task, c2, data + offset, _is64bit);
                 delete sClass;
                 return mv;
             }
             delete type;
-            if (typeType == MonoTypeEnum::GenericInst) {
+            if (typeType == MonoTypeEnum::MONO_TYPE_GENERICINST) {
                 return MonoValue(0);
             } else {
                 return ReadValue(typeType, data + offset);
@@ -202,13 +202,13 @@ namespace hearthmirror {
                 return MonoValue(0);
             } else {
                 MonoValue mv;
-                mv.type = Object;
+                mv.type = MONO_TYPE_OBJECT;
                 mv.value.obj.o = new MonoObject(_task, po, _is64bit);
                 return mv;
             }
         }
         
-        if(typeType == MonoTypeEnum::ValueType) {
+        if(typeType == MonoTypeEnum::MONO_TYPE_VALUETYPE) {
             
             MonoClass* sClass = new MonoClass(_task, type->getData(), _is64bit);
             if(sClass->isEnum()) {
@@ -226,16 +226,16 @@ namespace hearthmirror {
             }
             delete type;
             MonoValue mv;
-            mv.type = MonoTypeEnum::ValueType;
+            mv.type = MonoTypeEnum::MONO_TYPE_VALUETYPE;
             
             MonoClass* c2 = new MonoClass(sClass);
-            mv.value.obj.s = new MonoStruct(_task, c2, o->_pObject + offset);
+            mv.value.obj.s = new MonoStruct(_task, c2, o->_pObject + offset, _is64bit);
             delete sClass;
             return mv;
         }
         
         delete type;
-        if (typeType == MonoTypeEnum::GenericInst) {
+        if (typeType == MonoTypeEnum::MONO_TYPE_GENERICINST) {
             MonoValue mv(0);
             return mv;
         } else {
@@ -248,57 +248,57 @@ namespace hearthmirror {
         result.type = type;
         switch(type)
         {
-            case MonoTypeEnum::Boolean: {
+            case MonoTypeEnum::MONO_TYPE_BOOLEAN: {
                 result.value.b = ReadBool(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::U1: {
+            case MonoTypeEnum::MONO_TYPE_U1: {
                 result.value.u8 = ReadByte(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::I1: {
+            case MonoTypeEnum::MONO_TYPE_I1: {
                 result.value.i8 = ReadSByte(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::I2: {
+            case MonoTypeEnum::MONO_TYPE_I2: {
                 result.value.i16 = ReadShort(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::U2: {
+            case MonoTypeEnum::MONO_TYPE_U2: {
                 result.value.u16 = ReadUShort(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::Char: {
+            case MonoTypeEnum::MONO_TYPE_CHAR: {
                 result.value.c = (char)ReadUShort(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::I:
-            case MonoTypeEnum::I4: {
+            case MonoTypeEnum::MONO_TYPE_I:
+            case MonoTypeEnum::MONO_TYPE_I4: {
                 result.value.i32 = ReadInt32(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::U:
-            case MonoTypeEnum::U4: {
+            case MonoTypeEnum::MONO_TYPE_U:
+            case MonoTypeEnum::MONO_TYPE_U4: {
                 result.value.u32 = ReadUInt32(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::I8: {
+            case MonoTypeEnum::MONO_TYPE_I8: {
                 result.value.i64 = ReadInt64(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::U8: {
+            case MonoTypeEnum::MONO_TYPE_U8: {
                 result.value.u64 = ReadUInt64(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::R4: {
+            case MonoTypeEnum::MONO_TYPE_R4: {
                 result.value.f = ReadFloat(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::R8:{
+            case MonoTypeEnum::MONO_TYPE_R8:{
                 result.value.d = ReadDouble(_task, addr);
                 return result;
             }
-            case MonoTypeEnum::Szarray: {
+            case MonoTypeEnum::MONO_TYPE_SZARRAY: {
                 addr = ReadPointer(_task, addr, _is64bit); // deref object
                 if (addr == 0) {
                     return MonoValue(0);
@@ -308,9 +308,8 @@ namespace hearthmirror {
                 MonoClass* arrClass = new MonoClass(_task, pArrClass, _is64bit);
                 MonoClass* elClass = new MonoClass(_task, ReadPointer(_task, pArrClass, _is64bit), _is64bit);
        
-                // TODO: extract these numbers to defines
-                uint32_t count = ReadInt32(_task, addr + 12);
-                proc_address start = addr + 16;
+                uint32_t count = ReadInt32(_task, addr + (_is64bit ? kMonoArrayMaxLength64 : kMonoArrayMaxLength));
+                proc_address start = addr + (_is64bit ? kMonoArrayVector64 : kMonoArrayVector);
                 result.arrsize = count;
                 if (count > 0) {
                     result.value.arr = new MonoValue[count];
@@ -319,11 +318,11 @@ namespace hearthmirror {
                         proc_address ea = start + (i * arrClass->size());
                         if(elClass->isValueType()) {
                             MonoType* mt = elClass->byValArg();
-                            if(mt->getType() == MonoTypeEnum::ValueType) {
+                            if(mt->getType() == MonoTypeEnum::MONO_TYPE_VALUETYPE) {
                                 MonoClass* c2 = new MonoClass(elClass);
-                                MonoStruct* stc = new MonoStruct(_task, c2, ea);
+                                MonoStruct* stc = new MonoStruct(_task, c2, ea, _is64bit);
                                 MonoValue mv;
-                                mv.type = MonoTypeEnum::ValueType;
+                                mv.type = MonoTypeEnum::MONO_TYPE_VALUETYPE;
                                 mv.value.obj.s = stc;
                                 result[i] = mv;
                             } else {
@@ -336,7 +335,7 @@ namespace hearthmirror {
                             if (po == 0) {
                                 result[i] = MonoValue(0);
                             } else {
-                                mv.type = GenericInst;
+                                mv.type = MonoTypeEnum::MONO_TYPE_GENERICINST;
                                 mv.value.obj.o = new MonoObject(_task, po, _is64bit);
                                 result[i] = mv;
                             }
@@ -348,14 +347,14 @@ namespace hearthmirror {
                 delete elClass;
                 return result;
             }
-            case MonoTypeEnum::String: {
+            case MonoTypeEnum::MONO_TYPE_STRING: {
                 proc_address pArr = ReadPointer(_task, addr, _is64bit);
                 result.str =  std::u16string();
                 if(pArr == 0) {
                     return result;
                 }
    
-                int32_t strlen = ReadInt32(_task, pArr + 8);
+                int32_t strlen = ReadInt32(_task, pArr + (_is64bit ? kMonoStringLength64 : kMonoStringLength));
                 if(strlen == 0) {
                     return result;
                 }
@@ -363,7 +362,7 @@ namespace hearthmirror {
                 uint32_t size = strlen*2;
                 uint8_t* buf = new uint8_t[size];
                 
-                ReadBytes(_task, (proc_address)buf, size, pArr + 12);
+                ReadBytes(_task, (proc_address)buf, size, pArr + (_is64bit ? kMonoStringChars64 : kMonoStringChars));
                 result.str = std::u16string((char16_t*)buf, strlen);
 				delete[]  buf;
                 return result;

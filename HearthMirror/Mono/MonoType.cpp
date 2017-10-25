@@ -56,7 +56,12 @@ namespace hearthmirror {
     
     MonoTypeEnum MonoType::getType() {
 #ifdef __APPLE__
-        return (MonoTypeEnum)ReadByte(_task, _is64bit ? _pType + kMonoTypeType64 : _pType + kMonoTypeType);
+        uint32_t monoTypeSize = _is64bit ? sizeof(FakeMonoType64) : sizeof(FakeMonoType);
+        uint8_t* buf = new uint8_t[monoTypeSize];
+        ReadBytes(_task, (proc_address)buf, monoTypeSize, _pType);
+        MonoTypeEnum typeEnum = _is64bit ? ((FakeMonoType64*)buf)->type : ((FakeMonoType*)buf)->type;
+        delete [] buf;
+        return typeEnum;
 #else
 		return (MonoTypeEnum)(0xff & (getAttrs() >> 16));
 #endif // __APPLE__ 
@@ -65,16 +70,16 @@ namespace hearthmirror {
     void DeleteMonoValue(MonoValue& mv) {
         if (mv.arrsize == 0) return; // value is null
         switch (mv.type) {
-            case Object:
-            case Var:
-            case GenericInst:
-            case Class:
+            case MonoTypeEnum::MONO_TYPE_OBJECT:
+            case MonoTypeEnum::MONO_TYPE_VAR:
+            case MonoTypeEnum::MONO_TYPE_GENERICINST:
+            case MonoTypeEnum::MONO_TYPE_CLASS:
                 delete mv.value.obj.o;
                 break;
-            case ValueType:
+            case MonoTypeEnum::MONO_TYPE_VALUETYPE:
                 delete mv.value.obj.s;
                 break;
-            case Szarray:
+            case MonoTypeEnum::MONO_TYPE_SZARRAY:
                 for (unsigned int i =0; i< mv.arrsize; i++) {
                     DeleteMonoValue(mv[i]);
                 }
@@ -87,11 +92,11 @@ namespace hearthmirror {
     }
     
     bool IsMonoValueEmpty(const MonoValue& mv) {
-        return (mv.arrsize == 0) || ((mv.type == Class || mv.type == GenericInst || mv.type == Object || mv.type == Var) && mv.value.obj.o == NULL);
+        return (mv.arrsize == 0) || ((mv.type == MonoTypeEnum::MONO_TYPE_CLASS || mv.type == MonoTypeEnum::MONO_TYPE_GENERICINST || mv.type == MonoTypeEnum::MONO_TYPE_OBJECT || mv.type == MonoTypeEnum::MONO_TYPE_VAR) && mv.value.obj.o == NULL);
     }
     
     
     bool IsMonoValueArray(const MonoValue& mv) {
-        return mv.type == Array || mv.type == Szarray;
+        return mv.type == MonoTypeEnum::MONO_TYPE_ARRAY || mv.type == MonoTypeEnum::MONO_TYPE_SZARRAY;
     }
 }
