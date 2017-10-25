@@ -45,7 +45,7 @@
 #define kMonoClassNestedIn64 offsetof(FakeMonoClass64, nested_in)
 
 #define kMonoClassRuntimeInfo offsetof(FakeMonoClass, runtime_info)  // 0x94
-#define kMonoClassRuntimeInfo64 offsetof(FakeMonoClass, runtime_info)
+#define kMonoClassRuntimeInfo64 offsetof(FakeMonoClass64, runtime_info)
 
 #define kMonoClassRuntimeInfoDomainVtables offsetof(FakeMonoClassRuntimeInfo, domain_vtables) // 0x4
 #define kMonoClassRuntimeInfoDomainVtables64 offsetof(FakeMonoClassRuntimeInfo64, domain_vtables) 
