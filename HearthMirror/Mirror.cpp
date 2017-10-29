@@ -723,6 +723,9 @@ namespace hearthmirror {
         }
 
         MonoObject* inst = draftDeck.value.obj.o;
+        if (inst == NULL) {
+            throw std::domain_error("Draft deck pointer is null");
+        }
         Deck deck = getDeck(inst);
         result.deck = deck;
 

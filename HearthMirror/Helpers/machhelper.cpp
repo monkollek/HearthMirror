@@ -356,7 +356,6 @@ double ToDouble(Byte* buffer, int start=0) {
 }
 
 proc_address ReadPointer(const HANDLE task, const proc_address address, const bool is64bit) {
-    
     if (is64bit) {
         return ReadUInt64(task, address);
     }
@@ -369,7 +368,7 @@ uint64_t ReadUInt64(HANDLE task, mach_vm_address_t address) {
     vm_offset_t readMem = NULL;
     vm_size_t size = 8;
     mach_msg_type_number_t data_read = 0;
-    kern_return_t err = mach_vm_read(task,address,size,&readMem,&data_read);
+    kern_return_t err = mach_vm_read(task, address, size, &readMem, &data_read);
     if (err != KERN_SUCCESS) {
         throw std::runtime_error("Could not read memory region");
     }
