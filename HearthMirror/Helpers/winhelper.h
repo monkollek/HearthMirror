@@ -18,6 +18,7 @@
 typedef intptr_t proc_address;
 bool ReadBytes(HANDLE task, proc_address buf, uint32_t size, proc_address address);
 
+proc_address ReadPointer(const HANDLE task, const proc_address address, const bool is64bit);
 uint64_t ReadUInt64(HANDLE task, proc_address address);
 int64_t ReadInt64(HANDLE task, proc_address address);
 uint32_t ReadUInt32(HANDLE task, proc_address address);
@@ -32,8 +33,8 @@ uint16_t ReadUShort(HANDLE task, proc_address address);
 float ReadFloat(HANDLE task, proc_address address);
 double ReadDouble(HANDLE task, proc_address address);
 
-proc_address getLibLoadAddress(HANDLE task, const char* libname);
-proc_address getMonoLoadAddress(HANDLE task);
-proc_address getMonoRootDomainAddr(HANDLE task, proc_address baseAddress);
+//proc_address getLibLoadAddress(HANDLE task, const char* libname);
+proc_address getMonoLoadAddress(HANDLE task, bool* is64bit);
+proc_address getMonoRootDomainAddr(HANDLE task, proc_address baseAddress, bool is64bit);
 
 #endif /* winhelper_h */

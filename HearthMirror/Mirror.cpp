@@ -6,6 +6,10 @@
 //  Copyright © 2016 com.ifehervari. All rights reserved.
 //
 
+#ifndef __APPLE__
+#define NOMINMAX
+#endif
+
 #include <codecvt>
 
 #include "Mirror.hpp"
@@ -196,7 +200,7 @@ namespace hearthmirror {
 			if (IsMonoValueEmpty(items)) {
 				continue;
 			}
-            int count = std::min(items[0].value.i32,30) + std::min(items[1].value.i32,30);
+            int count = std::min(items[0].value.i32, 30) + std::min(items[1].value.i32, 30);
             
             auto iterator = find_if(deck.cards.begin(), deck.cards.end(),
                                     [&name](const Card& obj) { return obj.id == name; });

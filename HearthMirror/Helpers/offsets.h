@@ -156,6 +156,50 @@
 #define kMonoTypeSizeof 0x8
 #define kMonoVTableData 0xc
 
+// 64 bit values are currently unknown
+
+#define kMonoDomainSizeof64 0x144
+#define kMonoDomainDomainAssemblies64 0x70
+#define kMonoAssemblyName64 0x8
+#define kMonoAssemblyImage64 0x40
+
+#define kMonoImageClassCache64 0x2a0
+#define kMonoInternalHashTableSize64 0xc
+#define kMonoInternalHashTableTable64 0x14
+
+#define kMonoClassNextClassCache64 0xa8
+#define kMonoClassName64 0x30
+#define kMonoClassNameSpace64 0x34
+#define kMonoClassNestedIn64 0x28
+#define kMonoClassRuntimeInfo64 0xa4
+#define kMonoClassRuntimeInfoDomainVtables64 0x4
+#define kMonoClassBitfields64  0x14
+#define kMonoClassSizes64 0x58
+#define kMonoClassParent64 0x24
+#define kMonoClassByvalArg64 0x88
+#define kMonoClassFields64 0x74
+
+#define kMonoClassFieldCount64 0x64
+#define kMonoClassFieldSizeof64 0x10
+#define kMonoClassFieldType64 0x0
+#define kMonoClassFieldName64 0x4
+#define kMonoClassFieldParent64 0x8
+#define kMonoClassFieldOffset64 0xc
+
+#define kMonoStringChars 0xC
+#define kMonoStringChars64 0xC
+
+#define kMonoStringLength 0x8
+#define kMonoStringLength64 0x8
+
+#define kMonoArrayMaxLength 0xC
+#define kMonoArrayMaxLength64 0xC
+
+#define kMonoArrayVector 0x10
+#define kMonoArrayVector64 0x10
+
+#define kMonoVTableData64 0xc
+
 #endif // APPLE
 
 #endif /* offsets_h */

@@ -18,16 +18,24 @@ namespace hearthmirror {
     MonoType::~MonoType() {}
     
     uint32_t MonoType::getAttrs() {
+#ifdef __APPLE__
         uint32_t monoTypeSize = _is64bit ? sizeof(FakeMonoType64) : sizeof(FakeMonoType);
         uint8_t* buf = new uint8_t[monoTypeSize];
         ReadBytes(_task, (proc_address)buf, monoTypeSize, _pType);
         uint32_t attr = _is64bit ? ((FakeMonoType64*)buf)->attrs : ((FakeMonoType*)buf)->attrs;
         delete [] buf;
         return attr;
+#else
+		return ReadUInt32(_task, _pType + kMonoTypeAttrs);
+#endif
     }
     
     proc_address MonoType::getData() {
+#ifdef __APPLE__
         return ReadPointer(_task, _is64bit ? _pType + kMonoTypeData64 : _pType + kMonoTypeData, _is64bit);
+#else
+		return ReadPointer(_task, _pType, false);
+#endif // __APPLE__ 
     }
     
     bool MonoType::isStatic() {

@@ -12,12 +12,10 @@
 namespace hearthmirror {
     
     MonoImage::MonoImage(HANDLE task, proc_address pImage, bool is64bit) : _task(task), _pImage(pImage), _is64bit(is64bit) {
-    
         this->loadClasses();
     }
 
     MonoImage::~MonoImage() {
-        // free all classes
         for (auto it = _classes.begin(); it != _classes.end(); it++) {
             delete it->second;
         }
@@ -37,7 +35,6 @@ namespace hearthmirror {
     }
 
     void MonoImage::loadClasses() {
-    
         for (auto it = _classes.begin(); it != _classes.end(); it++) {
             delete it->second;
         }
@@ -58,7 +55,6 @@ namespace hearthmirror {
                 pClass = ReadPointer(_task, _is64bit ? pClass + kMonoClassNextClassCache64 : pClass + kMonoClassNextClassCache, _is64bit);
             }
         }
-    
     }
     
     int MonoImage::getMonoImage(int pid, bool isBlocking, HANDLE* handle, MonoImage** monoimage) {
@@ -69,7 +65,7 @@ namespace hearthmirror {
             return 3;
         }
 #else
-        _task = OpenProcess(PROCESS_QUERY_INFORMATION |
+        *handle = OpenProcess(PROCESS_QUERY_INFORMATION |
                             PROCESS_VM_READ,
                             FALSE, pid);
 #endif
@@ -93,7 +89,7 @@ namespace hearthmirror {
                     rootDomain = ReadUInt32(*handle, baseaddress+mono_grd_addr);
                 }
 #else
-                rootDomain = ReadUInt32(_task, mono_grd_addr);
+                rootDomain = ReadUInt32(*handle, mono_grd_addr);
 #endif
             } catch (std::runtime_error& err) {
                 return 6;

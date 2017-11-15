@@ -77,23 +77,29 @@ namespace hearthmirror {
     }
     
     bool MonoClass::isValueType() {
+#ifdef __APPLE__
         uint32_t monoClassSize = _is64bit ? sizeof(FakeMonoClass64) : sizeof(FakeMonoClass);
         uint8_t* buf = new uint8_t[monoClassSize];
         ReadBytes(_task, (proc_address)buf, monoClassSize, _pClass);
         bool isValueType = 0 != _is64bit ? ((FakeMonoClass64*)buf)->valuetype : ((FakeMonoClass*)buf)->valuetype;
         delete [] buf;
         return isValueType;
-        //0 != (ReadByte(_task, _is64bit ? _pClass + kMonoClassBitfields64 : _pClass + kMonoClassBitfields) & 8);
+#else
+        return 0 != (ReadByte(_task, _is64bit ? _pClass + kMonoClassBitfields64 : _pClass + kMonoClassBitfields) & 8);
+#endif
     }
     
     bool MonoClass::isEnum() {
+#ifdef __APPLE__
         uint32_t monoClassSize = _is64bit ? sizeof(FakeMonoClass64) : sizeof(FakeMonoClass);
         uint8_t* buf = new uint8_t[monoClassSize];
         ReadBytes(_task, (proc_address)buf, monoClassSize, _pClass);
         bool isEnum = 0 != _is64bit ? ((FakeMonoClass64*)buf)->enumtype : ((FakeMonoClass*)buf)->enumtype;
         delete [] buf;
         return isEnum;
-        //0 != (ReadUInt32(_task, _pClass + kMonoClassBitfields) & 0x10);
+#else
+        return 0 != (ReadUInt32(_task, _pClass + kMonoClassBitfields) & 0x10);
+#endif
     }
     
     int32_t MonoClass::size() {

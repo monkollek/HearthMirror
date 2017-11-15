@@ -13,12 +13,15 @@
 // debug only imports
 #include <stdio.h>
 #include <tchar.h>
-proc_address getMonoLoadAddress(HANDLE task) {
+
+proc_address getMonoLoadAddress(HANDLE task, bool* is64bit) {
 
 	HMODULE hMods[1024];
 	DWORD cbNeeded;
 	unsigned int i;
 	TCHAR szModName[MAX_PATH];
+
+	*is64bit = false;
 
 	// enumerate all modules loaded by the process
 	if (EnumProcessModules(task, hMods, sizeof(hMods), &cbNeeded)) {
@@ -37,7 +40,7 @@ proc_address getMonoLoadAddress(HANDLE task) {
 	return NULL;
 }
 
-proc_address getMonoRootDomainAddr(HANDLE task, proc_address baseAddress) {
+proc_address getMonoRootDomainAddr(HANDLE task, proc_address baseAddress, bool is64bit) {
 	// PE header
 	// IMAGE_DOS_HEADER.e_lfanew
 	int32_t e_lfanew = ReadInt32(task, baseAddress+kImageDosHeader_e_lfanew);
@@ -93,6 +96,13 @@ proc_address getMonoRootDomainAddr(HANDLE task, proc_address baseAddress) {
 bool ReadBytes(HANDLE task, proc_address buf, uint32_t size, proc_address address) {
 	int res = ReadProcessMemory(task, (void*)address, (void*)buf, size, 0);
 	return res == 0;
+}
+
+proc_address ReadPointer(const HANDLE task, const proc_address address, const bool is64bit) {
+	if (is64bit) {
+		return ReadUInt64(task, address);
+	}
+	return ReadUInt32(task, address);
 }
 
 //TODO: use template instead
