@@ -24,7 +24,7 @@ proc_address getMonoLoadAddress(HANDLE task, bool* is64bit) {
 	*is64bit = false;
 
 	// enumerate all modules loaded by the process
-	if (EnumProcessModules(task, hMods, sizeof(hMods), &cbNeeded)) {
+	if (EnumProcessModulesEx(task, hMods, sizeof(hMods), &cbNeeded, LIST_MODULES_ALL)) {
 		for (i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
 		{
 			GetModuleBaseName(task, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR));

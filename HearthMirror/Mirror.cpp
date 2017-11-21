@@ -33,7 +33,9 @@ namespace hearthmirror {
     
     Mirror::Mirror(int pid, bool isBlocking) {
         this->m_mirrorData = new _mirrorData();
-        initWithPID(pid, isBlocking);
+		if (initWithPID(pid, isBlocking) != 0) {
+			throw std::runtime_error("Failed to init Hearthmirror");
+		}
     }
     
     Mirror::~Mirror() {

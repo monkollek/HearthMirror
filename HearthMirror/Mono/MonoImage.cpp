@@ -68,6 +68,9 @@ namespace hearthmirror {
         *handle = OpenProcess(PROCESS_QUERY_INFORMATION |
                             PROCESS_VM_READ,
                             FALSE, pid);
+		if (*handle == NULL) {
+			return 3;
+		}
 #endif
         
         do {
