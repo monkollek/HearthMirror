@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Mirror.hpp"
+#include "../HearthMirror/Mirror.hpp"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -76,7 +76,7 @@ namespace HearthMirrorCLR {
 			String^ Name;
 			int Number;
 
-			BattleTag(_BattleTag);
+			BattleTag(hearthmirror::_BattleTag);
 			BattleTag();
 		};
 		public ref class Card {
@@ -85,7 +85,7 @@ namespace HearthMirrorCLR {
 			int Count;
 			bool Premium;
 
-			Card(_Card card);
+			Card(hearthmirror::_Card card);
 			Card(String^ id, int count, bool premium);
 			Card();
 		};
@@ -101,7 +101,7 @@ namespace HearthMirrorCLR {
 			int HeroPremium;
 			List<Card^>^ Cards;
 
-			Deck(_Deck deck);
+			Deck(hearthmirror::_Deck deck);
 			Deck();
 		};
 
@@ -118,7 +118,7 @@ namespace HearthMirrorCLR {
 			String^ SpectatorPassword;
 			String^ Version;
 
-			GameServerInfo(_InternalGameServerInfo gameServerInfo);
+			GameServerInfo(hearthmirror::_InternalGameServerInfo gameServerInfo);
 			GameServerInfo();
 		};
 		public ref class MatchInfo {
@@ -135,7 +135,7 @@ namespace HearthMirrorCLR {
 				int WildStars;
 				int CardBackId;
 
-				Player(_InternalPlayer player);
+				Player(hearthmirror::_InternalPlayer player);
 				Player();
 			};
 
@@ -145,7 +145,7 @@ namespace HearthMirrorCLR {
 			int MissionId;
 			int RankedSeasonId;
 
-			MatchInfo(_InternalMatchInfo matchInfo);
+			MatchInfo(hearthmirror::_InternalMatchInfo matchInfo);
 			MatchInfo();
 		};
 
@@ -153,14 +153,14 @@ namespace HearthMirrorCLR {
 		public:
 			Enums::RewardType Type;
 
-			RewardData(_RewardData rewardData);
+			RewardData(hearthmirror::_RewardData rewardData);
 			RewardData();
 		};
 		public ref class ArcaneDustRewardData : public HearthMirrorCLR::Objects::RewardData {
 		public:
 			int Amount;
 
-			ArcaneDustRewardData(_ArcaneDustRewardData arcaneDustRewardData);
+			ArcaneDustRewardData(hearthmirror::_ArcaneDustRewardData arcaneDustRewardData);
 			ArcaneDustRewardData();
 		};
 		public ref class BoosterPackRewardData : public HearthMirrorCLR::Objects::RewardData {
@@ -168,7 +168,7 @@ namespace HearthMirrorCLR {
 			int Id;
 			int Count;
 
-			BoosterPackRewardData(_BoosterPackRewardData boosterPackRewardData);
+			BoosterPackRewardData(hearthmirror::_BoosterPackRewardData boosterPackRewardData);
 			BoosterPackRewardData();
 		};
 		public ref class CardRewardData : public HearthMirrorCLR::Objects::RewardData {
@@ -177,28 +177,28 @@ namespace HearthMirrorCLR {
 			int Count;
 			bool Premium;
 
-			CardRewardData(_CardRewardData cardRewardData);
+			CardRewardData(hearthmirror::_CardRewardData cardRewardData);
 			CardRewardData();
 		};
 		public ref class CardBackRewardData : public HearthMirrorCLR::Objects::RewardData {
 		public:
 			int Id;
 
-			CardBackRewardData(_CardBackRewardData cardBackRewardData);
+			CardBackRewardData(hearthmirror::_CardBackRewardData cardBackRewardData);
 			CardBackRewardData();
 		};
 		public ref class ForgeTicketRewardData : public HearthMirrorCLR::Objects::RewardData {
 		public:
 			int Quantity;
 
-			ForgeTicketRewardData(_ForgeTicketRewardData forgeTicketRewardData);
+			ForgeTicketRewardData(hearthmirror::_ForgeTicketRewardData forgeTicketRewardData);
 			ForgeTicketRewardData();
 		};
 		public ref class GoldRewardData : public HearthMirrorCLR::Objects::RewardData {
 		public:
 			int Amount;
 
-			GoldRewardData(_GoldRewardData goldRewardData);
+			GoldRewardData(hearthmirror::_GoldRewardData goldRewardData);
 			GoldRewardData(int amount);
 			GoldRewardData();
 		};
@@ -206,7 +206,7 @@ namespace HearthMirrorCLR {
 		public:
 			int MountType;
 
-			MountRewardData(_MountRewardData mountRewardData);
+			MountRewardData(hearthmirror::_MountRewardData mountRewardData);
 			MountRewardData();
 		};
 
@@ -218,7 +218,7 @@ namespace HearthMirrorCLR {
 			int CurrentSlot;
 			List<RewardData^>^ Rewards;
 
-			ArenaInfo(_ArenaInfo arenaInfo);
+			ArenaInfo(hearthmirror::_ArenaInfo arenaInfo);
 			ArenaInfo();
 		};
 		public ref class AccountId {
@@ -226,7 +226,7 @@ namespace HearthMirrorCLR {
 			System::UInt32 Hi;
 			System::UInt32 Lo;
 
-			AccountId(_AccountId accountId);
+			AccountId(hearthmirror::_AccountId accountId);
 			AccountId();
 		};
 
@@ -240,7 +240,7 @@ namespace HearthMirrorCLR {
 			int GamesPlayed;
 			int WinStreak;
 
-			BrawlInfo(_BrawlInfo brawlInfo);
+			BrawlInfo(hearthmirror::_BrawlInfo brawlInfo);
 			BrawlInfo();
 		};
 		/*public ref class SeasonEndInfo {
@@ -261,7 +261,7 @@ namespace HearthMirrorCLR {
 			bool IsAllStandard;
 			bool IsWild;
 
-			SetFilterItem(_SetFilterItem setFilterItem);
+			SetFilterItem(hearthmirror::_SetFilterItem setFilterItem);
 			SetFilterItem();
 		};
 

@@ -55,14 +55,14 @@ namespace HearthMirrorCLR
 {
 	namespace Objects
 	{
-		BattleTag::BattleTag(_BattleTag battleTag) {
+		BattleTag::BattleTag(hearthmirror::_BattleTag battleTag) {
 			Name = utf16_to_managed_string(battleTag.name);
 			Number = battleTag.number;
 		}
 		
 		BattleTag::BattleTag() {}
 
-		Card::Card(_Card card) {
+		Card::Card(hearthmirror::_Card card) {
 			Id = utf16_to_managed_string(card.id);
 			Count = card.count;
 			Premium = card.premium;
@@ -76,7 +76,7 @@ namespace HearthMirrorCLR
 
 		Card::Card() {}
 
-		Deck::Deck(_Deck deck) {
+		Deck::Deck(hearthmirror::_Deck deck) {
 			Id = deck.id;
 			Name = utf16_to_managed_string(deck.name);
 			Hero = utf16_to_managed_string(deck.hero);
@@ -87,7 +87,7 @@ namespace HearthMirrorCLR
 			HeroPremium = deck.heroPremium;
 			Cards = gcnew List<Card^>();
 
-			std::vector<_Card>::iterator itr;
+			std::vector<hearthmirror::_Card>::iterator itr;
 			for (itr = deck.cards.begin(); itr != deck.cards.end(); itr++) {
 				Cards->Add(gcnew Card(*itr));
 			}
@@ -95,7 +95,7 @@ namespace HearthMirrorCLR
 
 		Deck::Deck() {}
 
-		GameServerInfo::GameServerInfo(_InternalGameServerInfo gameServerInfo) {
+		GameServerInfo::GameServerInfo(hearthmirror::_InternalGameServerInfo gameServerInfo) {
 			Address = utf16_to_managed_string(gameServerInfo.address);
 			AuroraPassword = utf16_to_managed_string(gameServerInfo.auroraPassword);
 			ClientHandle = gameServerInfo.clientHandle;
@@ -110,7 +110,7 @@ namespace HearthMirrorCLR
 
 		GameServerInfo::GameServerInfo() {}
 
-		MatchInfo::Player::Player(_InternalPlayer player) {
+		MatchInfo::Player::Player(hearthmirror::_InternalPlayer player) {
 			Name = utf16_to_managed_string(player.name);
 			Id = player.id;
 			StandardRank = player.standardRank;
@@ -124,7 +124,7 @@ namespace HearthMirrorCLR
 
 		MatchInfo::Player::Player() {}
 
-		MatchInfo::MatchInfo(_InternalMatchInfo matchInfo) {
+		MatchInfo::MatchInfo(hearthmirror::_InternalMatchInfo matchInfo) {
 			LocalPlayer = gcnew Player(matchInfo.localPlayer);
 			OpposingPlayer = gcnew Player(matchInfo.opposingPlayer);
 			BrawlSeasonId = matchInfo.brawlSeasonId;
@@ -134,26 +134,26 @@ namespace HearthMirrorCLR
 
 		MatchInfo::MatchInfo() {}
 
-		RewardData::RewardData(_RewardData rewardData) {
+		RewardData::RewardData(hearthmirror::_RewardData rewardData) {
 			Type = static_cast<HearthMirrorCLR::Enums::RewardType>(rewardData.type);
 		}
 
 		RewardData::RewardData() {}
 
-		ArcaneDustRewardData::ArcaneDustRewardData(_ArcaneDustRewardData arcaneDustRewardData) : RewardData(arcaneDustRewardData) {
+		ArcaneDustRewardData::ArcaneDustRewardData(hearthmirror::_ArcaneDustRewardData arcaneDustRewardData) : RewardData(arcaneDustRewardData) {
 			Amount = arcaneDustRewardData.amount;
 		}
 
 		ArcaneDustRewardData::ArcaneDustRewardData() {}
 
-		BoosterPackRewardData::BoosterPackRewardData(_BoosterPackRewardData boosterPackRewardData) : RewardData(boosterPackRewardData) {
+		BoosterPackRewardData::BoosterPackRewardData(hearthmirror::_BoosterPackRewardData boosterPackRewardData) : RewardData(boosterPackRewardData) {
 			Id = boosterPackRewardData.id;
 			Count = boosterPackRewardData.count;
 		}
 
 		BoosterPackRewardData::BoosterPackRewardData() {}
 
-		CardRewardData::CardRewardData(_CardRewardData cardRewardData) : RewardData(cardRewardData) {
+		CardRewardData::CardRewardData(hearthmirror::_CardRewardData cardRewardData) : RewardData(cardRewardData) {
 			Id = utf16_to_managed_string(cardRewardData.id);
 			Count = cardRewardData.count;
 			Premium = cardRewardData.premium;
@@ -161,19 +161,19 @@ namespace HearthMirrorCLR
 
 		CardRewardData::CardRewardData() {}
 
-		CardBackRewardData::CardBackRewardData(_CardBackRewardData cardBackRewardData) : RewardData(cardBackRewardData) {
+		CardBackRewardData::CardBackRewardData(hearthmirror::_CardBackRewardData cardBackRewardData) : RewardData(cardBackRewardData) {
 			Id = cardBackRewardData.id;
 		}
 
 		CardBackRewardData::CardBackRewardData() {}
 
-		ForgeTicketRewardData::ForgeTicketRewardData(_ForgeTicketRewardData forgeTicketRewardData) : RewardData(forgeTicketRewardData) {
+		ForgeTicketRewardData::ForgeTicketRewardData(hearthmirror::_ForgeTicketRewardData forgeTicketRewardData) : RewardData(forgeTicketRewardData) {
 			Quantity = forgeTicketRewardData.quantity;
 		}
 
 		ForgeTicketRewardData::ForgeTicketRewardData() {}
 
-		GoldRewardData::GoldRewardData(_GoldRewardData goldRewardData) : RewardData(goldRewardData) {
+		GoldRewardData::GoldRewardData(hearthmirror::_GoldRewardData goldRewardData) : RewardData(goldRewardData) {
 			Amount = goldRewardData.amount;
 		}
 
@@ -184,20 +184,20 @@ namespace HearthMirrorCLR
 
 		GoldRewardData::GoldRewardData() {}
 
-		MountRewardData::MountRewardData(_MountRewardData mountRewardData) : RewardData(mountRewardData) {
+		MountRewardData::MountRewardData(hearthmirror::_MountRewardData mountRewardData) : RewardData(mountRewardData) {
 			MountType = mountRewardData.mountType;
 		}
 
 		MountRewardData::MountRewardData() {}
 
-		ArenaInfo::ArenaInfo(_ArenaInfo arenaInfo) {
+		ArenaInfo::ArenaInfo(hearthmirror::_ArenaInfo arenaInfo) {
 			Deck = gcnew Objects::Deck(arenaInfo.deck);
 			Losses = arenaInfo.losses;
 			Wins = arenaInfo.wins;
 			CurrentSlot = arenaInfo.currentSlot;
 			Rewards = gcnew List<RewardData^>();
 
-			std::vector<_RewardData*>::iterator itr;
+			std::vector<hearthmirror::_RewardData*>::iterator itr;
 			for (itr = arenaInfo.rewards.begin(); itr != arenaInfo.rewards.end(); itr++) {
 				Rewards->Add(gcnew RewardData(**itr));
 			}
@@ -205,14 +205,14 @@ namespace HearthMirrorCLR
 
 		ArenaInfo::ArenaInfo() {}
 
-		AccountId::AccountId(_AccountId accountId) {
+		AccountId::AccountId(hearthmirror::_AccountId accountId) {
 			Hi = accountId.hi;
 			Lo = accountId.lo;
 		}
 
 		AccountId::AccountId() {}
 
-		BrawlInfo::BrawlInfo(_BrawlInfo brawlInfo) {
+		BrawlInfo::BrawlInfo(hearthmirror::_BrawlInfo brawlInfo) {
 			MaxWins = brawlInfo.maxWins;
 			MaxLosses = brawlInfo.maxLosses;
 			IsSessionBased = brawlInfo.isSessionBased;
@@ -224,7 +224,7 @@ namespace HearthMirrorCLR
 
 		BrawlInfo::BrawlInfo() {}
 
-		SetFilterItem::SetFilterItem(_SetFilterItem setFilterItem) {
+		SetFilterItem::SetFilterItem(hearthmirror::_SetFilterItem setFilterItem) {
 			IsAllStandard = setFilterItem.isAllStandard;
 			IsWild = setFilterItem.isWild;
 		}
@@ -233,16 +233,16 @@ namespace HearthMirrorCLR
 	}
 
 	HearthMirrorCLR::Objects::BattleTag^ Reflection::GetBattleTag() {
-		_BattleTag unmanaged = Reflection::getMirror()->getBattleTag();
+		hearthmirror::_BattleTag unmanaged = Reflection::getMirror()->getBattleTag();
 		HearthMirrorCLR::Objects::BattleTag^ managed = gcnew HearthMirrorCLR::Objects::BattleTag(unmanaged);
 
 		return managed;
 	}
 	List<HearthMirrorCLR::Objects::Card^>^ Reflection::GetCollection() {
-		std::vector<Card> unmanaged = Reflection::getMirror()->getCardCollection();
+		std::vector<hearthmirror::Card> unmanaged = Reflection::getMirror()->getCardCollection();
 		List<HearthMirrorCLR::Objects::Card^>^ managed = gcnew List<HearthMirrorCLR::Objects::Card^>();
 
-		std::vector<_Card>::iterator itr;
+		std::vector<hearthmirror::_Card>::iterator itr;
 		for (itr = unmanaged.begin(); itr != unmanaged.end(); itr++) {
 			managed->Add(gcnew HearthMirrorCLR::Objects::Card(*itr));
 		}
@@ -250,7 +250,7 @@ namespace HearthMirrorCLR
 		return managed;
 	}
 	HearthMirrorCLR::Objects::GameServerInfo^ Reflection::GetServerInfo() {
-		_InternalGameServerInfo unmanaged = Reflection::getMirror()->getGameServerInfo();
+		hearthmirror::_InternalGameServerInfo unmanaged = Reflection::getMirror()->getGameServerInfo();
 		HearthMirrorCLR::Objects::GameServerInfo^ managed = gcnew HearthMirrorCLR::Objects::GameServerInfo(unmanaged);
 
 		return managed;
@@ -259,7 +259,7 @@ namespace HearthMirrorCLR
 		return Reflection::getMirror()->getGameType();
 	}
 	HearthMirrorCLR::Objects::MatchInfo^ Reflection::GetMatchInfo() {
-		_InternalMatchInfo unmanaged = Reflection::getMirror()->getMatchInfo();
+		hearthmirror::_InternalMatchInfo unmanaged = Reflection::getMirror()->getMatchInfo();
 		HearthMirrorCLR::Objects::MatchInfo^ managed = gcnew HearthMirrorCLR::Objects::MatchInfo(unmanaged);
 
 		return managed;
@@ -271,16 +271,16 @@ namespace HearthMirrorCLR
 		return Reflection::getMirror()->isSpectating();
 	}
 	HearthMirrorCLR::Objects::AccountId^ Reflection::GetAccountId() {
-		_AccountId unmanaged = Reflection::getMirror()->getAccountId();
+		hearthmirror::_AccountId unmanaged = Reflection::getMirror()->getAccountId();
 		HearthMirrorCLR::Objects::AccountId^ managed = gcnew HearthMirrorCLR::Objects::AccountId(unmanaged);
 
 		return managed;
 	}
 	List<HearthMirrorCLR::Objects::Deck^>^ Reflection::GetDecks() {
-		std::vector<_Deck> unmanaged = Reflection::getMirror()->getDecks();
+		std::vector<hearthmirror::_Deck> unmanaged = Reflection::getMirror()->getDecks();
 		List<HearthMirrorCLR::Objects::Deck^>^ managed = gcnew List<HearthMirrorCLR::Objects::Deck^>();
 
-		std::vector<_Deck>::iterator itr;
+		std::vector<hearthmirror::_Deck>::iterator itr;
 		for (itr = unmanaged.begin(); itr != unmanaged.end(); itr++) {
 			managed->Add(gcnew HearthMirrorCLR::Objects::Deck(*itr));
 		}
@@ -291,16 +291,16 @@ namespace HearthMirrorCLR
 		return Reflection::getMirror()->getSelectedDeckInMenu();
 	}
 	HearthMirrorCLR::Objects::ArenaInfo^ Reflection::GetArenaDeck() {
-		_ArenaInfo unmanaged = Reflection::getMirror()->getArenaDeck();
+		hearthmirror::_ArenaInfo unmanaged = Reflection::getMirror()->getArenaDeck();
 		HearthMirrorCLR::Objects::ArenaInfo^ managed = gcnew HearthMirrorCLR::Objects::ArenaInfo(unmanaged);
 
 		return managed;
 	}
 	List<HearthMirrorCLR::Objects::Card^>^ Reflection::GetArenaDraftChoices() {
-		std::vector<_Card> unmanaged = Reflection::getMirror()->getArenaDraftChoices();
+		std::vector<hearthmirror::_Card> unmanaged = Reflection::getMirror()->getArenaDraftChoices();
 		List<HearthMirrorCLR::Objects::Card^>^ managed = gcnew List<HearthMirrorCLR::Objects::Card^>();
 
-		std::vector<_Card>::iterator itr;
+		std::vector<hearthmirror::_Card>::iterator itr;
 		for (itr = unmanaged.begin(); itr != unmanaged.end(); itr++) {
 			managed->Add(gcnew HearthMirrorCLR::Objects::Card(*itr));
 		}
@@ -308,10 +308,10 @@ namespace HearthMirrorCLR
 		return managed;
 	}
 	List<HearthMirrorCLR::Objects::Card^>^ Reflection::GetPackCards() {
-		std::vector<_Card> unmanaged = Reflection::getMirror()->getPackCards();
+		std::vector<hearthmirror::_Card> unmanaged = Reflection::getMirror()->getPackCards();
 		List<HearthMirrorCLR::Objects::Card^>^ managed = gcnew List<HearthMirrorCLR::Objects::Card^>();
 
-		std::vector<_Card>::iterator itr;
+		std::vector<hearthmirror::_Card>::iterator itr;
 		for (itr = unmanaged.begin(); itr != unmanaged.end(); itr++) {
 			managed->Add(gcnew HearthMirrorCLR::Objects::Card(*itr));
 		}
@@ -319,13 +319,13 @@ namespace HearthMirrorCLR
 		return managed;
 	}
 	HearthMirrorCLR::Objects::BrawlInfo^ Reflection::GetBrawlInfo() {
-		_BrawlInfo unmanaged = Reflection::getMirror()->getBrawlInfo();
+		hearthmirror::_BrawlInfo unmanaged = Reflection::getMirror()->getBrawlInfo();
 		HearthMirrorCLR::Objects::BrawlInfo^ managed = gcnew HearthMirrorCLR::Objects::BrawlInfo(unmanaged);
 
 		return managed;
 	}
 	HearthMirrorCLR::Objects::Deck^ Reflection::GetEditedDeck() {
-		_Deck unmanaged = Reflection::getMirror()->getEditedDeck();
+		hearthmirror::_Deck unmanaged = Reflection::getMirror()->getEditedDeck();
 		HearthMirrorCLR::Objects::Deck^ managed = gcnew HearthMirrorCLR::Objects::Deck(unmanaged);
 
 		return managed;
@@ -409,7 +409,7 @@ namespace HearthMirrorCLR
 		return Reflection::getMirror()->getCurrentManaFilter();
 	}
 	HearthMirrorCLR::Objects::SetFilterItem^ Reflection::GetCurrentSetFilter() {
-		_SetFilterItem unmanaged = Reflection::getMirror()->getCurrentSetFilter();
+		hearthmirror::_SetFilterItem unmanaged = Reflection::getMirror()->getCurrentSetFilter();
 		HearthMirrorCLR::Objects::SetFilterItem^ managed = gcnew HearthMirrorCLR::Objects::SetFilterItem(unmanaged);
 
 		return managed;
