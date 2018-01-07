@@ -29,7 +29,7 @@ namespace hearthmirror {
             if (type) {
                 std::string fname = f->getName();
                 if (!type->isStatic() && (!fname.empty()) ) {
-                    MonoObject* o = new MonoObject(_task, _pStruct - 8, _is64bit);
+                    MonoObject* o = new MonoObject(_task, _pStruct - (_is64bit ? 16 : 8), _is64bit);
                     res[fname] = f->getValue(o);
                     delete o;
                 }

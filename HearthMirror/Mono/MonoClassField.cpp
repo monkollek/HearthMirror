@@ -311,10 +311,10 @@ namespace hearthmirror {
                 uint32_t count = ReadInt32(_task, addr + (_is64bit ? kMonoArrayMaxLength64 : kMonoArrayMaxLength));
                 proc_address start = addr + (_is64bit ? kMonoArrayVector64 : kMonoArrayVector);
                 result.arrsize = count;
+                
                 if (count > 0) {
                     result.value.arr = new MonoValue[count];
                     for (uint32_t i = 0; i < count; i++) {
-                        
                         proc_address ea = start + (i * arrClass->size());
                         if(elClass->isValueType()) {
                             MonoType* mt = elClass->byValArg();

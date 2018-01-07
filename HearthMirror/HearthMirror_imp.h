@@ -20,6 +20,26 @@
     @property NSNumber *_Nonnull winStreak;
 @end
 
+@interface MirrorDungeonInfo: NSObject
+    @property NSArray<NSNumber*> *_Nonnull bossesDefeated;
+    @property NSNumber *_Nonnull bossesLostTo;
+    @property NSNumber *_Nonnull nextBossHealth;
+    @property NSNumber *_Nonnull heroHealth;
+    @property NSArray<NSNumber*> *_Nonnull dbfIds;
+    @property NSArray<NSNumber*> *_Nonnull cardsAddedToDeck;
+    @property NSNumber *_Nonnull heroCardClass;
+    @property NSArray<NSNumber*> *_Nonnull passiveBuffs;
+    @property NSNumber *_Nonnull nextBossDbfId;
+    @property NSArray<NSNumber*> *_Nonnull lootA;
+    @property NSArray<NSNumber*> *_Nonnull lootB;
+    @property NSArray<NSNumber*> *_Nonnull lootC;
+    @property NSArray<NSNumber*> *_Nonnull treasure;
+    @property NSArray<NSNumber*> *_Nonnull lootHistory;
+    @property NSNumber *_Nonnull playerChosenLoot;
+    @property NSNumber *_Nonnull playerChosenTreasure;
+    @property BOOL runActive;
+@end
+
 @interface MirrorGameServerInfo: NSObject
     @property NSString *_Nonnull address;
     @property NSString *_Nonnull auroraPassword;
@@ -165,5 +185,7 @@ EXPORT @interface HearthMirror : NSObject
 -(nonnull NSArray<MirrorCard*>*) getPackCards;
 
 -(nullable MirrorBrawlInfo *) getBrawlInfo;
+
+-(nullable MirrorDungeonInfo *) getDungeonInfo;
 
 @end

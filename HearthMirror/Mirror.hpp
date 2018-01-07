@@ -20,6 +20,12 @@
 
 namespace hearthmirror {
     
+// Enums
+// -----
+enum GameSaveKeyId {
+    ADVENTURE_DATA_LOOT = 24
+};
+    
 // Return types
 // ------------
 
@@ -198,6 +204,29 @@ typedef struct _BrawlInfo {
     int gamesPlayed;
     int winStreak;
 } BrawlInfo;
+    
+class MonoObject;
+typedef struct _DungeonInfo {
+    std::vector<int> bossesDefeated;
+    int bossesLostTo;
+    int nextBossHealth;
+    int heroHealth;
+    std::vector<int> dbfIds;
+    std::vector<int> cardsAddedToDeck;
+    int heroCardClass;
+    std::vector<int> passiveBuffs;
+    int nextBossDbfId;
+    std::vector<int> lootA;
+    std::vector<int> lootB;
+    std::vector<int> lootC;
+    std::vector<int> treasure;
+    std::vector<int> lootHistory;
+    int playerChosenLoot;
+    int playerChosenTreasure;
+    bool runActive;
+    
+    void load(MonoObject *_dataMap);
+} DungeonInfo;
 
 typedef struct _SetFilterItem {
     bool isAllStandard;
@@ -268,6 +297,8 @@ class HEARTHMIRROR_API Mirror {
 
         /** Returns the informations about brawl */
         BrawlInfo getBrawlInfo();
+    
+        DungeonInfo getDungeonInfo();
 
         /** Returns the edited deck */
         Deck getEditedDeck();

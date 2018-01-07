@@ -18,7 +18,7 @@ extern "C" {
 #endif
     
 /** Requests access to attach to another process. Required for HearthMirror to function properly. */
-int EXPORT acquireTaskportRight();
+int EXPORT acquireTaskportRight(void);
 
 #ifdef __cplusplus
 }

@@ -454,6 +454,49 @@ using namespace hearthmirror;
     return nil;
 }
 
+NSArray* arrayFromIntVector(const std::vector<int>& v) {
+    NSMutableArray *result = [NSMutableArray array];
+    for (auto i = 0; i < v.size(); i++) {
+        [result addObject:[NSNumber numberWithInt:v[i]]];
+    }
+    return result;
+}
+
+-(nullable MirrorDungeonInfo *) getDungeonInfo {
+    if (_mirror == NULL) return nil;
+    
+    try {
+        DungeonInfo info = _mirror->getDungeonInfo();
+        MirrorDungeonInfo *result = [MirrorDungeonInfo new];
+        
+        result.bossesLostTo = [NSNumber numberWithInt:info.bossesLostTo];
+        result.nextBossHealth = [NSNumber numberWithInt:info.nextBossHealth];
+        result.heroHealth = [NSNumber numberWithInt:info.heroHealth];
+        result.heroCardClass = [NSNumber numberWithInt:info.heroCardClass];
+        result.nextBossDbfId = [NSNumber numberWithInt:info.nextBossDbfId];
+        result.playerChosenLoot = [NSNumber numberWithInt:info.playerChosenLoot];
+        result.playerChosenTreasure = [NSNumber numberWithInt:info.playerChosenTreasure];
+        result.runActive = info.runActive;
+        
+        result.bossesDefeated = arrayFromIntVector(info.bossesDefeated);
+        result.dbfIds = arrayFromIntVector(info.dbfIds);
+        result.cardsAddedToDeck = arrayFromIntVector(info.cardsAddedToDeck);
+        
+        result.passiveBuffs = arrayFromIntVector(info.passiveBuffs);
+        result.lootA = arrayFromIntVector(info.lootA);
+        result.lootB = arrayFromIntVector(info.lootB);
+        result.lootC = arrayFromIntVector(info.lootC);
+        result.treasure = arrayFromIntVector(info.treasure);
+        result.lootHistory = arrayFromIntVector(info.lootHistory);
+        
+        return result;
+    } catch (const std::exception &e) {
+        NSLog(@"Error while reading dungeon info: %s", e.what());
+    }
+    
+    return nil;
+}
+
 -(void)dealloc {
     delete _mirror;
 }
@@ -558,5 +601,10 @@ using namespace hearthmirror;
 - (NSString *)description {
     return [NSString stringWithFormat:@"maxWins: %@, maxLosses: %@, isSessionBased: %@, wins: %@, losses: %@, gamesPlayed: %@, winStreak: %@", self.maxWins, self.maxLosses, @(self.isSessionBased), self.wins, self.losses, self.gamesPlayed, self.winStreak];
 }
+@end
 
+@implementation MirrorDungeonInfo
+- (NSString *)description {
+    return [NSString stringWithFormat:@"bossesDefeated: %@, bossesLostTo: %@, nextBossHealth: %@, heroHealth: %@, dbfIds: %@, cardsAddedToDeck: %@, heroCardClass: %@, passiveBuffs: %@, nextBossDbfId: %@ lootA: %@, lootB: %@, lootC: %@, treasure: %@, lootHistory: %@, playerChosenLoot: %@, playerChosenTreasure: %@, runActive: %@", self.bossesDefeated, self.bossesLostTo, self.nextBossHealth, self.heroHealth, self.dbfIds, self.cardsAddedToDeck, self.heroCardClass, self.passiveBuffs, self.nextBossDbfId, self.lootA, self.lootB, self.lootC, self.treasure, self.lootHistory, self.playerChosenLoot, self.playerChosenTreasure, self.runActive ? @"YES" : @"NO"];
+}
 @end

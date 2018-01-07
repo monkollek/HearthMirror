@@ -60,6 +60,19 @@ namespace hearthmirror {
 
 #pragma mark - Helper functions
     
+    long long intValue(MonoValue& mv) {
+        if (mv.type == MONO_TYPE_I1) {
+            return mv.value.i8;
+        } else if (mv.type == MONO_TYPE_I2) {
+            return mv.value.i16;
+        } else if (mv.type == MONO_TYPE_I4) {
+            return mv.value.i32;
+        } else if (mv.type == MONO_TYPE_I8) {
+            return mv.value.i64;
+        }
+        return 0;
+    }
+    
     MonoValue getObject(const MonoValue& from, const HMObjectPath& path) {
 		
         if (IsMonoValueEmpty(from) || path.size() < 1) return nullMonoValue;
@@ -222,6 +235,25 @@ namespace hearthmirror {
         DeleteMonoValue(_cardList);
         
         return deck;
+    }
+    
+    int getKeyIndex(MonoObject* object, int key) {
+        MonoValue keys = (*object)["keySlots"];
+        if (IsMonoValueEmpty(keys)) {
+            return -1;
+        }
+        for (auto i = 0; i < keys.arrsize; i++) {
+            MonoStruct* keyObject = keys[i].value.obj.s;
+            MonoValue mv = (*keyObject)["value__"];
+            if (mv.value.i32 == key) {
+                DeleteMonoValue(mv);
+                DeleteMonoValue(keys);
+                return i;
+            }
+            DeleteMonoValue(mv);
+        }
+        DeleteMonoValue(keys);
+        return -1;
     }
     
 #pragma mark - Mirror functions
@@ -587,6 +619,32 @@ namespace hearthmirror {
         DeleteMonoValue(mission);
         DeleteMonoValue(records);
         return result;
+    }
+    
+    DungeonInfo Mirror::getDungeonInfo() {
+        if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
+        MonoValue dataMap = GETOBJECT({"GameSaveDataManager","s_instance","m_gameSaveDataMapByKey"});
+        if (IsMonoValueEmpty(dataMap)) {
+            throw std::domain_error("GameSaveDataManager manager can't be found");
+        }
+        MonoObject *_dataMap = dataMap.value.obj.o;
+        int index = getKeyIndex(_dataMap, ADVENTURE_DATA_LOOT);
+        if (index == -1) {
+            throw std::domain_error("Key ADVENTURE_DATA_LOOT not found");
+        }
+        
+        MonoValue valueSlots = (*_dataMap)["valueSlots"]; // D
+        MonoValue subMap = valueSlots[index];
+        if (IsMonoValueEmpty(subMap)) {
+            throw std::domain_error("SubMap not found");
+        }
+        
+        DungeonInfo dungeonInfo;
+        dungeonInfo.load(subMap.value.obj.o);
+        
+        DeleteMonoValue(valueSlots);
+        DeleteMonoValue(dataMap);
+        return dungeonInfo;
     }
 
     Deck Mirror::getEditedDeck() {
@@ -1175,4 +1233,103 @@ namespace hearthmirror {
         return GETINT({"PackOpening","s_instance","m_lastOpenedBoosterId"});
     }
     
-}
+    enum GameSaveKeySubkeyId {
+        DUNGEON_CRAWL_BOSSES_DEFEATED = 13,
+        DUNGEON_CRAWL_DECK_CARD_LIST,
+        DUNGEON_CRAWL_DECK_CLASS,
+        DUNGEON_CRAWL_PLAYER_PASSIVE_BUFF_LIST = 18,
+        DUNGEON_CRAWL_NEXT_BOSS_FIGHT,
+        DUNGEON_CRAWL_LOOT_OPTION_A = 23,
+        DUNGEON_CRAWL_LOOT_OPTION_B,
+        DUNGEON_CRAWL_LOOT_OPTION_C,
+        DUNGEON_CRAWL_TREASURE_OPTION,
+        DUNGEON_CRAWL_LOOT_HISTORY = 80,
+        DUNGEON_CRAWL_IS_RUN_ACTIVE,
+        DUNGEON_CRAWL_PALADIN_BOSS_WINS,
+        DUNGEON_CRAWL_PALADIN_RUN_WINS,
+        DUNGEON_CRAWL_WARRIOR_BOSS_WINS,
+        DUNGEON_CRAWL_WARRIOR_RUN_WINS,
+        DUNGEON_CRAWL_DRUID_BOSS_WINS,
+        DUNGEON_CRAWL_DRUID_RUN_WINS,
+        DUNGEON_CRAWL_ROGUE_BOSS_WINS,
+        DUNGEON_CRAWL_ROGUE_RUN_WINS,
+        DUNGEON_CRAWL_SHAMAN_BOSS_WINS,
+        DUNGEON_CRAWL_SHAMAN_RUN_WINS,
+        DUNGEON_CRAWL_PRIEST_BOSS_WINS,
+        DUNGEON_CRAWL_PRIEST_RUN_WINS,
+        DUNGEON_CRAWL_WARLOCK_BOSS_WINS,
+        DUNGEON_CRAWL_WARLOCK_RUN_WINS,
+        DUNGEON_CRAWL_HUNTER_BOSS_WINS,
+        DUNGEON_CRAWL_HUNTER_RUN_WINS,
+        DUNGEON_CRAWL_MAGE_BOSS_WINS,
+        DUNGEON_CRAWL_MAGE_RUN_WINS,
+        DUNGEON_CRAWL_BOSS_LOST_TO,
+        DUNGEON_CRAWL_PLAYER_CHOSEN_LOOT,
+        DUNGEON_CRAWL_PLAYER_CHOSEN_TREASURE,
+        DUNGEON_CRAWL_NEXT_BOSS_HEALTH = 123,
+        DUNGEON_CRAWL_HERO_HEALTH = 130,
+        DUNGEON_CRAWL_CARDS_ADDED_TO_DECK_MAP = 135
+    };
+    
+    std::vector<int> getValueAsVector(const GameSaveKeySubkeyId& key, MonoObject *map) {
+        int subIndex = getKeyIndex(map, key);
+        MonoValue valueSlots = (*map)["valueSlots"];
+        if (IsMonoValueEmpty(valueSlots)) {
+            throw std::runtime_error("Failed to access valueSlots");
+        }
+        MonoValue value = valueSlots[subIndex];
+        MonoValue list = (*value.value.obj.o)["_IntValue"];
+        MonoValue sizeMv = (*list.value.obj.o)["_size"];
+        int size = sizeMv.value.i32;
+        DeleteMonoValue(sizeMv);
+        
+        std::vector<int> result;
+        if (size > 0) {
+            MonoValue items = (*list.value.obj.o)["_items"];
+            for (auto i = 0; i < size; i++) {
+                auto item = intValue(items[i]);
+                result.push_back((int)item);
+            }
+            DeleteMonoValue(items);
+        }
+
+        DeleteMonoValue(list);
+        DeleteMonoValue(valueSlots);
+        
+        return result;
+    }
+    
+    int getValue(const GameSaveKeySubkeyId& key, MonoObject *map) {
+        try {
+            std::vector<int> values = getValueAsVector(key, map);
+            if (values.size() > 0) {
+                return values[0];
+            }
+            return 0;
+        } catch (std::runtime_error& err) {
+            return 0;
+        }
+    }
+
+    void DungeonInfo::load(MonoObject *map) {
+        this->bossesDefeated = getValueAsVector(DUNGEON_CRAWL_BOSSES_DEFEATED, map);
+        this->dbfIds = getValueAsVector(DUNGEON_CRAWL_DECK_CARD_LIST, map);
+        this->heroCardClass = getValue(DUNGEON_CRAWL_DECK_CLASS, map);
+        this->passiveBuffs = getValueAsVector(DUNGEON_CRAWL_PLAYER_PASSIVE_BUFF_LIST, map);
+        this->nextBossDbfId = getValue(DUNGEON_CRAWL_NEXT_BOSS_FIGHT, map);
+        this->lootA = getValueAsVector(DUNGEON_CRAWL_LOOT_OPTION_A, map);
+        this->lootB = getValueAsVector(DUNGEON_CRAWL_LOOT_OPTION_B, map);
+        this->lootC = getValueAsVector(DUNGEON_CRAWL_LOOT_OPTION_C, map);
+        this->treasure = getValueAsVector(DUNGEON_CRAWL_TREASURE_OPTION, map);
+        this->lootHistory = getValueAsVector(DUNGEON_CRAWL_LOOT_HISTORY, map);
+        this->runActive = getValue(DUNGEON_CRAWL_IS_RUN_ACTIVE, map) > 0;
+        this->bossesLostTo = getValue(DUNGEON_CRAWL_BOSS_LOST_TO, map);
+        this->playerChosenLoot = getValue(DUNGEON_CRAWL_PLAYER_CHOSEN_LOOT, map);
+        this->playerChosenTreasure = getValue(DUNGEON_CRAWL_PLAYER_CHOSEN_TREASURE, map);
+        this->nextBossHealth = getValue(DUNGEON_CRAWL_NEXT_BOSS_HEALTH, map);
+        this->heroHealth = getValue(DUNGEON_CRAWL_HERO_HEALTH, map);
+        // currently not working
+        //this->cardsAddedToDeck = getValueAsVector(DUNGEON_CRAWL_CARDS_ADDED_TO_DECK_MAP, map);
+    }
+    
+} // namespace

@@ -113,6 +113,12 @@ void loadBrawlInfo(HearthMirror *mirror) {
     NSLog(@"Brawl Info: %@", brawlInfo);
 }
 
+#pragma mark - Get Dungeon info
+void loadDungeonInfo(HearthMirror *mirror) {
+    MirrorDungeonInfo *dungeonInfo = [mirror getDungeonInfo];
+    NSLog(@"Dungeon Info: %@", dungeonInfo);
+}
+
 #pragma mark - Get the edited deck
 void loadEditedDeck(HearthMirror *mirror) {
     MirrorDeck *editedDeck = [mirror getEditedDeck];
@@ -148,6 +154,7 @@ int main(int argc, const char * argv[]) {
         HearthMirror* mirror = [[HearthMirror alloc] initWithPID:[hsapp processIdentifier]
                                                     withBlocking:YES];
         loadBattleTag(mirror);
+        loadDungeonInfo(mirror);
         //loadAccountId(mirror);
         //loadCardCollection(mirror);
         //loadGameServerInfo(mirror);

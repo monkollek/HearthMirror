@@ -43,7 +43,12 @@ namespace hearthmirror {
         std::u16string str;
         uint32_t arrsize = 1;
         
-        _MonoValue& operator[](unsigned int idx) {return value.arr[idx];}
+        _MonoValue& operator[](unsigned int idx) {
+            if (idx >= arrsize) {
+                throw std::runtime_error("Array index out of bounds");
+            }
+            return value.arr[idx];
+        }
         _MonoValue(int asize = 1) : arrsize(asize) {
             value.obj.o = NULL;
 			type = MONO_TYPE_END;
