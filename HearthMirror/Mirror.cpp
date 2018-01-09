@@ -1272,7 +1272,12 @@ namespace hearthmirror {
     };
     
     std::vector<int> getValueAsVector(const GameSaveKeySubkeyId& key, MonoObject *map) {
+        std::vector<int> result;
         int subIndex = getKeyIndex(map, key);
+        if (subIndex == -1) {
+            return result;
+        }
+        
         MonoValue valueSlots = (*map)["valueSlots"];
         if (IsMonoValueEmpty(valueSlots)) {
             throw std::runtime_error("Failed to access valueSlots");
@@ -1283,7 +1288,7 @@ namespace hearthmirror {
         int size = sizeMv.value.i32;
         DeleteMonoValue(sizeMv);
         
-        std::vector<int> result;
+        
         if (size > 0) {
             MonoValue items = (*list.value.obj.o)["_items"];
             for (auto i = 0; i < size; i++) {
@@ -1328,8 +1333,7 @@ namespace hearthmirror {
         this->playerChosenTreasure = getValue(DUNGEON_CRAWL_PLAYER_CHOSEN_TREASURE, map);
         this->nextBossHealth = getValue(DUNGEON_CRAWL_NEXT_BOSS_HEALTH, map);
         this->heroHealth = getValue(DUNGEON_CRAWL_HERO_HEALTH, map);
-        // currently not working
-        //this->cardsAddedToDeck = getValueAsVector(DUNGEON_CRAWL_CARDS_ADDED_TO_DECK_MAP, map);
+        this->cardsAddedToDeck = getValueAsVector(DUNGEON_CRAWL_CARDS_ADDED_TO_DECK_MAP, map);
     }
     
 } // namespace
