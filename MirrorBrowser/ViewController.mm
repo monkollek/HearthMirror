@@ -51,6 +51,12 @@ using namespace hearthmirror;
     return self;
 }
 
+-(void) loadChildren {
+    for (TreeElement* i in self.children) {
+        i.children = getChildren(i.mv);
+    }
+}
+
 @end
 
 @implementation ViewController
@@ -89,6 +95,16 @@ using namespace hearthmirror;
     
     return NO;
 }
+/*
+- (BOOL)outlineView:(NSOutlineView *)outlineView
+   shouldExpandItem:(id)item {
+    if (item) {
+        TreeElement* element = (TreeElement*)item;
+        [element loadChildren];
+        [outlineView reloadData];
+    }
+    return YES;
+}*/
 
 - (id)outlineView:(NSOutlineView *)outlineView
             child:(NSInteger)index
@@ -140,42 +156,42 @@ objectValueForTableColumn:(NSTableColumn *)tableColumn
 
 NSString* MonoTypeEnumToString(MonoTypeEnum type) {
     switch (type) {
-        case End: return @"End";
-        case Void: return @"Void";
-        case hearthmirror::Boolean: return @"Boolean";
-        case Char: return @"Char";
-        case I1: return @"I1";
-        case U1: return @"U1";
-        case I2: return @"I2";
-        case U2: return @"U2";
-        case I4: return @"I4";
-        case U4: return @"U4";
-        case I8: return @"I8";
-        case U8: return @"U8";
-        case R4: return @"R4";
-        case R8: return @"R8";
-        case String: return @"String";
-        case hearthmirror::Ptr: return @"Ptr";
-        case ByRef: return @"ByRef";
-        case ValueType: return @"ValueType";
-        case hearthmirror::Class: return @"Class";
-        case Var: return @"Var";
-        case Array: return @"Array";
-        case GenericInst: return @"GenericInst";
-        case TypedByRef: return @"TypedByRef";
-        case I: return @"I";
-        case U: return @"U";
-        case FnPtr: return @"FnPtr";
-        case Object: return @"Object";
-        case Szarray: return @"Szarray";
-        case Mvar: return @"Mvar";
-        case Cmod_reqd: return @"Cmod_reqd";
-        case Cmod_opt: return @"Cmod_opt";
-        case Internal: return @"Internal";
-        case Modifier: return @"Modifier";
-        case Sentinel: return @"Sentinel";
-        case Pinned: return @"Pinned";
-        case Enum: return @"Enum";
+        case MONO_TYPE_END: return @"End";
+        case MONO_TYPE_VOID: return @"Void";
+        case MONO_TYPE_BOOLEAN: return @"Boolean";
+        case MONO_TYPE_CHAR: return @"Char";
+        case MONO_TYPE_I1: return @"I1";
+        case MONO_TYPE_U1: return @"U1";
+        case MONO_TYPE_I2: return @"I2";
+        case MONO_TYPE_U2: return @"U2";
+        case MONO_TYPE_I4: return @"I4";
+        case MONO_TYPE_U4: return @"U4";
+        case MONO_TYPE_I8: return @"I8";
+        case MONO_TYPE_U8: return @"U8";
+        case MONO_TYPE_R4: return @"R4";
+        case MONO_TYPE_R8: return @"R8";
+        case MONO_TYPE_STRING: return @"String";
+        case MONO_TYPE_PTR: return @"Ptr";
+        case MONO_TYPE_BYREF: return @"ByRef";
+        case MONO_TYPE_VALUETYPE: return @"ValueType";
+        case MONO_TYPE_CLASS: return @"Class";
+        case MONO_TYPE_VAR: return @"Var";
+        case MONO_TYPE_ARRAY: return @"Array";
+        case MONO_TYPE_GENERICINST: return @"GenericInst";
+        case MONO_TYPE_TYPEDBYREF: return @"TypedByRef";
+        case MONO_TYPE_I: return @"I";
+        case MONO_TYPE_U: return @"U";
+        case MONO_TYPE_FNPTR: return @"FnPtr";
+        case MONO_TYPE_OBJECT: return @"Object";
+        case MONO_TYPE_SZARRAY: return @"Szarray";
+        case MONO_TYPE_MVAR: return @"Mvar";
+        case MONO_TYPE_CMOD_REQD: return @"Cmod_reqd";
+        case MONO_TYPE_CMOD_OPT: return @"Cmod_opt";
+        case MONO_TYPE_INTERNAL: return @"Internal";
+        case MONO_TYPE_MODIFIER: return @"Modifier";
+        case MONO_TYPE_SENTINEL: return @"Sentinel";
+        case MONO_TYPE_PINNED: return @"Pinned";
+        case MONO_TYPE_ENUM: return @"Enum";
         default: return @"Unknown";
     }
     return @"Unknown";
@@ -187,45 +203,45 @@ NSString* MonoTypeToString(MonoType* type) {
 
 NSString* MonoValueToString(MonoValue value) {
     switch (value.type) {
-        case MonoTypeEnum::Boolean: {
+        case MONO_TYPE_BOOLEAN: {
             return [NSString stringWithFormat:@"%@",value.value.b ? @"true" : @"false"];
         }
-        case MonoTypeEnum::U1: {
+        case MONO_TYPE_U1: {
             return [NSString stringWithFormat:@"%d",value.value.u8];
         }
-        case MonoTypeEnum::I1: {
+        case MONO_TYPE_I1: {
             return [NSString stringWithFormat:@"%d",value.value.i8];
         }
-        case MonoTypeEnum::I2: {
+        case MONO_TYPE_I2: {
             return [NSString stringWithFormat:@"%d",value.value.i16];
         }
-        case MonoTypeEnum::U2: {
+        case MONO_TYPE_U2: {
             return [NSString stringWithFormat:@"%d",value.value.u16];
         }
-        case MonoTypeEnum::Char: {
+        case MONO_TYPE_CHAR: {
             return [NSString stringWithFormat:@"%c",value.value.c];
         }
-        case MonoTypeEnum::I:
-        case MonoTypeEnum::I4: {
+        case MONO_TYPE_I:
+        case MONO_TYPE_I4: {
             return [NSString stringWithFormat:@"%d",value.value.i32];
         }
-        case MonoTypeEnum::U:
-        case MonoTypeEnum::U4: {
+        case MONO_TYPE_U:
+        case MONO_TYPE_U4: {
             return [NSString stringWithFormat:@"%d",value.value.u32];
         }
-        case MonoTypeEnum::I8: {
+        case MONO_TYPE_I8: {
             return [NSString stringWithFormat:@"%lld",value.value.i64];
         }
-        case MonoTypeEnum::U8: {
+        case MONO_TYPE_U8: {
             return [NSString stringWithFormat:@"%lld",value.value.u64];
         }
-        case MonoTypeEnum::R4: {
+        case MONO_TYPE_R4: {
             return [NSString stringWithFormat:@"%f",value.value.f];
         }
-        case MonoTypeEnum::R8:{
+        case MONO_TYPE_R8:{
             return [NSString stringWithFormat:@"%f",value.value.d];
         }
-        case MonoTypeEnum::String:{
+        case MONO_TYPE_STRING:{
             return [NSString stringWithu16string:value.str];
         }
         default: return @"";
@@ -236,10 +252,10 @@ NSString* MonoValueToString(MonoValue value) {
 NSMutableArray* getChildren(MonoValue value) {
     NSMutableArray* result = [NSMutableArray new];
     switch (value.type) {
-        case hearthmirror::Object:
-        case hearthmirror::GenericInst:
-        case hearthmirror::Var:
-        case hearthmirror::Class: {
+        case MONO_TYPE_OBJECT:
+        case MONO_TYPE_GENERICINST:
+        case MONO_TYPE_VAR:
+        case MONO_TYPE_CLASS: {
             MonoObject* o = value.value.obj.o;
             auto fields = o->getFields();
             for (auto it = fields.begin(); it != fields.end(); it++) {
@@ -250,14 +266,15 @@ NSMutableArray* getChildren(MonoValue value) {
                 child.type = MonoTypeEnumToString(mv.type);
                 child.value = MonoValueToString(mv);
                 
-                if (mv.type == hearthmirror::Object ||
-                    mv.type == hearthmirror::ValueType ||
-                    mv.type == hearthmirror::GenericInst ||
-                    mv.type == hearthmirror::Var ||
-                    mv.type == hearthmirror::Class) {
+                if (mv.type == MONO_TYPE_OBJECT ||
+                    mv.type == MONO_TYPE_VALUETYPE ||
+                    mv.type == MONO_TYPE_GENERICINST ||
+                    mv.type == MONO_TYPE_VAR ||
+                    mv.type == MONO_TYPE_CLASS) {
                     
                     // get children
                     child.children = getChildren(mv);
+                    child.mv = mv;
                 }
                 
                 [result addObject:child];
@@ -266,7 +283,7 @@ NSMutableArray* getChildren(MonoValue value) {
             
             break;
         }
-        case hearthmirror::ValueType: {
+        case MONO_TYPE_VALUETYPE: {
             MonoStruct* s = value.value.obj.s;
             break;
         }
@@ -324,20 +341,18 @@ NSMutableArray* getChildren(MonoValue value) {
             TreeElement* classfieldElement = [TreeElement new];
             classfieldElement.name = [NSString stringWithCString:(*it)->getName().c_str()
                                                         encoding:[NSString defaultCStringEncoding]];
-            
-            
             classfieldElement.type = MonoTypeToString(ctype);
             MonoValue mv = (*it)->getStaticValue();
             
             auto cct = ctype->getType();
-            if (cct == hearthmirror::Object ||
-                cct == hearthmirror::ValueType ||
-                cct == hearthmirror::GenericInst ||
-                cct == hearthmirror::Var ||
-                cct == hearthmirror::Class) {
+            if (cct == MONO_TYPE_OBJECT ||
+                cct == MONO_TYPE_VALUETYPE ||
+                cct == MONO_TYPE_GENERICINST ||
+                cct == MONO_TYPE_VAR ||
+                cct == MONO_TYPE_CLASS) {
                 
                 // get children
-                classfieldElement.children = getChildren(mv);
+                //classfieldElement.children = getChildren(mv);
                 [element.children addObject:classfieldElement];
             } else if (ctype->isStatic()) {
                 classfieldElement.value = MonoValueToString(mv);

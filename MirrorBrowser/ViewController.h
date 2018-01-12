@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "MonoType.hpp"
 
 @interface TreeElement: NSObject
 
@@ -14,6 +15,9 @@
 @property NSString *type;
 @property NSString *value;
 @property NSMutableArray *children;
+@property hearthmirror::MonoValue mv;
+
+-(void) loadChildren;
 
 @end
 
@@ -25,4 +29,6 @@
 - (IBAction)reload:(id)sender;
 
 @end
+
+NSMutableArray* getChildren(hearthmirror::MonoValue value);
 
