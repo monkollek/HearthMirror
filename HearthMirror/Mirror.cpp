@@ -496,7 +496,7 @@ namespace hearthmirror {
                 int *found = std::find(brawlGameTypes, end, 0);
                 if (found != end) {
                     MonoValue mission = getCurrentBrawlMission(m_mirrorData->monoImage);
-                    matchInfo.brawlSeasonId = getInt(mission, {"tavernBrawlSpec","<SeasonId>k__BackingField"});
+                    matchInfo.brawlSeasonId = getInt(mission, {"tavernBrawlSpec", "<GameContentSeason>k__BackingField", "<SeasonId>k__BackingField"});
                     DeleteMonoValue(mission);
                 }
             }
@@ -561,8 +561,14 @@ namespace hearthmirror {
             DeleteMonoValue(mission);
             throw std::domain_error("Current brawl not found");
         }
-        result.maxWins = ((*_mission)["_MaxWins"]).value.i32;
-        result.maxLosses = ((*_mission)["_MaxLosses"]).value.i32;
+        MonoValue tavernBrawlSpec = getObject(mission, {"tavernBrawlSpec","<GameContentSeason>k__BackingField"});
+        if (IsMonoValueEmpty(tavernBrawlSpec)) {
+            DeleteMonoValue(mission);
+            throw std::domain_error("Current brawl not found");
+        }
+        MonoObject *_tavernBrawlSpec = tavernBrawlSpec.value.obj.o;
+        result.maxWins = ((*_tavernBrawlSpec)["_MaxWins"]).value.i32;
+        result.maxLosses = ((*_tavernBrawlSpec)["_MaxLosses"]).value.i32;
 
         MonoValue records = GETOBJECT({"TavernBrawlManager","s_instance", "m_playerRecords"});
         if (IsMonoValueEmpty(records) || !IsMonoValueArray(records))
