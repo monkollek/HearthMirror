@@ -406,7 +406,10 @@ namespace hearthmirror {
                     }
 
                     std::u16string name = ((*inst)["m_name"]).str;
-                    if (name.empty()) throw std::domain_error("Found a player with an empty name");
+                    if (name.empty()) {
+                        printf("[Hearthmirror] - Found a player with an empty name (Invisible?)\n");
+                        name = u"Your Opponent";
+                    }
 
                     int cardBack = ((*inst)["m_cardBackId"]).value.i32;
                     int id = playerIds[i].value.i32;
