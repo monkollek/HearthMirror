@@ -846,7 +846,7 @@ namespace hearthmirror {
 
         int size = sizemv.value.i32;
         for (unsigned int i = 0; i < size; i++) {
-            MonoValue mv = getObject(choices[i], {"m_actor","m_entityDef","m_cardId"});
+            MonoValue mv = getObject(choices[i], {"m_actor","m_entityDef","m_cardIdInternal"});
             if (IsMonoValueEmpty(mv)) continue;
 
             result.push_back(Card(mv.str, 1, false));
