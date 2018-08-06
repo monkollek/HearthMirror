@@ -499,7 +499,7 @@ namespace hearthmirror {
                 int *found = std::find(brawlGameTypes, end, 0);
                 if (found != end) {
                     MonoValue mission = getCurrentBrawlMission(m_mirrorData->monoImage);
-                    matchInfo.brawlSeasonId = getInt(mission, {"tavernBrawlSpec", "<GameContentSeason>k__BackingField", "<SeasonId>k__BackingField"});
+                    matchInfo.brawlSeasonId = getInt(mission, {"<tavernBrawlSpec>k__BackingField", "<GameContentSeason>k__BackingField", "<SeasonId>k__BackingField"});
                     DeleteMonoValue(mission);
                 }
             }
