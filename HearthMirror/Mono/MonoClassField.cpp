@@ -318,7 +318,8 @@ namespace hearthmirror {
                         proc_address ea = start + (i * arrClass->size());
                         if(elClass->isValueType()) {
                             MonoType* mt = elClass->byValArg();
-                            if(mt->getType() == MonoTypeEnum::MONO_TYPE_VALUETYPE) {
+                            auto itype = mt->getType();
+                            if (itype == MonoTypeEnum::MONO_TYPE_VALUETYPE || itype == MONO_TYPE_GENERICINST) {
                                 MonoClass* c2 = new MonoClass(elClass);
                                 MonoStruct* stc = new MonoStruct(_task, c2, ea, _is64bit);
                                 MonoValue mv;
@@ -330,14 +331,21 @@ namespace hearthmirror {
                             }
                             delete mt;
                         } else {
-                            proc_address po = ReadPointer(_task, ea, _is64bit);
-                            MonoValue mv;
-                            if (po == 0) {
-                                result[i] = MonoValue(0);
+                            MonoType* bvmt = elClass->byValArg();
+                            auto bvmtType = bvmt->getType();
+                            delete bvmt;
+                            if (bvmtType == MONO_TYPE_SZARRAY) {
+                                result[i] = ReadValue(MONO_TYPE_SZARRAY, ea);
                             } else {
-                                mv.type = MonoTypeEnum::MONO_TYPE_GENERICINST;
-                                mv.value.obj.o = new MonoObject(_task, po, _is64bit);
-                                result[i] = mv;
+                                proc_address po = ReadPointer(_task, ea, _is64bit);
+                                MonoValue mv;
+                                if (po == 0) {
+                                    result[i] = MonoValue(0);
+                                } else {
+                                    mv.type = MonoTypeEnum::MONO_TYPE_GENERICINST;
+                                    mv.value.obj.o = new MonoObject(_task, po, _is64bit);
+                                    result[i] = mv;
+                                }
                             }
                         }
                     }

@@ -149,14 +149,23 @@
     @property NSArray<MirrorRewardData*> *_Nonnull rewards;
 @end
 
+@interface MirrorCollection: NSObject
+    @property NSArray<MirrorCard*>*_Nonnull cards;
+    @property NSArray<NSNumber*> *_Nonnull cardbacks;
+    @property NSNumber *_Nonnull favoriteCardback;
+    @property NSDictionary<NSNumber*, MirrorCard*> *_Nonnull favoriteHeroes;
+    @property NSNumber *_Nonnull dust;
+    @property NSNumber *_Nonnull gold;
+@end
+
 EXPORT @interface HearthMirror : NSObject
 
 -(nonnull instancetype) initWithPID:(pid_t)pid withBlocking:(BOOL)blocking NS_SWIFT_NAME(init(pid:blocking:));
 
 /** Returns the BattleTag as a single string in the following format: name#number. */
 -(nullable NSString*) getBattleTag;
-
--(nonnull NSArray<MirrorCard*>*) getCardCollection;
+    
+-(nonnull MirrorCollection*) getCollection;
 
 -(nonnull NSArray<MirrorHeroLevel*>*) getHeroLevels;
 

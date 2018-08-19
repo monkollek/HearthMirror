@@ -63,24 +63,48 @@ using namespace hearthmirror;
         return nil;
     }
 }
-
--(nonnull NSArray<MirrorCard*>*) getCardCollection {
-    if (_mirror == NULL) return [NSArray array];
-
+    
+-(nonnull MirrorCollection*) getCollection {
+    MirrorCollection* result = [MirrorCollection new];
+    if (_mirror == NULL) return result;
+    
     try {
-        NSMutableArray<MirrorCard*>  *result = [NSMutableArray array];
-        std::vector<Card> cards = _mirror->getCardCollection();
-        for (int i = 0; i < cards.size(); i++) {
-            Card card = cards[i];
-
+        auto collection = _mirror->getCollection();
+        
+        NSMutableArray<MirrorCard*>* collectioncards = [NSMutableArray array];
+        for (int i = 0; i < collection.cards.size(); i++) {
+            Card card = collection.cards[i];
+            
             MirrorCard *mirrorCard = [self buildCard:card];
-            [result addObject:mirrorCard];
+            [collectioncards addObject:mirrorCard];
         }
-
-        return [NSArray arrayWithArray:result];
+        result.cards = collectioncards;
+        
+        NSMutableArray<NSNumber*>  *cardbacksMArray = [NSMutableArray array];
+        for (int i = 0; i < collection.cardbacks.size(); i++) {
+            auto cardback = collection.cardbacks[i];
+            
+            [cardbacksMArray addObject:[NSNumber numberWithInteger:cardback]];
+        }
+        result.cardbacks = cardbacksMArray;
+        result.favoriteCardback = [NSNumber numberWithInteger:collection.favoriteCardBack];
+        
+        result.dust = [NSNumber numberWithInteger:collection.dust];
+        result.gold = [NSNumber numberWithInteger:collection.gold];
+        
+        NSMutableDictionary* favoriteHeroes = [NSMutableDictionary new];
+        
+        for (auto it = collection.favoriteHeroes.begin(); it != collection.favoriteHeroes.end(); it++) {
+            MirrorCard *mirrorCard = [self buildCard:it->second];
+            [favoriteHeroes setObject:mirrorCard forKey:[NSNumber numberWithInt:it->first]];
+        }
+        
+        result.favoriteHeroes = favoriteHeroes;
+        
+        return result;
     } catch (const std::exception &e) {
-        NSLog(@"Error while reading card collection: %s", e.what());
-        return [NSArray array];
+        NSLog(@"Error while reading cardbacks: %s", e.what());
+        return result;
     }
 }
 
@@ -608,3 +632,10 @@ NSArray* arrayFromIntVector(const std::vector<int>& v) {
     return [NSString stringWithFormat:@"bossesDefeated: %@, bossesLostTo: %@, nextBossHealth: %@, heroHealth: %@, dbfIds: %@, cardsAddedToDeck: %@, heroCardClass: %@, passiveBuffs: %@, nextBossDbfId: %@ lootA: %@, lootB: %@, lootC: %@, treasure: %@, lootHistory: %@, playerChosenLoot: %@, playerChosenTreasure: %@, runActive: %@", self.bossesDefeated, self.bossesLostTo, self.nextBossHealth, self.heroHealth, self.dbfIds, self.cardsAddedToDeck, self.heroCardClass, self.passiveBuffs, self.nextBossDbfId, self.lootA, self.lootB, self.lootC, self.treasure, self.lootHistory, self.playerChosenLoot, self.playerChosenTreasure, self.runActive ? @"YES" : @"NO"];
 }
 @end
+
+@implementation MirrorCollection
+- (NSString *)description {
+    return [NSString stringWithFormat:@"Cards: %@, Cardbacks: %@, Favorite cardback: %@, Favorite Heroes: %@, Dust: %@, Gold: %@", self.cards, self.cardbacks, self.favoriteCardback, self.favoriteHeroes, self.dust, self.gold];
+}
+@end
+

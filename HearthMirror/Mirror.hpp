@@ -11,6 +11,7 @@
 
 #include <locale>
 #include <vector>
+#include <map>
 
 #ifdef __APPLE__
 #define HEARTHMIRROR_API __attribute__((visibility("default")))
@@ -84,6 +85,7 @@ typedef struct _Card {
     bool premium;
     
     _Card(std::u16string id, int count, bool premium) : id(id), count(count), premium(premium) { }
+    _Card() : id(u"UNKNOWN"), count(-1), premium(false) {}
 } Card;
 
 typedef struct _Deck {
@@ -241,6 +243,15 @@ typedef struct _HeroLevel {
     long maxXp = 0;
 } HeroLevel;
     
+typedef struct _Collection {
+    std::vector<Card> cards;
+    std::map<int, Card> favoriteHeroes;
+    std::vector<int> cardbacks;
+    int favoriteCardBack = 0;
+    int dust = 0;
+    int gold = 0;
+} Collection;
+    
 typedef struct _mirrorData MirrorData;
 
 class HEARTHMIRROR_API Mirror {
@@ -257,8 +268,8 @@ class HEARTHMIRROR_API Mirror {
         /** Returns the battletag of the current user. */
         BattleTag getBattleTag();
         
-        /** Returns the collection of the user. */
-        std::vector<Card> getCardCollection();
+        /** Returns the collection of the user. */    
+        Collection getCollection();
     
         std::vector<HeroLevel> getHeroLevels();
 

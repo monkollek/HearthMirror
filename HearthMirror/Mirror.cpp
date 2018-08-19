@@ -21,6 +21,7 @@
 #include "Mono/MonoStruct.hpp"
 #include <numeric>
 #include <algorithm>
+#include <unordered_set>
 
 namespace hearthmirror {
     
@@ -912,37 +913,38 @@ namespace hearthmirror {
         return result;
     }
     
-    std::vector<Card> Mirror::getCardCollection() {
+    Collection Mirror::getCollection() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-
+        
         MonoValue valueSlots = GETOBJECT({"NetCache","s_instance","m_netCache","valueSlots"});
         if (IsMonoValueEmpty(valueSlots) || !IsMonoValueArray(valueSlots)) {
             throw std::domain_error("Net cache can't be found");
         }
-
-        std::vector<Card> result;
         
-        for (unsigned int i=0; i< valueSlots.arrsize; i++) {
+        Collection result;
+        
+        for (unsigned int i=0; i < valueSlots.arrsize; i++) {
             MonoValue mv = valueSlots[i];
             if (IsMonoValueEmpty(mv)) continue;
             MonoObject* inst = mv.value.obj.o;
             MonoClass* instclass = inst->getClass();
             std::string icname = instclass->getName();
             delete instclass;
+            
             if (icname == "NetCacheCollection") {
                 MonoValue stacksmv = (*inst)["<Stacks>k__BackingField"];
                 if (IsMonoValueEmpty(stacksmv)) break;
-
+                
                 MonoObject* stacks = stacksmv.value.obj.o;
                 MonoValue itemsmv = (*stacks)["_items"];
                 MonoValue sizemv = (*stacks)["_size"];
-				if (IsMonoValueEmpty(itemsmv) || IsMonoValueEmpty(sizemv)) break;
+                if (IsMonoValueEmpty(itemsmv) || IsMonoValueEmpty(sizemv)) break;
                 int size = sizemv.value.i32;
                 for (int i=0; i< size; i++) { // or itemsmv.arrsize?
                     MonoValue stackmv = itemsmv.value.arr[i];
                     if (IsMonoValueEmpty(stackmv)) continue;
                     MonoObject* stack = stackmv.value.obj.o;
-
+                    
                     MonoValue countmv = (*stack)["<Count>k__BackingField"];
                     if (IsMonoValueEmpty(countmv)) {
                         continue;
@@ -958,14 +960,14 @@ namespace hearthmirror {
                     
                     MonoValue namemv = (*def)["<Name>k__BackingField"];
                     MonoValue premiummv = (*def)["<Premium>k__BackingField"];
-					if (IsMonoValueEmpty(namemv) || IsMonoValueEmpty(premiummv)) {
+                    if (IsMonoValueEmpty(namemv) || IsMonoValueEmpty(premiummv)) {
                         DeleteMonoValue(defmv);
                         continue;
                     }
                     
                     std::u16string name = namemv.str;
                     bool premium = premiummv.value.b;
-                    result.push_back(Card(name,count,premium));
+                    result.cards.push_back(Card(name,count,premium));
                     
                     DeleteMonoValue(defmv);
                     DeleteMonoValue(namemv);
@@ -975,6 +977,66 @@ namespace hearthmirror {
                 DeleteMonoValue(itemsmv);
                 DeleteMonoValue(stacksmv);
                 
+            } else if (icname == "NetCacheCardBacks") {
+                MonoValue cardBackSlots = getObject(mv, {"<CardBacks>k__BackingField", "slots"});
+                if (IsMonoValueEmpty(cardBackSlots) || !IsMonoValueArray(cardBackSlots)) {
+                    throw std::domain_error("Invalid cardback object");
+                }
+                std::unordered_set<int> cardbacks;
+                for (unsigned int j=0; j < cardBackSlots.arrsize; j++) {
+                    MonoValue cardback = cardBackSlots[j];
+                    cardbacks.insert(cardback.value.i32);
+                }
+                DeleteMonoValue(cardBackSlots);
+                result.cardbacks.insert(result.cardbacks.end(), cardbacks.begin(), cardbacks.end());
+                
+                MonoValue defaultCardbackMv = getObject(mv, {"<DefaultCardBack>k__BackingField"});
+                result.favoriteCardBack = defaultCardbackMv.value.i32;
+                DeleteMonoValue(defaultCardbackMv);
+            } else if (icname == "NetCacheArcaneDustBalance") {
+                MonoValue dustmv = getObject(mv, {"<Balance>k__BackingField"});
+                result.dust = dustmv.value.i32;
+                DeleteMonoValue(dustmv);
+            } else if (icname == "NetCacheGoldBalance") {
+                MonoValue goldmv = getObject(mv, {"<CappedBalance>k__BackingField"});
+                auto gold = goldmv.value.i32;
+                DeleteMonoValue(goldmv);
+                MonoValue bonusgoldmv = getObject(mv, {"<BonusBalance>k__BackingField"});
+                gold += bonusgoldmv.value.i32;
+                DeleteMonoValue(bonusgoldmv);
+                result.gold = gold;
+            } else if (icname == "NetCacheFavoriteHeroes") {
+                MonoValue keysMonoValue = getObject(mv, {"<FavoriteHeroes>k__BackingField", "keySlots"});
+                if (IsMonoValueEmpty(keysMonoValue) || !IsMonoValueArray(keysMonoValue)) {
+                    throw std::domain_error("Invalid favorite heroes key object");
+                }
+                
+                MonoValue valuesMonoValue = getObject(mv, {"<FavoriteHeroes>k__BackingField", "valueSlots"});
+                if (IsMonoValueEmpty(valuesMonoValue) || !IsMonoValueArray(valuesMonoValue)) {
+                    throw std::domain_error("Invalid favorite heroes value object");
+                }
+                
+                for (unsigned int k=0; k < keysMonoValue.arrsize; k++) {
+                    MonoValue heroMonoValue = valuesMonoValue[k];
+                    if (IsMonoValueEmpty(heroMonoValue)) continue;
+                    MonoClass* instclass = heroMonoValue.value.obj.o->getClass();
+                    std::string classname = instclass->getName();
+                    delete instclass;
+                    
+                    if (classname == "CardDefinition") {
+                        std::u16string cardId = getObject(heroMonoValue, {"<Name>k__BackingField"}).str;
+                        int premium = getObject(heroMonoValue, {"<Premium>k__BackingField"}).value.i32;
+                        
+                        auto key = (*keysMonoValue[k].value.obj.s)["value__"];
+                        
+                        result.favoriteHeroes[int(key.value.i32)] = Card(cardId, 1, premium > 0);
+ 
+                        DeleteMonoValue(key);
+                    }
+                }
+                
+                DeleteMonoValue(keysMonoValue);
+                DeleteMonoValue(valuesMonoValue);
             }
         }
         

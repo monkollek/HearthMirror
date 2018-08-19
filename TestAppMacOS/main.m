@@ -22,9 +22,9 @@ void loadAccountId(HearthMirror *mirror) {
     NSLog(@"AccountId: %@", accountId);
 }
 
-#pragma mark - Get card collection
-void loadCardCollection(HearthMirror *mirror) {
-    NSArray<MirrorCard*>* collection = [mirror getCardCollection];
+#pragma mark - Get collection
+void loadCollection(HearthMirror *mirror) {
+    MirrorCollection* collection = [mirror getCollection];
     NSLog(@"Collection : %@", collection);
 }
 
@@ -154,9 +154,9 @@ int main(int argc, const char * argv[]) {
         HearthMirror* mirror = [[HearthMirror alloc] initWithPID:[hsapp processIdentifier]
                                                     withBlocking:YES];
         loadBattleTag(mirror);
-        loadDungeonInfo(mirror);
+        //loadDungeonInfo(mirror);
         //loadAccountId(mirror);
-        //loadCardCollection(mirror);
+        loadCollection(mirror);
         //loadGameServerInfo(mirror);
         //loadGameType(mirror);
         //loadFormat(mirror);
@@ -168,7 +168,7 @@ int main(int argc, const char * argv[]) {
         //loadPackCards(mirror);
         //loadBrawlInfo(mirror);
         //loadEditedDeck(mirror);
-        loadHeroLevels(mirror);
+        //loadHeroLevels(mirror);
     }
     return 0;
 }
