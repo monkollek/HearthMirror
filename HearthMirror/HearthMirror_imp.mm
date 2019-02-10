@@ -55,7 +55,7 @@ using namespace hearthmirror;
     if (_mirror == NULL) return nil;
 
     try {
-        BattleTag tag = _mirror->getBattleTag();
+        auto tag = _mirror->getBattleTag();
         NSString* battlename = [NSString stringWithu16string:tag.name];
         return [NSString stringWithFormat:@"%@#%d",battlename,tag.number];
     } catch (const std::exception &e) {
@@ -113,9 +113,9 @@ using namespace hearthmirror;
     
     try {
         NSMutableArray<MirrorHeroLevel*>  *result = [NSMutableArray array];
-        std::vector<HeroLevel> herolevels = _mirror->getHeroLevels();
+        auto herolevels = _mirror->getHeroLevels();
         for (int i = 0; i < herolevels.size(); i++) {
-            HeroLevel hlevel = herolevels[i];
+            const HeroLevel& hlevel = herolevels[i];
             
             MirrorHeroLevel *mirrorHeroLevel = [self buildHeroLevel:hlevel];
             [result addObject:mirrorHeroLevel];
@@ -133,7 +133,7 @@ using namespace hearthmirror;
 
     try {
         MirrorGameServerInfo *result = [MirrorGameServerInfo new];
-        InternalGameServerInfo _serverInfo = _mirror->getGameServerInfo();
+        auto _serverInfo = _mirror->getGameServerInfo();
         result.address = [NSString stringWithu16string:_serverInfo.address];
         result.auroraPassword = [NSString stringWithu16string:_serverInfo.auroraPassword];
         result.clientHandle = @(_serverInfo.clientHandle);
@@ -180,7 +180,7 @@ using namespace hearthmirror;
     try {
         MirrorMatchInfo *result = [MirrorMatchInfo new];
 
-        InternalMatchInfo _matchInfo = _mirror->getMatchInfo();
+        auto _matchInfo = _mirror->getMatchInfo();
 
         MirrorPlayer *localPlayer = [self getPlayerFromPlayer:_matchInfo.localPlayer];
         if (localPlayer == nil) return nil;
@@ -227,7 +227,7 @@ using namespace hearthmirror;
 
     try {
         MirrorAccountId *result = [MirrorAccountId new];
-        AccountId _account = _mirror->getAccountId();
+        auto _account = _mirror->getAccountId();
         result.lo = @(_account.lo);
         result.hi = @(_account.hi);
 
@@ -238,7 +238,7 @@ using namespace hearthmirror;
     }
 }
 
--(MirrorDeck *)buildDeck:(Deck)deck {
+-(MirrorDeck *)buildDeck:(const Deck&)deck {
     MirrorDeck *mirrorDeck = [MirrorDeck new];
     mirrorDeck.id = @(deck.id);
     mirrorDeck.name = [NSString stringWithu16string:deck.name];
@@ -251,7 +251,7 @@ using namespace hearthmirror;
 
     NSMutableArray *cards = [NSMutableArray array];
     for (int c = 0; c < deck.cards.size(); c++) {
-        Card card = deck.cards[c];
+        const Card& card = deck.cards[c];
         MirrorCard *mirrorCard = [self buildCard:card];
         [cards addObject:mirrorCard];
     }
@@ -260,7 +260,7 @@ using namespace hearthmirror;
     return mirrorDeck;
 }
 
--(MirrorCard *)buildCard:(Card)card {
+-(MirrorCard *)buildCard:(const Card&)card {
     MirrorCard *mirrorCard = [MirrorCard new];
     mirrorCard.cardId = [NSString stringWithu16string:card.id];
     mirrorCard.count = @(card.count);
@@ -268,7 +268,7 @@ using namespace hearthmirror;
     return mirrorCard;
 }
 
--(MirrorHeroLevel *)buildHeroLevel:(HeroLevel)herolevel {
+-(MirrorHeroLevel *)buildHeroLevel:(const HeroLevel&)herolevel {
     MirrorHeroLevel *mirrorHeroLevel = [MirrorHeroLevel new];
     mirrorHeroLevel.heroClass = @(herolevel.heroClass);
     mirrorHeroLevel.level = @(herolevel.level);
@@ -284,9 +284,9 @@ using namespace hearthmirror;
 
     try {
         NSMutableArray<MirrorDeck*> *result = [NSMutableArray array];
-        std::vector<Deck> decks = _mirror->getDecks();
+        auto decks = _mirror->getDecks();
         for (int i = 0; i < decks.size(); i++) {
-            Deck deck = decks[i];
+            const Deck& deck = decks[i];
             MirrorDeck *mirrorDeck = [self buildDeck:deck];
 
             [result addObject:mirrorDeck];
@@ -303,7 +303,7 @@ using namespace hearthmirror;
     if (_mirror == NULL) return nil;
 
     try {
-        Deck deck = _mirror->getEditedDeck();
+        auto deck = _mirror->getEditedDeck();
         return [self buildDeck:deck];
     } catch (const std::exception &e) {
         NSLog(@"Error while reading the edited deck: %s", e.what());
@@ -340,7 +340,7 @@ using namespace hearthmirror;
     if (_mirror == NULL) return nil;
 
     try {
-        ArenaInfo info = _mirror->getArenaDeck();
+        auto info = _mirror->getArenaDeck();
         if (info.deck.cards.size() == 0) return nil;
 
         MirrorArenaInfo *arenaInfo = [MirrorArenaInfo new];
@@ -350,18 +350,18 @@ using namespace hearthmirror;
         arenaInfo.deck = [self buildDeck:info.deck];
         NSMutableArray<MirrorRewardData*> *rewards = [NSMutableArray array];
         for (int i = 0; i < info.rewards.size(); i++) {
-            RewardData *data = info.rewards[i];
+            const RewardData *data = info.rewards[i];
 
             switch (data->type) {
                 case ARCANE_DUST: {
-                    ArcaneDustRewardData *_data = static_cast<ArcaneDustRewardData*>(data);
+                    const ArcaneDustRewardData *_data = static_cast<const ArcaneDustRewardData*>(data);
                     MirrorArcaneDustRewardData *reward = [MirrorArcaneDustRewardData new];
                     reward.amount = @(_data->amount);
                     [rewards addObject:reward];
                     break;
                 }
                 case BOOSTER_PACK: {
-                    BoosterPackRewardData *_data = static_cast<BoosterPackRewardData*>(data);
+                    const BoosterPackRewardData *_data = static_cast<const BoosterPackRewardData*>(data);
                     MirrorBoosterPackRewardData *reward = [MirrorBoosterPackRewardData new];
                     reward.boosterId = @(_data->id);
                     reward.count = @(_data->count);
@@ -369,7 +369,7 @@ using namespace hearthmirror;
                     break;
                 }
                 case CARD: {
-                    CardRewardData *_data = static_cast<CardRewardData*>(data);
+                    const CardRewardData *_data = static_cast<const CardRewardData*>(data);
                     MirrorCardRewardData *reward = [MirrorCardRewardData new];
                     reward.cardId = [NSString stringWithu16string:_data->id];
                     reward.count = @(_data->count);
@@ -377,28 +377,28 @@ using namespace hearthmirror;
                     break;
                 }
                 case CARD_BACK: {
-                    CardBackRewardData *_data = static_cast<CardBackRewardData*>(data);
+                    const CardBackRewardData *_data = static_cast<const CardBackRewardData*>(data);
                     MirrorCardBackRewardData *reward = [MirrorCardBackRewardData new];
                     reward.cardbackId = @(_data->id);
                     [rewards addObject:reward];
                     break;
                 }
                 case FORGE_TICKET: {
-                    ForgeTicketRewardData *_data = static_cast<ForgeTicketRewardData*>(data);
+                    const ForgeTicketRewardData *_data = static_cast<const ForgeTicketRewardData*>(data);
                     MirrorForgeTicketRewardData *reward = [MirrorForgeTicketRewardData new];
                     reward.quantity = @(_data->quantity);
                     [rewards addObject:reward];
                     break;
                 }
                 case GOLD: {
-                    GoldRewardData *_data = static_cast<GoldRewardData*>(data);
+                    const GoldRewardData *_data = static_cast<const GoldRewardData*>(data);
                     MirrorGoldRewardData *reward = [MirrorGoldRewardData new];
                     reward.amount = @(_data->amount);
                     [rewards addObject:reward];
                     break;
                 }
                 case MOUNT: {
-                    MountRewardData *_data = static_cast<MountRewardData*>(data);
+                    const MountRewardData *_data = static_cast<const MountRewardData*>(data);
                     MirrorMountRewardData *reward = [MirrorMountRewardData new];
                     reward.mountType = @(_data->mountType);
                     [rewards addObject:reward];
@@ -421,7 +421,7 @@ using namespace hearthmirror;
     if (_mirror == NULL) return [NSArray array];
 
     try {
-        std::vector<Card> choices = _mirror->getArenaDraftChoices();
+        auto choices = _mirror->getArenaDraftChoices();
         if (choices.size() != 3) return [NSArray array];
 
         NSMutableArray<MirrorCard*> *cards = [NSMutableArray array];
@@ -441,7 +441,7 @@ using namespace hearthmirror;
     if (_mirror == NULL) return [NSArray array];
 
     try {
-        std::vector<Card> cards = _mirror->getPackCards();
+        auto cards = _mirror->getPackCards();
         if (cards.size() != 5) return [NSArray array];
 
         NSMutableArray<MirrorCard*> *result = [NSMutableArray array];
@@ -461,7 +461,7 @@ using namespace hearthmirror;
     if (_mirror == NULL) return nil;
 
     try {
-        BrawlInfo info = _mirror->getBrawlInfo();
+        auto info = _mirror->getBrawlInfo();
         MirrorBrawlInfo *result = [MirrorBrawlInfo new];
         result.maxWins = info.maxWins == -1 ? nil : @(info.maxWins);
         result.maxLosses = info.maxLosses == -1 ? nil : @(info.maxLosses);
@@ -490,7 +490,7 @@ NSArray* arrayFromIntVector(const std::vector<int>& v) {
     if (_mirror == NULL) return nil;
     
     try {
-        DungeonInfo info = _mirror->getDungeonInfo();
+        auto info = _mirror->getDungeonInfo();
         MirrorDungeonInfo *result = [MirrorDungeonInfo new];
         
         result.bossesLostTo = [NSNumber numberWithInt:info.bossesLostTo];
