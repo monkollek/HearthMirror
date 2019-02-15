@@ -155,6 +155,7 @@ namespace hearthmirror {
         DeleteMonoValue(mv);
         return value;
     }
+
     #define GETLONG(...) getLong(__VA_ARGS__, m_mirrorData->monoImage)
     
     /** Helper to get a bool */
@@ -175,19 +176,44 @@ namespace hearthmirror {
         DeleteMonoValue(mv);
         return value;
     }
+    
     #define GETBOOL(...) getBool(__VA_ARGS__, m_mirrorData->monoImage)
     
+    #define getAsLong(to, from, key) {\
+        MonoValue mv = ((*from)[key]);\
+        to = mv.value.i64;\
+        DeleteMonoValue(mv);\
+    }
+
+    #define getAsBool(to, from, key) {\
+        MonoValue mv = ((*from)[key]);\
+        to = mv.value.b;\
+        DeleteMonoValue(mv);\
+    }
+    
+    #define getAsInt(to, from, key) {\
+        MonoValue mv = ((*from)[key]);\
+        to = mv.value.i32;\
+        DeleteMonoValue(mv);\
+    }
+    
+    #define getAsString(to, from, key) {\
+        MonoValue mv = ((*from)[key]);\
+        to = mv.str;\
+        DeleteMonoValue(mv);\
+    }
+
     Deck getDeck(MonoObject* deckObj) {
         Deck deck;
         
-        deck.id = ((*deckObj)["ID"]).value.i64;
-        deck.name = ((*deckObj)["m_name"]).str;
-        deck.hero = ((*deckObj)["HeroCardID"]).str;
-        deck.isWild = ((*deckObj)["m_isWild"]).value.b;
-        deck.type = ((*deckObj)["Type"]).value.i32;
-        deck.seasonId = ((*deckObj)["SeasonId"]).value.i32;
-        deck.cardBackId = ((*deckObj)["CardBackID"]).value.i32;
-        deck.heroPremium = ((*deckObj)["HeroPremium"]).value.i32;
+        getAsLong(deck.id, deckObj, "ID");
+        getAsString(deck.name, deckObj, "m_name");
+        getAsString(deck.hero, deckObj, "HeroCardID");
+        getAsBool(deck.isWild, deckObj, "m_isWild");
+        getAsInt(deck.type, deckObj, "Type");
+        getAsInt(deck.seasonId, deckObj, "SeasonId");
+        getAsInt(deck.cardBackId, deckObj, "CardBackID");
+        getAsInt(deck.heroPremium, deckObj, "HeroPremium");
         
         MonoValue _cardList = (*deckObj)["m_slots"];
         if (IsMonoValueEmpty(_cardList)) return deck;
@@ -206,14 +232,18 @@ namespace hearthmirror {
         for (int i = 0; i < size; i++) {
             MonoObject *card = cards[i].value.obj.o;
             
-            std::u16string name = ((*card)["m_cardId"]).str;
+            std::u16string name;
+            getAsString(name, card, "m_cardId");
             MonoValue counts = ((*card)["m_count"]);
             if (IsMonoValueEmpty(counts)) {
+                DeleteMonoValue(counts);
                 continue;
             }
             MonoObject *items_str = counts.value.obj.o;
             MonoValue items = ((*items_str)["_items"]);
 			if (IsMonoValueEmpty(items)) {
+                DeleteMonoValue(counts);
+                DeleteMonoValue(items);
 				continue;
 			}
             int count = std::min(items[0].value.i32, 30) + std::min(items[1].value.i32, 30);
@@ -229,11 +259,40 @@ namespace hearthmirror {
                 Card c = Card(name, count, false);
                 deck.cards.push_back(c);
             }
+            DeleteMonoValue(items);
+            DeleteMonoValue(counts);
         }
         
         DeleteMonoValue(cards);
         DeleteMonoValue(sizemv);
         DeleteMonoValue(_cardList);
+        
+        return deck;
+    }
+    
+    TemplateDeck getTemplateDeck(MonoObject* deckObj) {
+        TemplateDeck deck;
+
+        getAsLong(deck.id, deckObj, "m_id");
+        getAsString(deck.title, deckObj,"m_title");
+        getAsInt(deck.sortOrder, deckObj, "m_sortOrder");
+        getAsInt(deck.clazz, deckObj, "m_class");
+        
+        MonoValue mv = (*deckObj)["m_cardIds"];
+        MonoObject *cards = mv.value.obj.o;
+        MonoValue keys = (*cards)["keySlots"];
+        MonoValue values = (*cards)["valueSlots"];
+
+        int count;
+        getAsInt(count, cards, "count")
+        for (unsigned int i = 0; i < count; i++) {
+            Card c = Card(keys[i].str, values[i].value.i32, false);
+            deck.cards.push_back(c);
+        }
+        
+        DeleteMonoValue(keys);
+        DeleteMonoValue(values);
+        DeleteMonoValue(mv);
         
         return deck;
     }
@@ -268,8 +327,8 @@ namespace hearthmirror {
         MonoObject* m_battleTag = mv.value.obj.o;
 
         BattleTag result;
-        result.name = ((*m_battleTag)["m_name"]).str;
-        result.number = ((*m_battleTag)["m_number"]).value.i32;
+        getAsString(result.name, m_battleTag, "m_name");
+        getAsInt(result.number, m_battleTag, "m_number");
 
         DeleteMonoValue(mv);
 
@@ -284,8 +343,8 @@ namespace hearthmirror {
 
         MonoObject* m_accountId = mv.value.obj.o;
         AccountId account;
-        account.lo = ((*m_accountId)["m_lo"]).value.i64;
-        account.hi = ((*m_accountId)["m_hi"]).value.i64;
+        getAsLong(account.lo, m_accountId, "m_lo");
+        getAsLong(account.hi, m_accountId, "m_hi");
 
         DeleteMonoValue(mv);
         return account;
@@ -299,16 +358,16 @@ namespace hearthmirror {
         MonoObject* m_serverInfo = mv.value.obj.o;
 
         InternalGameServerInfo result;
-        result.address = ((*m_serverInfo)["<Address>k__BackingField"]).str;
-        result.auroraPassword = ((*m_serverInfo)["<AuroraPassword>k__BackingField"]).str;
-        result.clientHandle = ((*m_serverInfo)["<ClientHandle>k__BackingField"]).value.i64;
-        result.gameHandle = ((*m_serverInfo)["<GameHandle>k__BackingField"]).value.i32;
-        result.mission = ((*m_serverInfo)["<Mission>k__BackingField"]).value.i32;
-        result.port = ((*m_serverInfo)["<Port>k__BackingField"]).value.i32;
-        result.resumable = ((*m_serverInfo)["<Resumable>k__BackingField"]).value.b;
-        result.spectatorMode = ((*m_serverInfo)["<SpectatorMode>k__BackingField"]).value.b;
-        result.spectatorPassword = ((*m_serverInfo)["<SpectatorPassword>k__BackingField"]).str;
-        result.version = ((*m_serverInfo)["<Version>k__BackingField"]).str;
+        getAsString(result.address, m_serverInfo, "<Address>k__BackingField");
+        getAsString(result.auroraPassword, m_serverInfo, "<AuroraPassword>k__BackingField");
+        getAsLong(result.clientHandle, m_serverInfo, "<ClientHandle>k__BackingField");
+        getAsInt(result.gameHandle, m_serverInfo, "<GameHandle>k__BackingField");
+        getAsInt(result.mission, m_serverInfo, "<Mission>k__BackingField");
+        getAsInt(result.port, m_serverInfo, "<Port>k__BackingField");
+        getAsBool(result.resumable, m_serverInfo, "<Resumable>k__BackingField");
+        getAsBool(result.spectatorMode, m_serverInfo, "<SpectatorMode>k__BackingField");
+        getAsString(result.spectatorPassword, m_serverInfo, "<SpectatorPassword>k__BackingField");
+        getAsString(result.version, m_serverInfo, "<Version>k__BackingField");
 
         DeleteMonoValue(mv);
         return result;
@@ -405,17 +464,20 @@ namespace hearthmirror {
                             DeleteMonoValue(_wMedalInfo);
                         }
                     }
-
-                    std::u16string name = ((*inst)["m_name"]).str;
+                    std::u16string name;
+                    getAsString(name, inst, "m_name");
                     if (name.empty()) {
                         printf("[Hearthmirror] - Found a player with an empty name (Invisible?)\n");
                         name = u"Your Opponent";
                     }
 
-                    int cardBack = ((*inst)["m_cardBackId"]).value.i32;
-                    int id = playerIds[i].value.i32;
+                    int cardBack;
+                    getAsInt(cardBack, inst, "m_cardBackId");
+                    int id;
+                    id = playerIds[i].value.i32;
 
-                    int side = ((*inst)["m_side"]).value.i32;
+                    int side;
+                    getAsInt(side, inst, "m_side");
                     if (side == 1) {
                         int sStars = 0;
                         int wStars = 0;
@@ -444,13 +506,13 @@ namespace hearthmirror {
                                 MonoValue vm = (*net)["<Standard>k__BackingField"];
                                 if (!IsMonoValueEmpty(vm)) {
                                     MonoObject* stars = vm.value.obj.o;
-                                    sStars = ((*stars)["<Stars>k__BackingField"]).value.i32;
+                                    getAsInt(sStars, stars, "<Stars>k__BackingField");
                                     DeleteMonoValue(vm);
                                 }
                                 vm = (*net)["<Wild>k__BackingField"];
                                 if (!IsMonoValueEmpty(vm)) {
                                     MonoObject* stars = vm.value.obj.o;
-                                    wStars = ((*stars)["<Stars>k__BackingField"]).value.i32;
+                                    getAsInt(wStars, stars, "<Stars>k__BackingField");
                                     DeleteMonoValue(vm);
                                 }
                             }
@@ -520,7 +582,7 @@ namespace hearthmirror {
                 continue;
             }
 
-            matchInfo.rankedSeasonId = ((*net)["<Season>k__BackingField"]).value.i32;
+            getAsInt(matchInfo.rankedSeasonId, net, "<Season>k__BackingField");
             break;
         }
 
@@ -571,8 +633,8 @@ namespace hearthmirror {
             throw std::domain_error("Current brawl not found");
         }
         MonoObject *_tavernBrawlSpec = tavernBrawlSpec.value.obj.o;
-        result.maxWins = ((*_tavernBrawlSpec)["_MaxWins"]).value.i32;
-        result.maxLosses = ((*_tavernBrawlSpec)["_MaxLosses"]).value.i32;
+        getAsInt(result.maxWins, _tavernBrawlSpec, "_MaxWins");
+        getAsInt(result.maxLosses, _tavernBrawlSpec, "_MaxLosses");
 
         MonoValue records = GETOBJECT({"TavernBrawlManager","s_instance", "m_playerRecords"});
         if (IsMonoValueEmpty(records) || !IsMonoValueArray(records))
@@ -606,8 +668,8 @@ namespace hearthmirror {
             throw std::domain_error("Can't get record");
         }
 
-        result.gamesPlayed = ((*_record)["_GamesPlayed"]).value.i32;
-        result.winStreak = ((*_record)["_WinStreak"]).value.i32;
+        getAsInt(result.gamesPlayed, _record, "_GamesPlayed");
+        getAsInt(result.winStreak, _record, "_WinStreak");
         result.isSessionBased = result.maxWins > 0 || result.maxLosses > 0;
         if (result.isSessionBased) {
             if (!((*_record)["HasSession"]).value.b) {
@@ -677,7 +739,8 @@ namespace hearthmirror {
 
             MonoStruct *_tag = tag.value.obj.s;
             try {
-                int v = ((*_tag)["value__"]).value.i32;
+                int v;
+                getAsInt(v, _tag, "value__");
                 if (v == 0) {
                     Deck ddeck = getDeck(deck.value.obj.o);
                     DeleteMonoValue(tags);
@@ -734,6 +797,45 @@ namespace hearthmirror {
             }
         }
 
+        DeleteMonoValue(values);
+        return result;
+    }
+
+    std::vector<TemplateDeck> Mirror::getTemplateDecks() {
+        if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
+        
+        MonoValue values = GETOBJECT({"CollectionManager","s_instance","m_templateDecks","valueSlots"});
+        if (IsMonoValueEmpty(values) || !IsMonoValueArray(values)) {
+            throw std::domain_error("Collection manager can't be found");
+        }
+        
+        std::vector<TemplateDeck> result;
+        
+        for (unsigned int i=0; i< values.arrsize; i++) {
+            MonoValue mv = values[i];
+            if (IsMonoValueEmpty(mv)) continue;
+            MonoObject* inst = mv.value.obj.o;
+            
+            MonoValue values2 = (*inst)["_items"];
+            for (unsigned int i=0; i< (*inst)["_size"].value.i32; i++) {
+                MonoValue mv2 = values2[i];
+                if (IsMonoValueEmpty(mv2)) continue;
+
+                MonoObject* inst2 = mv2.value.obj.o;
+                MonoClass* instclass = inst2->getClass();
+                std::string icname = instclass->getName();
+                delete instclass;
+                
+                if (icname != "TemplateDeck") {
+                    continue;
+                }
+                
+                TemplateDeck deck = getTemplateDeck(inst2);
+                result.push_back(deck);
+            }
+            DeleteMonoValue(values2);
+        }
+        
         DeleteMonoValue(values);
         return result;
     }
@@ -872,39 +974,41 @@ namespace hearthmirror {
             if (icname == "ArcaneDustRewardData") {
                 ArcaneDustRewardData *data = new ArcaneDustRewardData();
                 data->type = ARCANE_DUST;
-                data->amount = ((*inst)["<Amount>k__BackingField"]).value.i32;
+                getAsInt(data->amount, inst, "<Amount>k__BackingField");
                 result.push_back(data);
             } else if (icname == "BoosterPackRewardData") {
                 BoosterPackRewardData *data = new BoosterPackRewardData();
-                data->id = ((*inst)["<Id>k__BackingField"]).value.i32;
+                getAsInt(data->id, inst, "<Id>k__BackingField");
                 data->type = BOOSTER_PACK;
-                data->count = ((*inst)["<Count>k__BackingField"]).value.i32;
+                getAsInt(data->count, inst, "<Count>k__BackingField");
                 result.push_back(data);
             } else if (icname == "CardRewardData") {
                 CardRewardData *data = new CardRewardData();
-                data->id = ((*inst)["<CardID>k__BackingField"]).str;
-                data->count = ((*inst)["<Count>k__BackingField"]).value.i32;
-                data->premium = ((*inst)["<Premium>k__BackingField"]).value.i32 > 0;
+                getAsString(data->id, inst, "<CardID>k__BackingField");
+                getAsInt(data->count, inst, "<Count>k__BackingField");
+                int premium;
+                getAsInt(premium, inst, "<Premium>k__BackingField");
+                data->premium = premium > 0;
                 data->type = CARD;
                 result.push_back(data);
             } else if (icname == "CardBackRewardData") {
                 CardBackRewardData *data = new CardBackRewardData();
-                data->id = ((*inst)["<CardBackID>k__BackingField"]).value.i32;
+                getAsInt(data->id, inst, "<CardBackID>k__BackingField");
                 data->type = CARD_BACK;
                 result.push_back(data);
             } else if (icname == "ForgeTicketRewardData") {
                 ForgeTicketRewardData *data = new ForgeTicketRewardData();
-                data->quantity = ((*inst)["<Quantity>k__BackingField"]).value.i32;
+                getAsInt(data->quantity, inst, "<Quantity>k__BackingField");
                 data->type = FORGE_TICKET;
                 result.push_back(data);
             } else if (icname == "GoldRewardData") {
                 GoldRewardData *data = new GoldRewardData();
-                data->amount = ((*inst)["<Amount>k__BackingField"]).value.i32;
+                getAsInt(data->amount, inst, "<Amount>k__BackingField");
                 data->type = GOLD;
                 result.push_back(data);
             } else if (icname == "MountRewardData") {
                 MountRewardData *data = new MountRewardData();
-                data->mountType = ((*inst)["<Mount>k__BackingField"]).value.i32;
+                getAsInt(data->mountType, inst, "<Mount>k__BackingField");
                 data->type = MOUNT;
                 result.push_back(data);
             }

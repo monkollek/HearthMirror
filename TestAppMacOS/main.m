@@ -125,6 +125,12 @@ void loadEditedDeck(HearthMirror *mirror) {
     NSLog(@"Edited deck: %@", editedDeck);
 }
 
+#pragma mark - Get the template decks
+void loadTemplateDecks(HearthMirror *mirror) {
+    NSArray<MirrorTemplateDeck*> *decks = [mirror getTemplateDecks];
+    NSLog(@"TemplateDecks: %@", decks);
+}
+
 #pragma mark - Test entry point
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
@@ -156,7 +162,7 @@ int main(int argc, const char * argv[]) {
         loadBattleTag(mirror);
         //loadDungeonInfo(mirror);
         //loadAccountId(mirror);
-        loadCollection(mirror);
+        //loadCollection(mirror);
         //loadGameServerInfo(mirror);
         //loadGameType(mirror);
         //loadFormat(mirror);
@@ -169,6 +175,7 @@ int main(int argc, const char * argv[]) {
         //loadBrawlInfo(mirror);
         //loadEditedDeck(mirror);
         //loadHeroLevels(mirror);
+        loadTemplateDecks(mirror);
     }
     return 0;
 }

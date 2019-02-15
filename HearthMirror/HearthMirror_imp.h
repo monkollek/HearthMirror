@@ -107,6 +107,14 @@
     @property NSArray<MirrorCard*> *_Nonnull cards;
 @end
 
+@interface MirrorTemplateDeck: NSObject
+    @property NSNumber *_Nonnull id;
+    @property NSString *_Nonnull title;
+    @property NSNumber *_Nonnull sortOrder;
+    @property NSNumber *_Nonnull clazz;
+    @property NSArray<MirrorCard*> *_Nonnull cards;
+@end
+
 @interface MirrorRewardData: NSObject
 @end
 
@@ -182,6 +190,8 @@ EXPORT @interface HearthMirror : NSObject
 -(nullable MirrorAccountId*) getAccountId;
 
 -(nonnull NSArray<MirrorDeck*>*) getDecks;
+
+-(nonnull NSArray<MirrorTemplateDeck*>*) getTemplateDecks;
 
 -(nullable NSNumber*) getSelectedDeck;
 

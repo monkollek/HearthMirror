@@ -336,6 +336,8 @@ namespace hearthmirror {
                             delete bvmt;
                             if (bvmtType == MONO_TYPE_SZARRAY) {
                                 result[i] = ReadValue(MONO_TYPE_SZARRAY, ea);
+                            } else if (bvmtType == MONO_TYPE_STRING){
+                                result[i] = ReadValue(bvmtType, ea);
                             } else {
                                 proc_address po = ReadPointer(_task, ea, _is64bit);
                                 MonoValue mv;

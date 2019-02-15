@@ -100,6 +100,14 @@ typedef struct _Deck {
     std::vector<Card> cards;
 } Deck;
 
+typedef struct _TemplateDeck {
+    long id;
+    std::u16string title;
+    int sortOrder;
+    int clazz;
+    std::vector<Card> cards;
+} TemplateDeck;
+
 typedef struct _InternalGameServerInfo {
     std::u16string address;
     std::u16string auroraPassword;
@@ -293,6 +301,9 @@ class HEARTHMIRROR_API Mirror {
 
         /** Returns the decks */
         std::vector<Deck> getDecks();
+
+        /** Returns the template decks */
+        std::vector<TemplateDeck> getTemplateDecks();
 
         /** Returns the selected deck */
         long getSelectedDeckInMenu();

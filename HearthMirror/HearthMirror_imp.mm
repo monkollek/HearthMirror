@@ -238,6 +238,24 @@ using namespace hearthmirror;
     }
 }
 
+-(MirrorTemplateDeck *)buildTemplateDeck:(const TemplateDeck&)deck {
+    MirrorTemplateDeck *mirrorDeck = [MirrorTemplateDeck new];
+    mirrorDeck.id = @(deck.id);
+    mirrorDeck.title = [NSString stringWithu16string:deck.title];
+    mirrorDeck.sortOrder = @(deck.sortOrder);
+    mirrorDeck.clazz = @(deck.clazz);
+    
+    NSMutableArray *cards = [NSMutableArray array];
+    for (int c = 0; c < deck.cards.size(); c++) {
+        const Card& card = deck.cards[c];
+        MirrorCard *mirrorCard = [self buildCard:card];
+        [cards addObject:mirrorCard];
+    }
+    mirrorDeck.cards = [NSArray arrayWithArray:cards];
+    
+    return mirrorDeck;
+}
+
 -(MirrorDeck *)buildDeck:(const Deck&)deck {
     MirrorDeck *mirrorDeck = [MirrorDeck new];
     mirrorDeck.id = @(deck.id);
@@ -295,6 +313,26 @@ using namespace hearthmirror;
         return [NSArray arrayWithArray:result];
     } catch (const std::exception &e) {
         NSLog(@"Error while reading decks: %s", e.what());
+        return [NSArray array];
+    }
+}
+
+-(nonnull NSArray<MirrorTemplateDeck*>*) getTemplateDecks {
+    if (_mirror == NULL) return [NSArray array];
+    
+    try {
+        NSMutableArray<MirrorTemplateDeck*> *result = [NSMutableArray array];
+        auto decks = _mirror->getTemplateDecks();
+        for (int i = 0; i < decks.size(); i++) {
+            const TemplateDeck& deck = decks[i];
+            MirrorTemplateDeck *mirrorDeck = [self buildTemplateDeck:deck];
+            
+            [result addObject:mirrorDeck];
+        }
+        
+        return [NSArray arrayWithArray:result];
+    } catch (const std::exception &e) {
+        NSLog(@"Error while reading template decks: %s", e.what());
         return [NSArray array];
     }
 }
@@ -567,6 +605,12 @@ NSArray* arrayFromIntVector(const std::vector<int>& v) {
 @implementation MirrorDeck
 - (NSString *)description {
     return [NSString stringWithFormat:@"id: %@, name: %@, hero: %@, isWild: %@, type: %@, seasonId: %@, cardBackId: %@, heroPremium: %@, cards: %@", self.id, self.name, self.hero, @(self.isWild), self.type, self.seasonId, self.cardBackId, self.heroPremium, self.cards];
+}
+@end
+
+@implementation MirrorTemplateDeck
+- (NSString *)description {
+    return [NSString stringWithFormat:@"id: %@, title: %@, clazz: %@, sortOrder: %@, cards: %@", self.id, self.title, self.clazz, self.sortOrder, self.cards];
 }
 @end
 
