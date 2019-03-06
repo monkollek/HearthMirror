@@ -24,21 +24,21 @@
 #include <unordered_set>
 
 namespace hearthmirror {
-    
+
     typedef std::vector<std::string> HMObjectPath;
-    
+
     struct _mirrorData {
         HANDLE task;
         MonoImage* monoImage = NULL;
     };
-    
+
     Mirror::Mirror(int pid, bool isBlocking) {
         this->m_mirrorData = new _mirrorData();
 		if (initWithPID(pid, isBlocking) != 0) {
 			throw std::runtime_error("Failed to init Hearthmirror");
 		}
     }
-    
+
     Mirror::~Mirror() {
         if (this->m_mirrorData) {
             delete m_mirrorData->monoImage;
@@ -49,18 +49,18 @@ namespace hearthmirror {
     int Mirror::initWithPID(int pid, bool isBlocking) {
         if (m_mirrorData->monoImage) delete m_mirrorData->monoImage;
         m_mirrorData->monoImage = NULL;
-        
+
 		// get handle to process
         return MonoImage::getMonoImage(pid, isBlocking, &m_mirrorData->task, &m_mirrorData->monoImage);
     }
 
     std::vector<RewardData*> parseRewards(MonoValue items);
     MonoValue getCurrentBrawlMission(MonoImage* monoImage);
-    
+
 	static MonoValue nullMonoValue(0);
 
 #pragma mark - Helper functions
-    
+
     long long intValue(MonoValue& mv) {
         if (mv.type == MONO_TYPE_I1) {
             return mv.value.i8;
@@ -73,13 +73,13 @@ namespace hearthmirror {
         }
         return 0;
     }
-    
+
     MonoValue getObject(const MonoValue& from, const HMObjectPath& path) {
-		
+
         if (IsMonoValueEmpty(from) || path.size() < 1) return nullMonoValue;
 
 		MonoValue mv = from; // local copy
-		
+
         for (unsigned int i = 0; i< path.size(); i++) {
             MonoObject* mo = mv.value.obj.o;
             mv = (*mo)[path[i]];
@@ -92,14 +92,14 @@ namespace hearthmirror {
         }
         return mv;
     }
-	
+
     /** Helper function to find MonoObject at the given path. */
     MonoValue getObject(const HMObjectPath& path, MonoImage* monoImage) {
         if (path.size() < 2) return nullMonoValue;
-        
+
         MonoClass* baseclass = monoImage->get(path[0]); // no need to free
         if (!baseclass) return nullMonoValue;
-        
+
         MonoValue mv = (*baseclass)[path[1]];
         if (IsMonoValueEmpty(mv)) return nullMonoValue;
 
@@ -110,7 +110,7 @@ namespace hearthmirror {
                 delete mo;
                 return nullMonoValue;
             }
-            
+
             delete mo;
         }
         return mv;
@@ -157,7 +157,7 @@ namespace hearthmirror {
     }
 
     #define GETLONG(...) getLong(__VA_ARGS__, m_mirrorData->monoImage)
-    
+
     /** Helper to get a bool */
     bool getBool(const HMObjectPath& path, MonoImage* monoImage, bool defaultValue = false) {
         MonoValue mv = getObject(path, monoImage);
@@ -176,9 +176,9 @@ namespace hearthmirror {
         DeleteMonoValue(mv);
         return value;
     }
-    
+
     #define GETBOOL(...) getBool(__VA_ARGS__, m_mirrorData->monoImage)
-    
+
     #define getAsLong(to, from, key) {\
         MonoValue mv = ((*from)[key]);\
         to = mv.value.i64;\
@@ -190,13 +190,13 @@ namespace hearthmirror {
         to = mv.value.b;\
         DeleteMonoValue(mv);\
     }
-    
+
     #define getAsInt(to, from, key) {\
         MonoValue mv = ((*from)[key]);\
         to = mv.value.i32;\
         DeleteMonoValue(mv);\
     }
-    
+
     #define getAsString(to, from, key) {\
         MonoValue mv = ((*from)[key]);\
         to = mv.str;\
@@ -205,7 +205,7 @@ namespace hearthmirror {
 
     Deck getDeck(MonoObject* deckObj) {
         Deck deck;
-        
+
         getAsLong(deck.id, deckObj, "ID");
         getAsString(deck.name, deckObj, "m_name");
         getAsString(deck.hero, deckObj, "HeroCardID");
@@ -214,12 +214,12 @@ namespace hearthmirror {
         getAsInt(deck.seasonId, deckObj, "SeasonId");
         getAsInt(deck.cardBackId, deckObj, "CardBackID");
         getAsInt(deck.heroPremium, deckObj, "HeroPremium");
-        
+
         MonoValue _cardList = (*deckObj)["m_slots"];
         if (IsMonoValueEmpty(_cardList)) return deck;
-        
+
         MonoObject *cardList = _cardList.value.obj.o;
-        
+
         MonoValue cards = (*cardList)["_items"];
         MonoValue sizemv = (*cardList)["_size"];
         if (IsMonoValueEmpty(cards) || IsMonoValueEmpty(sizemv)) {
@@ -231,7 +231,7 @@ namespace hearthmirror {
         int size = sizemv.value.i32;
         for (int i = 0; i < size; i++) {
             MonoObject *card = cards[i].value.obj.o;
-            
+
             std::u16string name;
             getAsString(name, card, "m_cardId");
             MonoValue counts = ((*card)["m_count"]);
@@ -247,7 +247,7 @@ namespace hearthmirror {
 				continue;
 			}
             int count = std::min(items[0].value.i32, 30) + std::min(items[1].value.i32, 30);
-            
+
             auto iterator = find_if(deck.cards.begin(), deck.cards.end(),
                                     [&name](const Card& obj) { return obj.id == name; });
             if (iterator != deck.cards.end()) {
@@ -262,14 +262,14 @@ namespace hearthmirror {
             DeleteMonoValue(items);
             DeleteMonoValue(counts);
         }
-        
+
         DeleteMonoValue(cards);
         DeleteMonoValue(sizemv);
         DeleteMonoValue(_cardList);
-        
+
         return deck;
     }
-    
+
     TemplateDeck getTemplateDeck(MonoObject* deckObj) {
         TemplateDeck deck;
 
@@ -277,7 +277,7 @@ namespace hearthmirror {
         getAsString(deck.title, deckObj,"m_title");
         getAsInt(deck.sortOrder, deckObj, "m_sortOrder");
         getAsInt(deck.clazz, deckObj, "m_class");
-        
+
         MonoValue mv = (*deckObj)["m_cardIds"];
         MonoObject *cards = mv.value.obj.o;
         MonoValue keys = (*cards)["keySlots"];
@@ -289,14 +289,14 @@ namespace hearthmirror {
             Card c = Card(keys[i].str, values[i].value.i32, false);
             deck.cards.push_back(c);
         }
-        
+
         DeleteMonoValue(keys);
         DeleteMonoValue(values);
         DeleteMonoValue(mv);
-        
+
         return deck;
     }
-    
+
     int getKeyIndex(MonoObject* object, int key) {
         MonoValue keys = (*object)["keySlots"];
         if (IsMonoValueEmpty(keys)) {
@@ -315,15 +315,15 @@ namespace hearthmirror {
         DeleteMonoValue(keys);
         return -1;
     }
-    
+
 #pragma mark - Mirror functions
-    
+
     BattleTag Mirror::getBattleTag() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         MonoValue mv = GETOBJECT({"BnetPresenceMgr","s_instance","m_myPlayer","m_account","m_battleTag"});
         if (IsMonoValueEmpty(mv)) throw std::domain_error("Bnet manager can't be found");
-        
+
         MonoObject* m_battleTag = mv.value.obj.o;
 
         BattleTag result;
@@ -433,11 +433,7 @@ namespace hearthmirror {
                         MonoValue _sMedalInfo = (*medalInfo)["m_currMedalInfo"];
                         if (!IsMonoValueEmpty(_sMedalInfo)) {
                             MonoObject *sMedalInfo = _sMedalInfo.value.obj.o;
-                            MonoValue rank = (*sMedalInfo)["rank"];
-                            if (!IsMonoValueEmpty(rank)) {
-                                sRank = rank.value.i32;
-                                DeleteMonoValue(rank);
-                            }
+                            sRank = getRank(sMedalInfo);
                             MonoValue legendRank = (*sMedalInfo)["legendIndex"];
                             if (!IsMonoValueEmpty(legendRank)) {
                                 sLegendRank = legendRank.value.i32;
@@ -450,11 +446,7 @@ namespace hearthmirror {
                         MonoValue _wMedalInfo = (*medalInfo)["m_currWildMedalInfo"];
                         if (!IsMonoValueEmpty(_wMedalInfo)) {
                             MonoObject *wMedalInfo = _wMedalInfo.value.obj.o;
-                            MonoValue rank = (*wMedalInfo)["rank"];
-                            if (!IsMonoValueEmpty(rank)) {
-                                wRank = rank.value.i32;
-                                DeleteMonoValue(rank);
-                            }
+                            wRank = getRank(wMedalInfo);
                             MonoValue legendRank = (*wMedalInfo)["legendIndex"];
                             if (!IsMonoValueEmpty(legendRank)) {
                                 wLegendRank = legendRank.value.i32;
@@ -538,7 +530,7 @@ namespace hearthmirror {
                         matchInfo.opposingPlayer.wildStars = 0;
                         matchInfo.opposingPlayer.cardBackId = cardBack;
                     }
-                    
+
                     DeleteMonoValue(_medalInfo);
                 }
 
@@ -692,7 +684,7 @@ namespace hearthmirror {
         DeleteMonoValue(records);
         return result;
     }
-    
+
     DungeonInfo Mirror::getDungeonInfo() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
         MonoValue dataMap = GETOBJECT({"GameSaveDataManager","s_instance","m_gameSaveDataMapByKey"});
@@ -704,16 +696,16 @@ namespace hearthmirror {
         if (index == -1) {
             throw std::domain_error("Key ADVENTURE_DATA_LOOT not found");
         }
-        
+
         MonoValue valueSlots = (*_dataMap)["valueSlots"]; // D
         MonoValue subMap = valueSlots[index];
         if (IsMonoValueEmpty(subMap)) {
             throw std::domain_error("SubMap not found");
         }
-        
+
         DungeonInfo dungeonInfo;
         dungeonInfo.load(subMap.value.obj.o);
-        
+
         DeleteMonoValue(valueSlots);
         DeleteMonoValue(dataMap);
         return dungeonInfo;
@@ -803,19 +795,19 @@ namespace hearthmirror {
 
     std::vector<TemplateDeck> Mirror::getTemplateDecks() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         MonoValue values = GETOBJECT({"CollectionManager","s_instance","m_templateDecks","valueSlots"});
         if (IsMonoValueEmpty(values) || !IsMonoValueArray(values)) {
             throw std::domain_error("Collection manager can't be found");
         }
-        
+
         std::vector<TemplateDeck> result;
-        
+
         for (unsigned int i=0; i< values.arrsize; i++) {
             MonoValue mv = values[i];
             if (IsMonoValueEmpty(mv)) continue;
             MonoObject* inst = mv.value.obj.o;
-            
+
             MonoValue values2 = (*inst)["_items"];
             for (unsigned int i=0; i< (*inst)["_size"].value.i32; i++) {
                 MonoValue mv2 = values2[i];
@@ -825,17 +817,17 @@ namespace hearthmirror {
                 MonoClass* instclass = inst2->getClass();
                 std::string icname = instclass->getName();
                 delete instclass;
-                
+
                 if (icname != "TemplateDeck") {
                     continue;
                 }
-                
+
                 TemplateDeck deck = getTemplateDeck(inst2);
                 result.push_back(deck);
             }
             DeleteMonoValue(values2);
         }
-        
+
         DeleteMonoValue(values);
         return result;
     }
@@ -867,7 +859,7 @@ namespace hearthmirror {
             if (icname != "PackOpeningCard") continue;
             MonoValue def = getObject(mv, {"m_boosterCard","<Def>k__BackingField"});
             if (IsMonoValueEmpty(def)) continue;
-            
+
             MonoObject *_def = def.value.obj.o;
             MonoValue namemv = (*_def)["<Name>k__BackingField"];
             MonoValue premiummv = (*_def)["<Premium>k__BackingField"];
@@ -1016,17 +1008,17 @@ namespace hearthmirror {
 
         return result;
     }
-    
+
     Collection Mirror::getCollection() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         MonoValue valueSlots = GETOBJECT({"NetCache","s_instance","m_netCache","valueSlots"});
         if (IsMonoValueEmpty(valueSlots) || !IsMonoValueArray(valueSlots)) {
             throw std::domain_error("Net cache can't be found");
         }
-        
+
         Collection result;
-        
+
         for (unsigned int i=0; i < valueSlots.arrsize; i++) {
             MonoValue mv = valueSlots[i];
             if (IsMonoValueEmpty(mv)) continue;
@@ -1034,11 +1026,11 @@ namespace hearthmirror {
             MonoClass* instclass = inst->getClass();
             std::string icname = instclass->getName();
             delete instclass;
-            
+
             if (icname == "NetCacheCollection") {
                 MonoValue stacksmv = (*inst)["<Stacks>k__BackingField"];
                 if (IsMonoValueEmpty(stacksmv)) break;
-                
+
                 MonoObject* stacks = stacksmv.value.obj.o;
                 MonoValue itemsmv = (*stacks)["_items"];
                 MonoValue sizemv = (*stacks)["_size"];
@@ -1048,31 +1040,31 @@ namespace hearthmirror {
                     MonoValue stackmv = itemsmv.value.arr[i];
                     if (IsMonoValueEmpty(stackmv)) continue;
                     MonoObject* stack = stackmv.value.obj.o;
-                    
+
                     MonoValue countmv = (*stack)["<Count>k__BackingField"];
                     if (IsMonoValueEmpty(countmv)) {
                         continue;
                     }
                     int count = countmv.value.i32;
                     DeleteMonoValue(countmv);
-                    
+
                     MonoValue defmv = (*stack)["<Def>k__BackingField"];
                     if (IsMonoValueEmpty(defmv)) {
                         continue;
                     }
                     MonoObject* def = defmv.value.obj.o;
-                    
+
                     MonoValue namemv = (*def)["<Name>k__BackingField"];
                     MonoValue premiummv = (*def)["<Premium>k__BackingField"];
                     if (IsMonoValueEmpty(namemv) || IsMonoValueEmpty(premiummv)) {
                         DeleteMonoValue(defmv);
                         continue;
                     }
-                    
+
                     std::u16string name = namemv.str;
                     bool premium = premiummv.value.b;
                     result.cards.push_back(Card(name,count,premium));
-                    
+
                     DeleteMonoValue(defmv);
                     DeleteMonoValue(namemv);
                     DeleteMonoValue(premiummv);
@@ -1080,7 +1072,7 @@ namespace hearthmirror {
                 DeleteMonoValue(sizemv);
                 DeleteMonoValue(itemsmv);
                 DeleteMonoValue(stacksmv);
-                
+
             } else if (icname == "NetCacheCardBacks") {
                 MonoValue cardBackSlots = getObject(mv, {"<CardBacks>k__BackingField", "slots"});
                 if (IsMonoValueEmpty(cardBackSlots) || !IsMonoValueArray(cardBackSlots)) {
@@ -1093,7 +1085,7 @@ namespace hearthmirror {
                 }
                 DeleteMonoValue(cardBackSlots);
                 result.cardbacks.insert(result.cardbacks.end(), cardbacks.begin(), cardbacks.end());
-                
+
                 MonoValue defaultCardbackMv = getObject(mv, {"<DefaultCardBack>k__BackingField"});
                 result.favoriteCardBack = defaultCardbackMv.value.i32;
                 DeleteMonoValue(defaultCardbackMv);
@@ -1114,52 +1106,52 @@ namespace hearthmirror {
                 if (IsMonoValueEmpty(keysMonoValue) || !IsMonoValueArray(keysMonoValue)) {
                     throw std::domain_error("Invalid favorite heroes key object");
                 }
-                
+
                 MonoValue valuesMonoValue = getObject(mv, {"<FavoriteHeroes>k__BackingField", "valueSlots"});
                 if (IsMonoValueEmpty(valuesMonoValue) || !IsMonoValueArray(valuesMonoValue)) {
                     throw std::domain_error("Invalid favorite heroes value object");
                 }
-                
+
                 for (unsigned int k=0; k < keysMonoValue.arrsize; k++) {
                     MonoValue heroMonoValue = valuesMonoValue[k];
                     if (IsMonoValueEmpty(heroMonoValue)) continue;
                     MonoClass* instclass = heroMonoValue.value.obj.o->getClass();
                     std::string classname = instclass->getName();
                     delete instclass;
-                    
+
                     if (classname == "CardDefinition") {
                         std::u16string cardId = getObject(heroMonoValue, {"<Name>k__BackingField"}).str;
                         int premium = getObject(heroMonoValue, {"<Premium>k__BackingField"}).value.i32;
-                        
+
                         auto key = (*keysMonoValue[k].value.obj.s)["value__"];
-                        
+
                         result.favoriteHeroes[int(key.value.i32)] = Card(cardId, 1, premium > 0);
- 
+
                         DeleteMonoValue(key);
                     }
                 }
-                
+
                 DeleteMonoValue(keysMonoValue);
                 DeleteMonoValue(valuesMonoValue);
             }
         }
-        
+
         // free all memory
         DeleteMonoValue(valueSlots);
-        
+
         return result;
     }
-    
+
     std::vector<HeroLevel> Mirror::getHeroLevels() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         MonoValue valueSlots = GETOBJECT({"NetCache","s_instance","m_netCache","valueSlots"});
         if (IsMonoValueEmpty(valueSlots) || !IsMonoValueArray(valueSlots)) {
             throw std::domain_error("Net cache can't be found");
         }
-        
+
         std::vector<HeroLevel> result;
-        
+
         for (unsigned int i=0; i< valueSlots.arrsize; i++) {
             MonoValue mv = valueSlots[i];
             if (IsMonoValueEmpty(mv)) continue;
@@ -1170,7 +1162,7 @@ namespace hearthmirror {
             if (icname == "NetCacheHeroLevels") {
                 MonoValue stacksmv = (*inst)["<Levels>k__BackingField"];
                 if (IsMonoValueEmpty(stacksmv)) break;
-                
+
                 MonoObject* stacks = stacksmv.value.obj.o;
                 MonoValue itemsmv = (*stacks)["_items"];
                 MonoValue sizemv = (*stacks)["_size"];
@@ -1180,20 +1172,20 @@ namespace hearthmirror {
                     MonoValue stackmv = itemsmv.value.arr[i];
                     if (IsMonoValueEmpty(stackmv)) continue;
                     MonoObject* stack = stackmv.value.obj.o;
-                    
+
                     MonoValue classmv = (*stack)["<Class>k__BackingField"];
                     if (IsMonoValueEmpty(classmv)) {
                         continue;
                     }
                     int heroclass = classmv.value.i32;
                     DeleteMonoValue(classmv);
-                    
+
                     MonoValue clevelmv = (*stack)["<CurrentLevel>k__BackingField"];
                     if (IsMonoValueEmpty(clevelmv)) {
                         continue;
                     }
                     MonoObject* currentLvl = clevelmv.value.obj.o;
-                    
+
                     MonoValue levelmv = (*currentLvl)["<Level>k__BackingField"];
                     MonoValue maxLevelmv = (*currentLvl)["<MaxLevel>k__BackingField"];
                     MonoValue xpmv = (*currentLvl)["<XP>k__BackingField"];
@@ -1203,211 +1195,271 @@ namespace hearthmirror {
                         DeleteMonoValue(clevelmv);
                         continue;
                     }
-                    
+
                     HeroLevel heroLevel;
                     heroLevel.heroClass = heroclass;
                     heroLevel.level = levelmv.value.i32;
                     heroLevel.maxLevel = maxLevelmv.value.i32;
                     heroLevel.xp = xpmv.value.i64;
                     heroLevel.maxXp = maxXpmv.value.i64;
-                    
+
                     result.push_back(heroLevel);
-                    
+
                     DeleteMonoValue(clevelmv);
                 }
                 DeleteMonoValue(sizemv);
                 DeleteMonoValue(itemsmv);
                 DeleteMonoValue(stacksmv);
-                
+
             }
         }
-        
+
         // free all memory
         DeleteMonoValue(valueSlots);
-        
+
         return result;
     }
-    
+
     bool Mirror::isFriendsListVisible() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"ChatMgr","s_instance","m_friendListFrame"});
     }
-    
+
     bool Mirror::isGameMenuVisible() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"GameMenu","s_instance","m_isShown"});
     }
-    
+
     bool Mirror::isOptionsMenuVisible() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"OptionsMenu","s_instance","m_isShown"});
     }
-    
+
     bool Mirror::isMulligan() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"MulliganManager","s_instance","mulliganChooseBanner"});
     }
-    
+
     int Mirror::getNumMulliganCards() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETINT({"MulliganManager","s_instance","m_startingCards","_size"});
     }
-    
+
     bool Mirror::isChoosingCard() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"ChoiceCardMgr","s_instance","m_subOptionState"}) ||
                 GETINT({"ChoiceCardMgr","s_instance","m_choiceStateMap","count"}) > 0;
     }
 
     int Mirror::getNumChoiceCards() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETINT({"ChoiceCardMgr","s_instance","m_lastShownChoices","_size"});
     }
-    
+
     bool Mirror::isPlayerEmotesVisible() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"EmoteHandler","s_instance","m_emotesShown"}, m_mirrorData->monoImage);
     }
-    
+
     bool Mirror::isEnemyEmotesVisible() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"EnemyEmoteHandler","s_instance","m_emotesShown"}, m_mirrorData->monoImage);
     }
-    
+
     bool Mirror::isInBattlecryEffect() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"InputManager","s_instance","m_isInBattleCryEffect"}, m_mirrorData->monoImage);
     }
-    
+
     bool Mirror::isDragging() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"InputManager","s_instance","m_dragging"}, m_mirrorData->monoImage);
     }
-    
+
     bool Mirror::isTargetingHeroPower() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"InputManager","s_instance","m_targettingHeroPower"});
     }
-    
+
     int Mirror::getBattlecrySourceCardZonePosition() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETINT({"InputManager","s_instance","m_battlecrySourceCard","m_zonePosition"});
     }
-    
+
     bool Mirror::isHoldingCard() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"InputManager","s_instance","m_heldCard"});
     }
-    
+
     bool Mirror::isTargetReticleActive() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"TargetReticleManager","s_instance","m_isActive"});
     }
-    
+
     bool Mirror::isEnemyTargeting() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"InputManager","s_instance","m_isEnemyArrow"});
     }
-    
+
     bool Mirror::isGameOver() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"GameState","s_instance","m_gameOver"});
     }
-    
+
     bool Mirror::isInMainMenu() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETINT({"Box","s_instance","m_state"}) == (int)kBoxStateHubWithDrawer;
     }
-    
+
     UI_WINDOW Mirror::getShownUiWindowId() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return (UI_WINDOW)GETINT({"ShownUIMgr","s_instance","m_shownUI"});
     }
-    
+
     SceneMode Mirror::GetCurrentSceneMode() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return (SceneMode)GETINT({"SceneMgr","s_instance","m_mode"});
     }
-    
+
     bool Mirror::isPlayerHandZoneUpdatingLayout() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"InputManager","s_instance","m_myHandZone", "m_updatingLayout"});
     }
-    
+
     bool Mirror::isPlayerPlayZoneUpdatingLayout() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETBOOL({"InputManager","s_instance","m_myPlayZone", "m_updatingLayout"});
     }
-    
+
     int Mirror::getNumCardsPlayerHand() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETINT({"InputManager","s_instance","m_myHandZone","m_cards","_size"});
     }
-    
+
     int Mirror::getNumCardsPlayerBoard() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETINT({"InputManager","s_instance","m_myPlayZone","m_cards","_size"});
     }
-    
+
     int Mirror::getNavigationHistorySize() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETINT({"Navigation","history","_size"});
     }
-    
+
     int Mirror::getCurrentManaFilter() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETINT({"CollectionManagerDisplay","s_instance","m_manaTabManager","m_currentFilterValue"});
     }
-    
+
     SetFilterItem Mirror::getCurrentSetFilter() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         MonoValue item = GETOBJECT({"CollectionManagerDisplay","s_instance","m_setFilterTray","m_selected"});
         if (IsMonoValueEmpty(item)) {
             DeleteMonoValue(item);
             return SetFilterItem();
         }
-        
+
         DeleteMonoValue(item);
         SetFilterItem result = SetFilterItem();
-        
+
         result.isAllStandard = GETBOOL({"CollectionManagerDisplay","s_instance","m_setFilterTray","m_selected","m_isAllStandard"});
         result.isWild = GETBOOL({"CollectionManagerDisplay","s_instance","m_setFilterTray","m_selected","m_isWild"});
         return result;
     }
-    
+
     int Mirror::getLastOpenedBoosterId() {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
-        
+
         return GETINT({"PackOpening","s_instance","m_lastOpenedBoosterId"});
     }
-    
+
+    int Mirror::getRank(MonoObject *medalInfo) {
+        int leagueId;
+        getAsInt(leagueId, medalInfo, "leagueId");
+        int starLevel;
+        getAsInt(starLevel, medalInfo, "starLevel");
+
+        int rank = 0;
+
+        MonoValue rankMgr = GETOBJECT({"RankMgr", "s_instance"});
+        if(IsMonoValueEmpty(rankMgr))
+            return rank;
+
+        MonoValue leagueMap = (*rankMgr.value.obj.o)["m_rankConfigByLeagueAndStarLevel"];
+        if(IsMonoValueEmpty(leagueMap)) {
+            DeleteMonoValue(rankMgr);
+            return rank;
+        }
+
+        MonoValue keys = (*leagueMap.value.obj.o)["keySlots"];
+        MonoValue values = (*leagueMap.value.obj.o)["valueSlots"];
+
+        for (unsigned int i = 0; i < keys.arrsize; i++) {
+            if (keys[i].value.i32 != leagueId) {
+                continue;
+            }
+            if (IsMonoValueEmpty(values[i])) {
+                continue;
+            }
+            MonoObject *starLevelMap = values[i].value.obj.o;
+
+            MonoValue keys2 = (*starLevelMap)["keySlots"];
+            MonoValue values2 = (*starLevelMap)["valueSlots"];
+            for(int j = 0; j < keys2.arrsize; j++)
+            {
+                if(keys2[j].value.i32 != starLevel)
+                    continue;
+
+                MonoValue locValues = getObject(values2[j], {"m_MedalText", "m_locValues", "_items"});
+                for (unsigned int k=0; i < locValues.arrsize; i++) {
+                    MonoValue value = locValues[k];
+                    if (IsMonoValueEmpty(value)) continue;
+                    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> convert;
+                    std::string dest = convert.to_bytes(value.str);
+                    rank = atoi(dest.c_str());
+                }
+            }
+
+            DeleteMonoValue(keys2);
+            DeleteMonoValue(values2);
+        }
+
+        DeleteMonoValue(keys);
+        DeleteMonoValue(values);
+
+        DeleteMonoValue(leagueMap);
+        DeleteMonoValue(rankMgr);
+
+        return rank;
+    }
+
     enum GameSaveKeySubkeyId {
         DUNGEON_CRAWL_BOSSES_DEFEATED = 13,
         DUNGEON_CRAWL_DECK_CARD_LIST,
@@ -1445,14 +1497,14 @@ namespace hearthmirror {
         DUNGEON_CRAWL_HERO_HEALTH = 130,
         DUNGEON_CRAWL_CARDS_ADDED_TO_DECK_MAP = 135
     };
-    
+
     std::vector<int> getValueAsVector(const GameSaveKeySubkeyId& key, MonoObject *map) {
         std::vector<int> result;
         int subIndex = getKeyIndex(map, key);
         if (subIndex == -1) {
             return result;
         }
-        
+
         MonoValue valueSlots = (*map)["valueSlots"];
         if (IsMonoValueEmpty(valueSlots)) {
             throw std::runtime_error("Failed to access valueSlots");
@@ -1462,8 +1514,8 @@ namespace hearthmirror {
         MonoValue sizeMv = (*list.value.obj.o)["_size"];
         int size = sizeMv.value.i32;
         DeleteMonoValue(sizeMv);
-        
-        
+
+
         if (size > 0) {
             MonoValue items = (*list.value.obj.o)["_items"];
             for (auto i = 0; i < size; i++) {
@@ -1475,10 +1527,10 @@ namespace hearthmirror {
 
         DeleteMonoValue(list);
         DeleteMonoValue(valueSlots);
-        
+
         return result;
     }
-    
+
     int getValue(const GameSaveKeySubkeyId& key, MonoObject *map) {
         try {
             std::vector<int> values = getValueAsVector(key, map);
@@ -1510,5 +1562,5 @@ namespace hearthmirror {
         this->heroHealth = getValue(DUNGEON_CRAWL_HERO_HEALTH, map);
         this->cardsAddedToDeck = getValueAsVector(DUNGEON_CRAWL_CARDS_ADDED_TO_DECK_MAP, map);
     }
-    
+
 } // namespace

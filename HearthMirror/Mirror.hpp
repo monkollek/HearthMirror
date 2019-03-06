@@ -12,6 +12,7 @@
 #include <locale>
 #include <vector>
 #include <map>
+#include "MonoType.hpp"
 
 #ifdef __APPLE__
 #define HEARTHMIRROR_API __attribute__((visibility("default")))
@@ -388,6 +389,8 @@ class HEARTHMIRROR_API Mirror {
 
     private:
         MirrorData* m_mirrorData = NULL;
+
+        int getRank(MonoObject *medalInfo);
 };
     
 }
