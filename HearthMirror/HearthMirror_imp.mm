@@ -544,7 +544,7 @@ NSArray* arrayFromIntVector(const std::vector<int>& v) {
 
 @implementation MirrorPlayer
 - (NSString *)description {
-    return [NSString stringWithFormat:@"name: %@, playerId: %@, wildMedalInfo: %@, standardMedalInfo: %@, standardRank: %@, standardLegendRank: %@, standardStars: %@, wildRank: %@, wildLegendRank: %@, wildStars: %@, cardBackId: %@", self.name, self.playerId, self.standardRank, self.standardLegendRank, self.standardStars, self.wildRank, self.wildLegendRank, self.wildStars, self.cardBackId];
+    return [NSString stringWithFormat:@"name: %@, playerId: %@, wildMedalInfo: %@, standardMedalInfo: %@, standardRank: %@, standardLegendRank: %@, standardStars: %@, wildRank: %@, wildLegendRank: %@, wildStars: %@, cardBackId: %@", self.name, self.playerId, self.wildMedalInfo, self.standardMedalInfo, self.standardRank, self.standardLegendRank, self.standardStars, self.wildRank, self.wildLegendRank, self.wildStars, self.cardBackId];
 }
 @end
 
