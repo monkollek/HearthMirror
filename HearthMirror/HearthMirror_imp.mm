@@ -211,6 +211,8 @@ using namespace hearthmirror;
     localPlayer.name = [NSString stringWithu16string:player.name];
     if (localPlayer.name == nil) return nil;
     localPlayer.playerId = @(player.id);
+    localPlayer.wildMedalInfo = @(player.wildMedalInfo);
+    localPlayer.standardMedalInfo = @(player.standardMedalInfo);
     localPlayer.standardRank = @(player.standardRank);
     localPlayer.standardLegendRank = @(player.standardLegendRank);
     localPlayer.standardStars = @(player.standardStars);
@@ -534,9 +536,15 @@ NSArray* arrayFromIntVector(const std::vector<int>& v) {
 }
 @end
 
+@implementation MirrorMedalInfo
+- (NSString *)description {
+    return [NSString stringWithFormat:@"rank: %@, leagueId: %@, stars: %@, legendRank: %@, starMultiplier: %@, starLevel: %@", self.rank, self.leagueId, self.stars, self.legendRank, self.starMultiplier, self.starLevel];
+}
+@end
+
 @implementation MirrorPlayer
 - (NSString *)description {
-    return [NSString stringWithFormat:@"name: %@, playerId: %@, standardRank: %@, standardLegendRank: %@, standardStars: %@, wildRank: %@, wildLegendRank: %@, wildStars: %@, cardBackId: %@", self.name, self.playerId, self.standardRank, self.standardLegendRank, self.standardStars, self.wildRank, self.wildLegendRank, self.wildStars, self.cardBackId];
+    return [NSString stringWithFormat:@"name: %@, playerId: %@, wildMedalInfo: %@, standardMedalInfo: %@, standardRank: %@, standardLegendRank: %@, standardStars: %@, wildRank: %@, wildLegendRank: %@, wildStars: %@, cardBackId: %@", self.name, self.playerId, self.standardRank, self.standardLegendRank, self.standardStars, self.wildRank, self.wildLegendRank, self.wildStars, self.cardBackId];
 }
 @end
 

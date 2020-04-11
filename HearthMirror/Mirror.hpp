@@ -113,9 +113,20 @@ typedef struct _InternalGameServerInfo {
     std::u16string version;
 } InternalGameServerInfo;
 
+typedef struct _InternalMedalInfo {
+    int rank;
+    int leagueId;
+    int stars;
+    int legendRank;
+    int starMultiplier;
+    int starLevel;
+} InternalMedalInfo;
+
 typedef struct _InternalPlayer {
     std::u16string name;
     int id;
+    InternalMedalInfo wildMedalInfo;
+    InternalMedalInfo standardMedalInfo;
     int standardRank;
     int standardLegendRank;
     int standardStars;

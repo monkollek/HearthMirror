@@ -53,9 +53,20 @@
     @property NSString *_Nonnull version;
 @end
 
+@interface MirrorMedalInfo: NSObject
+    @property NSNumber *_Nonnull rank;
+    @property NSNumber *_Nonnull leagueId;
+    @property NSNumber *_Nonnull stars;
+    @property NSNumber *_Nonnull legendRank;
+    @property NSNumber *_Nonnull starMultiplier;
+    @property NSNumber *_Nonnull starLevel;
+@end
+
 @interface MirrorPlayer: NSObject
     @property NSString *_Nonnull name;
     @property NSNumber *_Nonnull playerId;
+    @property MirrorMedalInfo *_Nonnull wildMedalInfo;
+    @property MirrorMedalInfo *_Nonnull standardMedalInfo;    
     @property NSNumber *_Nonnull standardRank;
     @property NSNumber *_Nonnull standardLegendRank;
     @property NSNumber *_Nonnull standardStars;
