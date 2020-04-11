@@ -215,8 +215,8 @@ using namespace hearthmirror;
     //localPlayer.wildMedalInfo = @(player.wildMedalInfo);    
     //localPlayer.standardMedalInfo = @(player.standardMedalInfo);
 
-    localPlayer.wildMedalInfo = [self getMedalFromMedal: player.wildMedalInfo]    
-    localPlayer.standardMedalInfo = [self getMedalFromMedal: player.standardMedalInfo]
+    localPlayer.wildMedalInfo = [self getMedalFromMedal: player.wildMedalInfo];   
+    localPlayer.standardMedalInfo = [self getMedalFromMedal: player.standardMedalInfo];
 
     localPlayer.standardRank = @(player.standardRank);
     localPlayer.standardLegendRank = @(player.standardLegendRank);
@@ -233,7 +233,7 @@ using namespace hearthmirror;
 
     MirrorMedalInfo *localMedalInfo = [MirrorMedalInfo new];
     localMedalInfo.rank = @(medal.rank);
-    localMedalInfo.leagueID = @(medal.leagueID);
+    localMedalInfo.leagueId = @(medal.leagueId);
     localMedalInfo.stars = @(medal.stars);
     localMedalInfo.legendRank = @(medal.legendRank);
     localMedalInfo.starMultiplier = @(medal.starMultiplier);
