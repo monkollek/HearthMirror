@@ -211,8 +211,13 @@ using namespace hearthmirror;
     localPlayer.name = [NSString stringWithu16string:player.name];
     if (localPlayer.name == nil) return nil;
     localPlayer.playerId = @(player.id);
-    localPlayer.wildMedalInfo = @(player.wildMedalInfo);
-    localPlayer.standardMedalInfo = @(player.standardMedalInfo);
+    
+    //localPlayer.wildMedalInfo = @(player.wildMedalInfo);    
+    //localPlayer.standardMedalInfo = @(player.standardMedalInfo);
+
+    localPlayer.wildMedalInfo = [self getMedalFromMedal: player.wildMedalInfo]    
+    localPlayer.standardMedalInfo = [self getMedalFromMedal: player.standardMedalInfo]
+
     localPlayer.standardRank = @(player.standardRank);
     localPlayer.standardLegendRank = @(player.standardLegendRank);
     localPlayer.standardStars = @(player.standardStars);
@@ -223,6 +228,20 @@ using namespace hearthmirror;
 
     return localPlayer;
 }
+
+-(nullable MirrorMedalInfo *) getMedalFromMedal:(InternalMedalInfo) medal {
+
+    MirrorMedalInfo *localMedalInfo = [MirrorMedalInfo new];
+    localMedalInfo.rank = @(medal.rank);
+    localMedalInfo.leagueID = @(medal.leagueID);
+    localMedalInfo.stars = @(medal.stars);
+    localMedalInfo.legendRank = @(medal.legendRank);
+    localMedalInfo.starMultiplier = @(medal.starMultiplier);
+    localMedalInfo.starLevel = @(medal.starLevel);
+
+    return localMedalInfo;
+}
+
 
 -(nullable MirrorAccountId *) getAccountId {
     if (_mirror == NULL) return nil;
