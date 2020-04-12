@@ -52,6 +52,7 @@ using namespace hearthmirror;
 }
 
 -(nullable NSString*) getBattleTag {
+    NSLog(@"In getBattleTag - 1");
     if (_mirror == NULL) return nil;
 
     try {
@@ -65,6 +66,7 @@ using namespace hearthmirror;
 }
     
 -(nonnull MirrorCollection*) getCollection {
+    NSLog(@"In getCollection - 1");
     MirrorCollection* result = [MirrorCollection new];
     if (_mirror == NULL) return result;
     
@@ -129,6 +131,7 @@ using namespace hearthmirror;
 }
 
 -(nullable MirrorGameServerInfo*) getGameServerInfo {
+    NSLog(@"In getGameServerInfo - 1");
     if (_mirror == NULL) return nil;
 
     try {
@@ -175,6 +178,7 @@ using namespace hearthmirror;
 }
 
 -(nullable MirrorMatchInfo *) getMatchInfo {
+    NSLog(@"In getMatchInfo - 1");
     if (_mirror == NULL) return nil;
 
     try {
@@ -244,6 +248,7 @@ using namespace hearthmirror;
 
 
 -(nullable MirrorAccountId *) getAccountId {
+    NSLog(@"In getAccountId - 1");    
     if (_mirror == NULL) return nil;
 
     try {
@@ -260,6 +265,7 @@ using namespace hearthmirror;
 }
 
 -(MirrorDeck *)buildDeck:(Deck)deck {
+    NSLog(@"In buildDeck - 1");
     MirrorDeck *mirrorDeck = [MirrorDeck new];
     mirrorDeck.id = @(deck.id);
     mirrorDeck.name = [NSString stringWithu16string:deck.name];
@@ -301,6 +307,7 @@ using namespace hearthmirror;
 }
 
 -(nonnull NSArray<MirrorDeck*>*) getDecks {
+    NSLog(@"In getDecks - 1");
     if (_mirror == NULL) return [NSArray array];
 
     try {
@@ -344,6 +351,7 @@ using namespace hearthmirror;
 }
 
 -(nullable NSNumber*) getSelectedDeck {
+    NSLog(@"In getSelectedDeck - 1");
     if (_mirror == NULL) return nil;
 
     try {
