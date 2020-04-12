@@ -363,6 +363,8 @@ namespace hearthmirror {
                     MonoValue _medalInfo = (*inst)["m_medalInfo"];
                     MonoObject *medalInfo = _medalInfo.value.obj.o;
 
+                    //Check the structure is still the same here
+
                     int sRank = 0;
                     int sLegendRank = 0;
                     int wRank = 0;
@@ -371,7 +373,10 @@ namespace hearthmirror {
                     // spectated games have no medalinfo
                     if (medalInfo != NULL) {
 
+                        // set these values to a default of zero for everything and figure out the new structure
+                        /*
                         MonoValue _sMedalInfo = (*medalInfo)["m_currMedalInfo"];
+                        
                         if (!IsMonoValueEmpty(_sMedalInfo)) {
                             MonoObject *sMedalInfo = _sMedalInfo.value.obj.o;
                             MonoValue rank = (*sMedalInfo)["rank"];
@@ -404,6 +409,7 @@ namespace hearthmirror {
 
                             DeleteMonoValue(_wMedalInfo);
                         }
+                        */
                     }
 
                     std::u16string name = ((*inst)["m_name"]).str;
@@ -416,10 +422,12 @@ namespace hearthmirror {
                     int id = playerIds[i].value.i32;
 
                     int side = ((*inst)["m_side"]).value.i32;
+
                     if (side == 1) {
+                        // set to zero for now
                         int sStars = 0;
                         int wStars = 0;
-
+                        /*
                         MonoValue netCacheMedalInfo;
                         for (unsigned int i=0; i< netCacheValues.arrsize; i++) {
                             MonoValue netCache = netCacheValues[i];
@@ -454,10 +462,24 @@ namespace hearthmirror {
                                     DeleteMonoValue(vm);
                                 }
                             }
+                            */
                         }
 
                         matchInfo.localPlayer.name = name;
                         matchInfo.localPlayer.id = id;
+
+                        matchInfo.localPlayer.wildMedalInfo.rank = 0;
+                        matchInfo.localPlayer.wildMedalInfo.stars = 0;
+                        matchInfo.localPlayer.wildMedalInfo.legendRank = 0;
+                        matchInfo.localPlayer.wildMedalInfo.starMultiplier = 0;
+                        matchInfo.localPlayer.wildMedalInfo.starLevel = 0;
+
+                        matchInfo.localPlayer.standardMedalInfo.rank = 0;
+                        matchInfo.localPlayer.standardMedalInfo.stars = 0;
+                        matchInfo.localPlayer.standardMedalInfo.legendRank = 0;
+                        matchInfo.localPlayer.standardMedalInfo.starMultiplier = 0;
+                        matchInfo.localPlayer.standardMedalInfo.starLevel = 0;
+
                         matchInfo.localPlayer.standardRank = sRank;
                         matchInfo.localPlayer.standardLegendRank = sLegendRank;
                         matchInfo.localPlayer.standardStars = sStars;
@@ -465,9 +487,24 @@ namespace hearthmirror {
                         matchInfo.localPlayer.wildLegendRank = wLegendRank;
                         matchInfo.localPlayer.wildStars = wStars;
                         matchInfo.localPlayer.cardBackId = cardBack;
+                        // Dummy values will go here for now
+
                     } else {
                         matchInfo.opposingPlayer.name = name;
                         matchInfo.opposingPlayer.id = id;
+
+                        matchInfo.opposingPlayer.wildMedalInfo.rank = 0;
+                        matchInfo.opposingPlayer.wildMedalInfo.stars = 0;
+                        matchInfo.opposingPlayer.wildMedalInfo.legendRank = 0;
+                        matchInfo.opposingPlayer.wildMedalInfo.starMultiplier = 0;
+                        matchInfo.opposingPlayer.wildMedalInfo.starLevel = 0;
+
+                        matchInfo.opposingPlayer.standardMedalInfo.rank = 0;
+                        matchInfo.opposingPlayer.standardMedalInfo.stars = 0;
+                        matchInfo.opposingPlayer.standardMedalInfo.legendRank = 0;
+                        matchInfo.opposingPlayer.standardMedalInfo.starMultiplier = 0;
+                        matchInfo.opposingPlayer.standardMedalInfo.starLevel = 0;
+
                         matchInfo.opposingPlayer.standardRank = sRank;
                         matchInfo.opposingPlayer.standardLegendRank = sLegendRank;
                         matchInfo.opposingPlayer.standardStars = 0;
@@ -475,6 +512,8 @@ namespace hearthmirror {
                         matchInfo.opposingPlayer.wildLegendRank = wLegendRank;
                         matchInfo.opposingPlayer.wildStars = 0;
                         matchInfo.opposingPlayer.cardBackId = cardBack;
+                        // Dummy values will go here for now
+
                     }
                     
                     DeleteMonoValue(_medalInfo);
