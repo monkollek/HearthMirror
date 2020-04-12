@@ -462,8 +462,8 @@ namespace hearthmirror {
                                     DeleteMonoValue(vm);
                                 }
                             }
-                            */
-                        }
+                            
+                        }*/
 
                         matchInfo.localPlayer.name = name;
                         matchInfo.localPlayer.id = id;
