@@ -333,7 +333,7 @@ namespace hearthmirror {
     }
 
     InternalMatchInfo Mirror::getMatchInfo() {
-        printf("In getMatchInfo - 1\n");
+        printf("In Mirror::getMatchInfo - 1\n");
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
 
         InternalMatchInfo matchInfo;
@@ -737,6 +737,7 @@ namespace hearthmirror {
     }
 
     std::vector<Deck> Mirror::getDecks() {
+        printf("In Mirror::getDecks - 1\n");
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
 
         MonoValue values = GETOBJECT({"CollectionManager","s_instance","m_decks","valueSlots"});
@@ -779,6 +780,7 @@ namespace hearthmirror {
     }
 
     long Mirror::getSelectedDeckInMenu() {
+        printf("In Mirror::getSelectedDeckInMenu - 1\n");
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
 
         return GETLONG({"DeckPickerTrayDisplay","s_instance","m_selectedCustomDeckBox","m_deckID"});
