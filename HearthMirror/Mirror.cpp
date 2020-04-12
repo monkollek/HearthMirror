@@ -333,6 +333,7 @@ namespace hearthmirror {
     }
 
     InternalMatchInfo Mirror::getMatchInfo() {
+        printf("In getMatchInfo - 1\n");
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
 
         InternalMatchInfo matchInfo;
