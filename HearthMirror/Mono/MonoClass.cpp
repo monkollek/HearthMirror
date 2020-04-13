@@ -47,14 +47,20 @@ namespace hearthmirror {
     }
     
     std::string MonoClass::getFullName() {
+        printf("In MonoImage::getName - 1\n");
         std::string name = getName();
+
+        printf("In MonoImage::getName - 2\n");
         std::string ns = getNameSpace();
-        
+
+        printf("In MonoImage::getName - 3\n");        
         MonoClass* nestedIn = getNestedIn();
         
         while(nestedIn != NULL)
         {
+            printf("In MonoImage::getName - 4\n");        
             name = nestedIn->getName() + "+" + name;
+            printf("In MonoImage::getName - 5\n");        
             ns = nestedIn->getNameSpace();
             
             MonoClass* nestedIn_t = nestedIn->getNestedIn();
