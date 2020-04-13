@@ -48,7 +48,7 @@ namespace hearthmirror {
         */
         //kMonoClassNextClassCache64
 
-        char buf[kRemoteStringBufferSize] = {0}; // too long symbol names might not fit in
+        char buf[2048] = {0}; // too long symbol names might not fit in
         mach_vm_size_t buf_size = sizeof(buf);
     
         vm_offset_t pointer = NULL;
@@ -57,17 +57,17 @@ namespace hearthmirror {
         kern_return_t err;
         char *result;
         
-        printf("offset1: %d offset2: %d\n",kMonoClassName64,kMonoClassNameSpace64);
+        printf("offset1: %ul offset2: %ul\n",kMonoClassName64,kMonoClassNameSpace64);
         
         // get pointer to namespace char*
-        err = mach_vm_read(task, _pClass+kMonoClassNameSpace64, size, &pointer, &data_read);
+        err = mach_vm_read(_task, _pClass+kMonoClassNameSpace64, size, &pointer, &data_read);
 
         // copy contents from memory and hope it's a char array
-        err = mach_vm_read_overwrite(task, pointer, buf_size,
+        err = mach_vm_read_overwrite(_task, pointer, buf_size,
                                  (mach_vm_address_t)&buf, &buf_size);
 
         
-        buf[kRemoteStringBufferSize-1] = '\0';
+        buf[2047] = '\0';
         result = strdup(buf);
         printf("String found: %s\n", result);
         free(result);
