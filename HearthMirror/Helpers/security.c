@@ -20,11 +20,12 @@ EXPORT int acquireTaskportRight()
     AuthorizationItem taskport_item[] = {{"system.privilege.taskport:"}};
     AuthorizationRights rights = {1, taskport_item};
     AuthorizationRef author;
-    
+    CFStringRef stat_msg;
+
     AuthorizationFlags auth_flags = kAuthorizationFlagExtendRights | kAuthorizationFlagPreAuthorize | kAuthorizationFlagInteractionAllowed | ( 1 << 5);
     
     stat = AuthorizationCreate(NULL, kAuthorizationEmptyEnvironment,auth_flags,&author);
-    CFStringRef stat_msg = SecCopyErrorMessageString(stat,NULL);
+    stat_msg = SecCopyErrorMessageString(stat,NULL);
 
     if (stat != errAuthorizationSuccess)
     {
