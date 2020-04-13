@@ -137,6 +137,7 @@ namespace hearthmirror {
                 *monoimage = NULL;
             } catch (std::runtime_error& err) {
                 printf("MonoImage::getMonoImage runtime_error\n");
+                printf("Runtime error: %s\n", err);
                 delete *monoimage;
                 *monoimage = NULL;
             }
