@@ -76,12 +76,12 @@ namespace hearthmirror {
         
         do {
             bool is64bit = false;
-            printf("In MonoImage::getMonoImage - calling getMonoLoadAddress\n");
+            //printf("In MonoImage::getMonoImage - calling getMonoLoadAddress\n");
             proc_address baseaddress = getMonoLoadAddress(*handle, &is64bit);
             if (baseaddress == 0) return 4;
             
             // we need to find the address of "mono_root_domain"
-            printf("In MonoImage::getMonoImage - calling getMonoRootDomainAddr\n");
+            //printf("In MonoImage::getMonoImage - calling getMonoRootDomainAddr\n");
             proc_address mono_grd_addr = getMonoRootDomainAddr(*handle, baseaddress, is64bit);
             if (mono_grd_addr == 0) return 5;
             
@@ -115,6 +115,7 @@ namespace hearthmirror {
                         next = ReadPointer(*handle, next + 4, is64bit);
                     }
                     char* name = is64bit ? ReadCString(*handle, ReadPointer(*handle, (proc_address)assemblyPtr + kMonoAssemblyName64, true)) : ReadCString(*handle, ReadPointer(*handle, (proc_address)assemblyPtr + kMonoAssemblyName, false));
+                    printf("String search: %s\n", name);
                     if(strcmp(name, "Assembly-CSharp") == 0) {
                         free(name);
                         pImage = ReadPointer(*handle, is64bit ? assemblyPtr + kMonoAssemblyImage64 : assemblyPtr + kMonoAssemblyImage, is64bit);
