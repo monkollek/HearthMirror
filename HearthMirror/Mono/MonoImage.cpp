@@ -40,10 +40,13 @@ namespace hearthmirror {
             delete it->second;
         }
         _classes.clear();
-        
+
+        printf("In MonoImage::loadClasses - 2\n");        
         proc_address classCache = _is64bit ? _pImage + kMonoImageClassCache64 : _pImage + kMonoImageClassCache;
         int32_t size = ReadInt32(_task, _is64bit ? classCache + kMonoInternalHashTableSize64 : classCache + kMonoInternalHashTableSize);
         proc_address table = ReadPointer(_task, _is64bit ? classCache + kMonoInternalHashTableTable64 : classCache + kMonoInternalHashTableTable, _is64bit);
+
+        printf("In MonoImage::loadClasses - 3\n");
 
         for (uint32_t i = 0; i < size; i++) {
             proc_address pClass = ReadPointer(_task, _is64bit ? table + 8*i : table + 4*i, _is64bit);
