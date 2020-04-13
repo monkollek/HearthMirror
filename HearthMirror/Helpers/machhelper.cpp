@@ -576,6 +576,7 @@ char *ReadCString(HANDLE task, mach_vm_address_t pointer)
     kern_return_t err = mach_vm_read_overwrite(task, pointer, size,
                                  (mach_vm_address_t)&buf, &size);
     if (err != KERN_SUCCESS) {
+        printf("Error code: %x, Buff size: %d", err, kRemoteStringBufferSize);
         throw std::runtime_error("Could not read memory region");
     }
     
