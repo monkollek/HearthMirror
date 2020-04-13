@@ -26,7 +26,9 @@ namespace hearthmirror {
             return result;
         }
         printf("In MonoImage::getName - 3\n");
+        
         char* pName = ReadCString(_task, addr);
+
         if (pName != NULL) {
             printf("In MonoImage::getName - 4\n");
             std::string name(pName);
@@ -38,6 +40,7 @@ namespace hearthmirror {
     }
     
     std::string MonoClass::getNameSpace() {
+        printf("offset1: %d offset2: %d\n",kMonoClassName64,kMonoClassNameSpace64);
         proc_address addr = ReadPointer(_task, _is64bit ? _pClass + kMonoClassNameSpace64 : _pClass + kMonoClassNameSpace, _is64bit);
         if (addr == 0) return "";
         char* pNamespace = ReadCString(_task, addr);

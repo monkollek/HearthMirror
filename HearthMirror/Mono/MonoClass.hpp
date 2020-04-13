@@ -28,6 +28,8 @@ namespace hearthmirror {
         std::string getNameSpace();
         std::string getFullName();
         
+        //int32_t getNextMonoClass();
+
         MonoClass* getNestedIn();
         proc_address getVTable();
         
