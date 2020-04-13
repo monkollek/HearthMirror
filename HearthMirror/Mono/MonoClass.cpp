@@ -9,6 +9,11 @@
 #include "MonoClass.hpp"
 #include "../Helpers/offsets.h"
 
+#include <mach/mach_vm.h>
+#include <mach/error.h>
+#include <MacTypes.h>
+#include <stdlib.h>
+
 namespace hearthmirror {
 
     MonoClass::MonoClass(HANDLE task, proc_address pClass, bool is64bit) : _task(task), _pClass(pClass), _is64bit(is64bit) {}
@@ -57,7 +62,7 @@ namespace hearthmirror {
         kern_return_t err;
         char *result;
         
-        printf("offset1: %ul offset2: %ul\n",kMonoClassName64,kMonoClassNameSpace64);
+        printf("offset1: %lu offset2: %lu\n",kMonoClassName64,kMonoClassNameSpace64);
         
         // get pointer to namespace char*
         err = mach_vm_read(_task, _pClass+kMonoClassNameSpace64, size, &pointer, &data_read);
