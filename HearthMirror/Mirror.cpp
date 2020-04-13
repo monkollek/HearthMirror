@@ -33,6 +33,7 @@ namespace hearthmirror {
     };
     
     Mirror::Mirror(int pid, bool isBlocking) {
+        printf("In Mirror::Mirror - 1\n");
         this->m_mirrorData = new _mirrorData();
 		if (initWithPID(pid, isBlocking) != 0) {
 			throw std::runtime_error("Failed to init Hearthmirror");
@@ -47,10 +48,12 @@ namespace hearthmirror {
     }
 
     int Mirror::initWithPID(int pid, bool isBlocking) {
+        printf("In Mirror::initWithPID - 1\n");
         if (m_mirrorData->monoImage) delete m_mirrorData->monoImage;
         m_mirrorData->monoImage = NULL;
         
 		// get handle to process
+        printf("In Mirror::initWithPID - Calling getMonoImage\n");
         return MonoImage::getMonoImage(pid, isBlocking, &m_mirrorData->task, &m_mirrorData->monoImage);
     }
 
