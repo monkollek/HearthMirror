@@ -8,6 +8,7 @@
 
 #include "machhelper.h"
 #include <mach/mach_vm.h>
+#include <mach/error.h>
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
 #include <MacTypes.h>
@@ -371,6 +372,7 @@ uint64_t ReadUInt64(HANDLE task, mach_vm_address_t address) {
     mach_msg_type_number_t data_read = 0;
     kern_return_t err = mach_vm_read(task, address, size, &readMem, &data_read);
     if (err != KERN_SUCCESS) {
+        printf("Error code: %x", err);
         throw std::runtime_error("Could not read memory region");
     }
     
