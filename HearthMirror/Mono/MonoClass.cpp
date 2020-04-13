@@ -59,22 +59,23 @@ namespace hearthmirror {
         vm_offset_t pointer = NULL;
         vm_size_t size = 8;
         mach_msg_type_number_t data_read = 0;
-        kern_return_t err;
+        kern_return_t err1, err2;
         char *result;
+        uint64_t v;
         
-        printf("offset1: %lu offset2: %lu\n",kMonoClassName64,kMonoClassNameSpace64);
+        //printf("offset1: %lu offset2: %lu\n",kMonoClassName64,kMonoClassNameSpace64);
         
         // get pointer to namespace char*
-        err = mach_vm_read(_task, _pClass+kMonoClassNameSpace64, size, &pointer, &data_read);
+        err1 = mach_vm_read(_task, _pClass+kMonoClassNameSpace64, size, &pointer, &data_read);
+        v = 0;
+        memcpy((char *)&v, (Byte*)pointer, sizeof(uint64_t));
 
         // copy contents from memory and hope it's a char array
-        err = mach_vm_read_overwrite(_task, pointer, buf_size,
-                                 (mach_vm_address_t)&buf, &buf_size);
+        err2 = mach_vm_read_overwrite(_task, v, buf_size, (mach_vm_address_t)&buf, &buf_size);
 
-        
         buf[2047] = '\0';
         result = strdup(buf);
-        printf("String found: %s\n", result);
+        printf("String found: %s err1: %d err2: %d\n", result, err1, err2);
         free(result);
 
         /*
