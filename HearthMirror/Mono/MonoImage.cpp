@@ -35,6 +35,7 @@ namespace hearthmirror {
     }
 
     void MonoImage::loadClasses() {
+        printf("In MonoImage::loadClasses - 1\n");
         for (auto it = _classes.begin(); it != _classes.end(); it++) {
             delete it->second;
         }
@@ -115,10 +116,10 @@ namespace hearthmirror {
                         next = ReadPointer(*handle, next + 4, is64bit);
                     }
                     char* name = is64bit ? ReadCString(*handle, ReadPointer(*handle, (proc_address)assemblyPtr + kMonoAssemblyName64, true)) : ReadCString(*handle, ReadPointer(*handle, (proc_address)assemblyPtr + kMonoAssemblyName, false));
-                    printf("String search: %s\n", name);
+                    //printf("String search: %s\n", name);
                     if(strcmp(name, "Assembly-CSharp") == 0) {
                         free(name);
-                        printf("Found Assembly-CSharp string and breaking\n");
+                        //printf("Found Assembly-CSharp string and breaking\n");                        
                         pImage = ReadPointer(*handle, is64bit ? assemblyPtr + kMonoAssemblyImage64 : assemblyPtr + kMonoAssemblyImage, is64bit);
                         break;
                     }
@@ -130,7 +131,9 @@ namespace hearthmirror {
             
             // we have a pointer now to the right assembly image
             try {
+                printf("Creating new MonoImage\n");
                 *monoimage = new MonoImage(*handle, pImage, is64bit);
+                printf("Created MonoImage and now calling hasClasses\n");
                 if ((*monoimage)->hasClasses()) break;
                 printf("monoimage has no classes\n");
                 delete *monoimage;
