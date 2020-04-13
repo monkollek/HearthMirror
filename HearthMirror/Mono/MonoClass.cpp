@@ -59,7 +59,7 @@ namespace hearthmirror {
         vm_offset_t pointer = NULL;
         vm_size_t size = 8;
         mach_msg_type_number_t data_read = 0;
-        kern_return_t err1, err2;
+        kern_return_t err1, err2, err3;
         char *result;
         uint64_t v;
         
@@ -107,28 +107,35 @@ namespace hearthmirror {
         free(result);
 
 
-        /*
+        
         for (uint32_t i = kMonoClassNextClassCache64-12; i < kMonoClassNextClassCache64+12; i++){
-            err = mach_vm_read(task, _pClass+i, size, &pointer, &data_read);
-            
-            if (err != KERN_SUCCESS) continue;
+            err1 = mach_vm_read(_task, _pClass+i, size, &pointer, &data_read);
+            v = 0;
+            memcpy((char *)&v, (Byte*)pointer, sizeof(uint64_t));
 
-            err = mach_vm_read_overwrite(task, pointer+kMonoClassNameSpace64, buf_size,
-                                 (mach_vm_address_t)&buf, &buf_size);
+            if (err1 != KERN_SUCCESS) continue;
+
+            err2 = mach_vm_read(_task, v+kMonoClassNameSpace64, size, &pointer, &data_read);
+            v = 0;
+            memcpy((char *)&v, (Byte*)pointer, sizeof(uint64_t));
+
+            if (err2 != KERN_SUCCESS) continue;
+
+            err3 = mach_vm_read_overwrite(_task, v, buf_size, (mach_vm_address_t)&buf, &buf_size);
 
             mach_vm_deallocate(mach_task_self(), pointer, size);
 
-            if (err != KERN_SUCCESS) continue;
+            if (err3 != KERN_SUCCESS) continue;
 
             // add ending
             buf[kRemoteStringBufferSize-1] = '\0';
             result = strdup(buf);
 
-            printf("String found: %s\n", result);
+            printf("String found: %s offset: %d err1: %d err2: %d err3: %d\n", result, i, err1, err2, err3);
             free(result);
 
         }
-        */
+        
 
 
         return 0;
