@@ -58,6 +58,7 @@ namespace hearthmirror {
     }
     
     int MonoImage::getMonoImage(int pid, bool isBlocking, HANDLE* handle, MonoImage** monoimage) {
+        printf("In MonoImage::getMonoImage - 1\n");
 #ifdef __APPLE__
         kern_return_t kret = task_for_pid(mach_task_self(), pid, handle);
         if (kret!=KERN_SUCCESS) {
@@ -75,10 +76,12 @@ namespace hearthmirror {
         
         do {
             bool is64bit = false;
+            printf("In MonoImage::getMonoImage - calling getMonoLoadAddress\n");
             proc_address baseaddress = getMonoLoadAddress(*handle, &is64bit);
             if (baseaddress == 0) return 4;
             
             // we need to find the address of "mono_root_domain"
+            printf("In MonoImage::getMonoImage - calling getMonoRootDomainAddr\n");
             proc_address mono_grd_addr = getMonoRootDomainAddr(*handle, baseaddress, is64bit);
             if (mono_grd_addr == 0) return 5;
             

@@ -133,7 +133,7 @@ uint32_t findLibBaseAddress32(mach_port_t task, const char* libname, task_dyld_i
 }
 
 uint64_t findLibBaseAddress64(mach_port_t task, const char* libname, task_dyld_info_data_t dyld_info) {
-    
+    printf("In findLibBaseAddress64 - 1\n");
     vm_address_t address = (vm_address_t)dyld_info.all_image_info_addr;
     mach_msg_type_number_t size = sizeof(struct dyld_all_image_infos);
     vm_offset_t readMem;
@@ -157,7 +157,7 @@ uint64_t findLibBaseAddress64(mach_port_t task, const char* libname, task_dyld_i
 }
 
 proc_address getLibLoadAddress(mach_port_t task, const char* libname, bool* is64bit) {
-
+    printf("In getLibLoadAddress - 1\n");
     task_dyld_info_data_t dyld_info;
     mach_msg_type_number_t count = TASK_DYLD_INFO_COUNT;
     if (task_info(task, TASK_DYLD_INFO, (task_info_t)&dyld_info, &count) == KERN_SUCCESS)
@@ -166,6 +166,7 @@ proc_address getLibLoadAddress(mach_port_t task, const char* libname, bool* is64
             *is64bit = false;
             return findLibBaseAddress32(task, libname, dyld_info);
         } else {
+            printf("In getLibLoadAddress - 2 -- case 64bit\n");
             *is64bit = true;
             return findLibBaseAddress64(task, libname, dyld_info);
         }
