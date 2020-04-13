@@ -55,11 +55,13 @@ namespace hearthmirror {
             while (pClass != 0) {
                 printf("In MonoImage::loadClasses - 5\n");
                 MonoClass* klass = new MonoClass(_task, pClass, _is64bit);
+                printf("In MonoImage::loadClasses - 6\n");
                 std::string cfname = klass->getFullName();
-                printf("In MonoImage::loadClasses - 6 string: %s\n", cfname.c_str());
+                printf("In MonoImage::loadClasses - 7 string: %s\n", cfname.c_str());
 				if (cfname != "") {
 					_classes[cfname] = klass;
 				}
+                printf("In MonoImage::loadClasses - 8\n";
                 pClass = ReadPointer(_task, _is64bit ? pClass + kMonoClassNextClassCache64 : pClass + kMonoClassNextClassCache, _is64bit);
             }
         }
