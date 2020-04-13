@@ -118,6 +118,7 @@ namespace hearthmirror {
                     printf("String search: %s\n", name);
                     if(strcmp(name, "Assembly-CSharp") == 0) {
                         free(name);
+                        printf("Found Assembly-CSharp string and breaking\n");
                         pImage = ReadPointer(*handle, is64bit ? assemblyPtr + kMonoAssemblyImage64 : assemblyPtr + kMonoAssemblyImage, is64bit);
                         break;
                     }
@@ -131,10 +132,11 @@ namespace hearthmirror {
             try {
                 *monoimage = new MonoImage(*handle, pImage, is64bit);
                 if ((*monoimage)->hasClasses()) break;
-                
+                printf("monoimage has no classes\n");
                 delete *monoimage;
                 *monoimage = NULL;
             } catch (std::runtime_error& err) {
+                printf("MonoImage::getMonoImage runtime_error\n");
                 delete *monoimage;
                 *monoimage = NULL;
             }
