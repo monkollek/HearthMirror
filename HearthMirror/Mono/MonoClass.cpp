@@ -128,7 +128,7 @@ namespace hearthmirror {
             if (err3 != KERN_SUCCESS) continue;
 
             // add ending
-            buf[kRemoteStringBufferSize-1] = '\0';
+            buf[2047] = '\0';
             result = strdup(buf);
 
             printf("String found: %s offset: %d err1: %d err2: %d err3: %d\n", result, i, err1, err2, err3);
