@@ -61,7 +61,7 @@ namespace hearthmirror {
 				if (cfname != "") {
 					_classes[cfname] = klass;
 				}
-                printf("In MonoImage::loadClasses - 8\n";
+                printf("In MonoImage::loadClasses - 8\n");
                 pClass = ReadPointer(_task, _is64bit ? pClass + kMonoClassNextClassCache64 : pClass + kMonoClassNextClassCache, _is64bit);
             }
         }
