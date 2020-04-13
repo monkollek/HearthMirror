@@ -38,9 +38,78 @@ namespace hearthmirror {
         
         throw std::runtime_error("Could not read MonoClass namespace");
     }
+
+    int32_t MonoClass::getNextMonoClass() {
+        
+
+        /*
+        proc_address addr = ReadPointer(_task, _is64bit ? _pClass + kMonoClassNameSpace64 : _pClass + kMonoClassNameSpace, _is64bit);
+        char* pNamespace = ReadCString(_task, addr);
+        */
+        //kMonoClassNextClassCache64
+
+        char buf[kRemoteStringBufferSize] = {0}; // too long symbol names might not fit in
+        mach_vm_size_t buf_size = sizeof(buf);
+    
+        vm_offset_t pointer = NULL;
+        vm_size_t size = 8;
+        mach_msg_type_number_t data_read = 0;
+        kern_return_t err;
+        char *result;
+        
+        printf("offset1: %d offset2: %d\n",kMonoClassName64,kMonoClassNameSpace64);
+        
+        // get pointer to namespace char*
+        err = mach_vm_read(task, _pClass+kMonoClassNameSpace64, size, &pointer, &data_read);
+
+        // copy contents from memory and hope it's a char array
+        err = mach_vm_read_overwrite(task, pointer, buf_size,
+                                 (mach_vm_address_t)&buf, &buf_size);
+
+        
+        buf[kRemoteStringBufferSize-1] = '\0';
+        result = strdup(buf);
+        printf("String found: %s\n", result);
+        free(result);
+
+        /*
+        for (uint32_t i = kMonoClassNextClassCache64-12; i < kMonoClassNextClassCache64+12; i++){
+            err = mach_vm_read(task, _pClass+i, size, &pointer, &data_read);
+            
+            if (err != KERN_SUCCESS) continue;
+
+            err = mach_vm_read_overwrite(task, pointer+kMonoClassNameSpace64, buf_size,
+                                 (mach_vm_address_t)&buf, &buf_size);
+
+            mach_vm_deallocate(mach_task_self(), pointer, size);
+
+            if (err != KERN_SUCCESS) continue;
+
+            // add ending
+            buf[kRemoteStringBufferSize-1] = '\0';
+            result = strdup(buf);
+
+            printf("String found: %s\n", result);
+            free(result);
+
+        }
+        */
+
+
+        return 0;
+
+        /*
+        if (pNamespace != NULL) {
+            std::string ns(pNamespace);
+            free(pNamespace);
+            return ns;
+        }
+
+        throw std::runtime_error("Could not read MonoClass namespace");
+        */
+    }
     
     std::string MonoClass::getNameSpace() {
-        printf("offset1: %d offset2: %d\n",kMonoClassName64,kMonoClassNameSpace64);
         proc_address addr = ReadPointer(_task, _is64bit ? _pClass + kMonoClassNameSpace64 : _pClass + kMonoClassNameSpace, _is64bit);
         if (addr == 0) return "";
         char* pNamespace = ReadCString(_task, addr);
