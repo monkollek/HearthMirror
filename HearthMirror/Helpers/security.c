@@ -24,6 +24,8 @@ EXPORT int acquireTaskportRight()
     AuthorizationFlags auth_flags = kAuthorizationFlagExtendRights | kAuthorizationFlagPreAuthorize | kAuthorizationFlagInteractionAllowed | ( 1 << 5);
     
     stat = AuthorizationCreate(NULL, kAuthorizationEmptyEnvironment,auth_flags,&author);
+    CFStringRef stat_msg = SecCopyErrorMessageString(stat,NULL);
+
     if (stat != errAuthorizationSuccess)
     {
         AuthorizationFree(author, auth_flags);
