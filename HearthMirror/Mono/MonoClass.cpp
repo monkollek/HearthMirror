@@ -78,6 +78,35 @@ namespace hearthmirror {
         printf("String found: %s err1: %d err2: %d\n", result, err1, err2);
         free(result);
 
+        // CHECK BEFORE
+        // get pointer to namespace char*
+        err1 = mach_vm_read(_task, _pClass+kMonoClassNameSpace64-8, size, &pointer, &data_read);
+        v = 0;
+        memcpy((char *)&v, (Byte*)pointer, sizeof(uint64_t));
+
+        // copy contents from memory and hope it's a char array
+        err2 = mach_vm_read_overwrite(_task, v, buf_size, (mach_vm_address_t)&buf, &buf_size);
+
+        buf[2047] = '\0';
+        result = strdup(buf);
+        printf("String found -8 before: %s err1: %d err2: %d\n", result, err1, err2);
+        free(result);
+
+        // CHECK AFTER
+        // get pointer to namespace char*
+        err1 = mach_vm_read(_task, _pClass+kMonoClassNameSpace64+8, size, &pointer, &data_read);
+        v = 0;
+        memcpy((char *)&v, (Byte*)pointer, sizeof(uint64_t));
+
+        // copy contents from memory and hope it's a char array
+        err2 = mach_vm_read_overwrite(_task, v, buf_size, (mach_vm_address_t)&buf, &buf_size);
+
+        buf[2047] = '\0';
+        result = strdup(buf);
+        printf("String found +8 after: %s err1: %d err2: %d\n", result, err1, err2);
+        free(result);
+
+
         /*
         for (uint32_t i = kMonoClassNextClassCache64-12; i < kMonoClassNextClassCache64+12; i++){
             err = mach_vm_read(task, _pClass+i, size, &pointer, &data_read);
