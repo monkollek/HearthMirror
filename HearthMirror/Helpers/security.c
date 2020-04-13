@@ -13,6 +13,8 @@
 #define EXPORT __attribute__((visibility("default")))
 
 #include <Security/Authorization.h>
+#include <Security/SecBase.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 EXPORT int acquireTaskportRight()
 {
@@ -26,6 +28,8 @@ EXPORT int acquireTaskportRight()
     
     stat = AuthorizationCreate(NULL, kAuthorizationEmptyEnvironment,auth_flags,&author);
     stat_msg = SecCopyErrorMessageString(stat,NULL);
+    CFShow(stat_msg);
+    CFRelease(stat_msg);
 
     if (stat != errAuthorizationSuccess)
     {
