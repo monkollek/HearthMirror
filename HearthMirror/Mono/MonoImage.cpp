@@ -57,11 +57,17 @@ namespace hearthmirror {
                 MonoClass* klass = new MonoClass(_task, pClass, _is64bit);
                 printf("In MonoImage::loadClasses - 6\n");
                 std::string cfname = klass->getFullName();
-                printf("In MonoImage::loadClasses - 7 string: %s\n", cfname.c_str());
+                std::string nspace = klass->getNameSpace();
+                printf("In MonoImage::loadClasses - 7 name: %s namespace: %s\n", cfname.c_str(), nspace.c_str());
 				if (cfname != "") {
 					_classes[cfname] = klass;
 				}
                 printf("In MonoImage::loadClasses - 8\n");
+                /*
+                It is very likely that kMonoClassNextClassCache64 offset is incorrect due to changes in structure to
+                FakeMonoClass64
+                */
+                printf("offset: %d offset: %x is64bit: %d", kMonoClassNextClassCache64, kMonoClassNextClassCache64, _is64bit);
                 pClass = ReadPointer(_task, _is64bit ? pClass + kMonoClassNextClassCache64 : pClass + kMonoClassNextClassCache, _is64bit);
             }
         }
