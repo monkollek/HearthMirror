@@ -18,13 +18,17 @@ namespace hearthmirror {
     MonoClass::MonoClass(const MonoClass* other) : _task(other->_task), _pClass(other->_pClass), _is64bit(other->_is64bit) {}
     
     std::string MonoClass::getName() {
+        printf("In MonoImage::getName - 1\n");
         proc_address addr = ReadPointer(_task, _is64bit ? _pClass + kMonoClassName64 : _pClass + kMonoClassName, _is64bit);
+        printf("In MonoImage::getName - 2\n");
         if (addr == 0) {
             std::string result("");
             return result;
         }
+        printf("In MonoImage::getName - 3\n");
         char* pName = ReadCString(_task, addr);
         if (pName != NULL) {
+            printf("In MonoImage::getName - 4\n");
             std::string name(pName);
             free(pName);
             return name;
@@ -47,20 +51,20 @@ namespace hearthmirror {
     }
     
     std::string MonoClass::getFullName() {
-        printf("In MonoImage::getName - 1\n");
+        printf("In MonoImage::getFullName - 1\n");
         std::string name = getName();
 
-        printf("In MonoImage::getName - 2\n");
+        printf("In MonoImage::getFullName - 2\n");
         std::string ns = getNameSpace();
 
-        printf("In MonoImage::getName - 3\n");        
+        printf("In MonoImage::getFullName - 3\n");        
         MonoClass* nestedIn = getNestedIn();
         
         while(nestedIn != NULL)
         {
-            printf("In MonoImage::getName - 4\n");        
+            printf("In MonoImage::getFullName - 4\n");        
             name = nestedIn->getName() + "+" + name;
-            printf("In MonoImage::getName - 5\n");        
+            printf("In MonoImage::getFullName - 5\n");        
             ns = nestedIn->getNameSpace();
             
             MonoClass* nestedIn_t = nestedIn->getNestedIn();
