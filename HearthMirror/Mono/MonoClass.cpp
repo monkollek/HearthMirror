@@ -176,9 +176,9 @@ namespace hearthmirror {
         
         while(nestedIn != NULL)
         {
-            printf("In MonoImage::getFullName - 4\n");        
+            //printf("In MonoImage::getFullName - 4\n");        
             name = nestedIn->getName() + "+" + name;
-            printf("In MonoImage::getFullName - 5\n");        
+            //printf("In MonoImage::getFullName - 5\n");        
             ns = nestedIn->getNameSpace();
             
             MonoClass* nestedIn_t = nestedIn->getNestedIn();
