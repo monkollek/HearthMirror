@@ -1036,7 +1036,7 @@ namespace hearthmirror {
         printf("In Mirror::getCollection - 3\n");
         Collection result;
 
-        //getNetCacheCollection(&result);
+        getNetCacheCollection(&result);
 
         
         for (unsigned int i=0; i < valueSlots.arrsize; i++) {
