@@ -367,14 +367,19 @@ namespace hearthmirror {
                             MonoType* bvmt = elClass->byValArg();
                             auto bvmtType = bvmt->getType();
                             delete bvmt;
+                            printf("MonoClassField::ReadValue - 9\n");
                             if (bvmtType == MONO_TYPE_SZARRAY) {
+                                printf("MonoClassField::ReadValue - 10\n");
                                 result[i] = ReadValue(MONO_TYPE_SZARRAY, ea);
                             } else {
+                                printf("MonoClassField::ReadValue - 11\n");
                                 proc_address po = ReadPointer(_task, ea, _is64bit);
                                 MonoValue mv;
                                 if (po == 0) {
+                                    printf("MonoClassField::ReadValue - 12\n");
                                     result[i] = MonoValue(0);
                                 } else {
+                                    printf("MonoClassField::ReadValue - 13\n");
                                     mv.type = MonoTypeEnum::MONO_TYPE_GENERICINST;
                                     mv.value.obj.o = new MonoObject(_task, po, _is64bit);
                                     result[i] = mv;
@@ -383,7 +388,7 @@ namespace hearthmirror {
                         }
                     }
                 }
-                printf("MonoClassField::ReadValue - 9\n");
+                printf("MonoClassField::ReadValue - 14\n");
                 delete arrClass;
                 delete elClass;
                 return result;
