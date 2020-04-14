@@ -131,7 +131,7 @@ namespace hearthmirror {
             buf[2047] = '\0';
             result = strdup(buf);
 
-            printf("String found: %s offset: %d err1: %d err2: %d err3: %d\n", result, i, err1, err2, err3);
+            printf("String found: %s old_offset: %d offset: %d err1: %d err2: %d err3: %d\n", result, kMonoClassNextClassCache64, i, err1, err2, err3);
             free(result);
 
         }
