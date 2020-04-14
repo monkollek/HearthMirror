@@ -243,7 +243,8 @@ namespace hearthmirror {
     uint32_t MonoClass::getNumFields() const {
         uint32_t numFields = 0;
         try {
-            numFields = ReadUInt32(_task, _is64bit ? _pClass + kMonoClassFieldCount64 : _pClass + kMonoClassFieldCount);
+            // think this is off by 64 bits (8 bytes)
+            numFields = ReadUInt32(_task, _is64bit ? _pClass + kMonoClassFieldCount64 + 8 : _pClass + kMonoClassFieldCount);
         } catch (std::runtime_error& e) {
             numFields = 0;
         }
