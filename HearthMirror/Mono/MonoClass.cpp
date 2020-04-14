@@ -299,17 +299,18 @@ namespace hearthmirror {
     }
     
     MonoValue MonoClass::operator[](const std::string& key) {
-        
+        printf("MonoClass::operator - 1\n");
         std::vector<MonoClassField*> fields = getFields();
         MonoValue ret(0);
         
         for (MonoClassField* mcf : fields) {
             if (mcf->getName() == key) {
                 try {
+                    printf("MonoClass::operator - Found key: %s\n", key.c_str());
                     ret = mcf->getStaticValue();
                 } catch (std::exception ex) {
                     // could not read
-                    //printf("failed to read");
+                    printf("MonoClass::operator - failed to read\n");
                 }
             }
             delete mcf;

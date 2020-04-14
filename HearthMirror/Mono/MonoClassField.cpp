@@ -56,7 +56,7 @@ namespace hearthmirror {
     }
     
     MonoValue MonoClassField::getStaticValue() {
-        
+        printf("MonoClassField::getStaticValue - 1\n");
         MonoValue ret(0);
         MonoType* type = getType();
         if (type == NULL) {
@@ -65,8 +65,10 @@ namespace hearthmirror {
         
         if (type->isStatic()) {
             try {
+                printf("MonoClassField::getStaticValue - 2\n");
                 ret = getValue(NULL);
             } catch (std::runtime_error& ex) {
+                printf("MonoClassField::getStaticValue - 3\n");
                 delete type;
                 return MonoValue(0);
             }
@@ -77,7 +79,7 @@ namespace hearthmirror {
     }
     
     MonoValue MonoClassField::getValue(MonoObject* o) {
-        
+        printf("MonoClassField::getValue - 1\n");
         int32_t offset = getOffset();
         MonoType* type = getType();
         if (type == NULL) {
@@ -111,9 +113,10 @@ namespace hearthmirror {
         }
         
         if(type->isStatic()) {
-            
+            printf("MonoClassField::getValue - 2\n");
             MonoClass* parent = getParent();
             if (parent == NULL) {
+                printf("MonoClassField::getValue - 3\n");
                 delete type;
                 return MonoValue(0);
             }
