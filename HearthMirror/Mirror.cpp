@@ -981,9 +981,9 @@ namespace hearthmirror {
         //MonoValue stacksmv = GETOBJECT({"NetCache+NetCacheCollection","<Stacks>k__BackingField"});
         //printf("In Mirror::getNetCacheCollection - 2\n");
 
-
-
         return 1;
+
+        MonoValue stacksmv;
 
         if (IsMonoValueEmpty(stacksmv)) return 1;
 
