@@ -78,6 +78,15 @@ namespace hearthmirror {
         printf("MonoClassField::getStaticValue - 4\n");
         printf("Monotype: %d\n",type->getType());
 
+        if(type->getType() == MonoTypeEnum::MONO_TYPE_GENERICINST){
+            printf("MonoClassField::getStaticValue - 5\n");
+            MonoClass* container = new MonoClass(_task, ReadPointer(_task, genericClass, _is64bit), _is64bit);
+
+            printf("GENERICINST has %d fields\n", container->getNumFields());
+
+
+        }
+
         delete type;
         return ret;
     }
