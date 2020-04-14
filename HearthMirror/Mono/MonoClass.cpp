@@ -229,6 +229,7 @@ namespace hearthmirror {
 #endif
     }
     
+    // Will be off by 64 bits
     int32_t MonoClass::size() {
         return ReadInt32(_task, _is64bit ? _pClass + kMonoClassSizes64 : _pClass + kMonoClassSizes);
     }

@@ -341,11 +341,12 @@ namespace hearthmirror {
                 uint32_t count = ReadInt32(_task, addr + (_is64bit ? kMonoArrayMaxLength64 : kMonoArrayMaxLength));
                 proc_address start = addr + (_is64bit ? kMonoArrayVector64 : kMonoArrayVector);
                 result.arrsize = count;
-                printf("MonoClassField::ReadValue - 5\n");
+                printf("MonoClassField::ReadValue - 5 Count: %d\n", count);
                 if (count > 0) {
                     printf("MonoClassField::ReadValue - 6\n");
                     result.value.arr = new MonoValue[count];
                     for (uint32_t i = 0; i < count; i++) {
+                        printf("arrClass->size: %d", arrClass->size());
                         proc_address ea = start + (i * arrClass->size());
                         if(elClass->isValueType()) {
                             printf("MonoClassField::ReadValue - 7\n");
