@@ -341,12 +341,14 @@ namespace hearthmirror {
                 uint32_t count = ReadInt32(_task, addr + (_is64bit ? kMonoArrayMaxLength64 : kMonoArrayMaxLength));
                 proc_address start = addr + (_is64bit ? kMonoArrayVector64 : kMonoArrayVector);
                 result.arrsize = count;
-                
+                printf("MonoClassField::ReadValue - 5\n");
                 if (count > 0) {
+                    printf("MonoClassField::ReadValue - 6\n");
                     result.value.arr = new MonoValue[count];
                     for (uint32_t i = 0; i < count; i++) {
                         proc_address ea = start + (i * arrClass->size());
                         if(elClass->isValueType()) {
+                            printf("MonoClassField::ReadValue - 7\n");
                             MonoType* mt = elClass->byValArg();
                             auto itype = mt->getType();
                             if (itype == MonoTypeEnum::MONO_TYPE_VALUETYPE || itype == MONO_TYPE_GENERICINST) {
@@ -361,6 +363,7 @@ namespace hearthmirror {
                             }
                             delete mt;
                         } else {
+                            printf("MonoClassField::ReadValue - 8\n");
                             MonoType* bvmt = elClass->byValArg();
                             auto bvmtType = bvmt->getType();
                             delete bvmt;
@@ -380,7 +383,7 @@ namespace hearthmirror {
                         }
                     }
                 }
-                printf("MonoClassField::ReadValue - 5\n");
+                printf("MonoClassField::ReadValue - 9\n");
                 delete arrClass;
                 delete elClass;
                 return result;
