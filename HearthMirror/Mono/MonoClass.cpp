@@ -234,7 +234,8 @@ namespace hearthmirror {
     }
     // This appears not to be off by 64 bits
     MonoClass* MonoClass::getParent() const {
-        proc_address pParent = ReadPointer(_task, _is64bit ? _pClass + kMonoClassParent64 : _pClass + kMonoClassParent, _is64bit);
+        // try another address incremented by 64 bits
+        proc_address pParent = ReadPointer(_task, _is64bit ? _pClass + kMonoClassParent64 + 8 : _pClass + kMonoClassParent, _is64bit);
             return pParent == 0 ? NULL : new MonoClass(_task, pParent, _is64bit);
     }
     

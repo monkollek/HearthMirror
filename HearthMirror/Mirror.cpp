@@ -967,6 +967,8 @@ namespace hearthmirror {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
 
         MonoValue stacksmv = GETOBJECT({"NetCache+NetCacheCollection","<Stacks>k__BackingField"});
+        
+
         printf("In Mirror::getNetCacheCollection - 2\n");
 
         if (IsMonoValueEmpty(stacksmv)) return 1;
