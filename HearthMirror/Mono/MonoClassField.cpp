@@ -77,7 +77,7 @@ namespace hearthmirror {
 		else if(type->getType() == MonoTypeEnum::MONO_TYPE_SZARRAY){
             printf("MonoClassField::getStaticValue - 4\n");
             proc_address genericClass = type->getData();
-            ret = ReadValue(type->getType(),proc_address);
+            ret = ReadValue(type->getType(),genericClass);
 
         }
 
