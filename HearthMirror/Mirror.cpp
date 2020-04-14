@@ -101,7 +101,7 @@ namespace hearthmirror {
         printf("get Object - 1\n");
         if (path.size() < 2) return nullMonoValue;
         
-        printf("path0: %s path1: %s\n", path[0].c_str(),path[1].c_str())
+        printf("path0: %s path1: %s\n", path[0].c_str(),path[1].c_str());
         MonoClass* baseclass = monoImage->get(path[0]); // no need to free
         if (!baseclass) return nullMonoValue;
         printf("get Object - 2\n");
