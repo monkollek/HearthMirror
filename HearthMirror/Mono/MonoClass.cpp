@@ -263,13 +263,18 @@ namespace hearthmirror {
             return result;
         }
         printf("MonoClass::getFields - 2\n");
-        proc_address pFields = ReadPointer(_task, _is64bit ? _pClass + kMonoClassFields64 : _pClass + kMonoClassFields, _is64bit);
+        // think this is off by 64 bits (8 bytes)
+        proc_address pFields = ReadPointer(_task, _is64bit ? _pClass + kMonoClassFields64 + 8 : _pClass + kMonoClassFields, _is64bit);
 		if (pFields != 0) {
 			// add own fields first
             try {
                 printf("MonoClass::getFields - 3\n");
                 for (uint32_t i = 0; i < nFields; i++) {
+                    // not sure if sizeof(FakeMonoClassField64) is still correct
                     MonoClassField* mcf = new MonoClassField(_task, _is64bit ? pFields + (uint32_t) i*kMonoClassFieldSizeof64 : pFields + (uint32_t) i*kMonoClassFieldSizeof, _is64bit);
+                    std::string mcf_name = mcf->getName();
+                    printf("mcf name: %s\n", mcf_name.c_str());
+
                     result.push_back(mcf);
                 }
             } catch (std::runtime_error& e) {
