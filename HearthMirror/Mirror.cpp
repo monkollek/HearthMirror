@@ -963,14 +963,17 @@ namespace hearthmirror {
     }
     
     Collection Mirror::getCollection() {
+        printf("In Mirror::getCollection - 1\n");
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
         
         //MonoValue valueSlots = GETOBJECT({"NetCache","s_instance","m_netCache","valueSlots"});
-        MonoValue valueSlots = GETOBJECT({"NetCache","m_netCache","valueSlots"});
+        printf("In Mirror::getCollection - 2 Parsing Class\n");
+        MonoValue valueSlots = GETOBJECT({"NetCache+NetCacheCollection","m_netCache","valueSlots"});
         if (IsMonoValueEmpty(valueSlots) || !IsMonoValueArray(valueSlots)) {
             throw std::domain_error("Net cache can't be found");
         }
-        
+
+        printf("In Mirror::getCollection - 3\n");
         Collection result;
         
         for (unsigned int i=0; i < valueSlots.arrsize; i++) {

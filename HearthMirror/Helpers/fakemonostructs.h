@@ -585,9 +585,11 @@ struct FakeMonoClass64 {
     
     uint8_t     exception_type;
     
+    // the position of parent and nested_in appears to be okay
     ptr64_t  parent;
     ptr64_t  nested_in;
     
+    // extra 64 bits (8 bytes) to be added before or after image
     ptr64_t image;
     const ptr64_t name; // char*
     const ptr64_t name_space; // char*
