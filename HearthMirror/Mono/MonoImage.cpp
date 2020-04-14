@@ -69,7 +69,7 @@ namespace hearthmirror {
                 FakeMonoClass64
                 */
                 //printf("offset: %d offset: %x is64bit: %d", kMonoClassNextClassCache64, kMonoClassNextClassCache64, _is64bit);
-                pClass = ReadPointer(_task, _is64bit ? pClass + kMonoClassNextClassCache64 : pClass + kMonoClassNextClassCache, _is64bit);
+                pClass = ReadPointer(_task, _is64bit ? pClass + kMonoClassNextClassCache64 +8 : pClass + kMonoClassNextClassCache, _is64bit);
             }
         }
     }
