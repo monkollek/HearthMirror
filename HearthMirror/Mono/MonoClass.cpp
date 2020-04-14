@@ -197,7 +197,7 @@ namespace hearthmirror {
     
     proc_address MonoClass::getVTable() {
         // will be off by 64 bit
-        proc_address runtimeInfoPtr = ReadPointer(_task, _is64bit ? _pClass + kMonoClassRuntimeInfo64 : _pClass + kMonoClassRuntimeInfo, _is64bit);
+        proc_address runtimeInfoPtr = ReadPointer(_task, _is64bit ? _pClass + kMonoClassRuntimeInfo64 + 8: _pClass + kMonoClassRuntimeInfo, _is64bit);
         // this should be fine
         return ReadPointer(_task, _is64bit ? runtimeInfoPtr + kMonoClassRuntimeInfoDomainVtables64 : runtimeInfoPtr + kMonoClassRuntimeInfoDomainVtables, _is64bit);
     }
@@ -231,7 +231,7 @@ namespace hearthmirror {
     int32_t MonoClass::size() {
         return ReadInt32(_task, _is64bit ? _pClass + kMonoClassSizes64 : _pClass + kMonoClassSizes);
     }
-    
+    // Not sure if this is off by 64 bits?
     MonoClass* MonoClass::getParent() const {
         proc_address pParent = ReadPointer(_task, _is64bit ? _pClass + kMonoClassParent64 : _pClass + kMonoClassParent, _is64bit);
             return pParent == 0 ? NULL : new MonoClass(_task, pParent, _is64bit);
