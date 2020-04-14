@@ -196,7 +196,9 @@ namespace hearthmirror {
     }
     
     proc_address MonoClass::getVTable() {
+        // will be off by 64 bit
         proc_address runtimeInfoPtr = ReadPointer(_task, _is64bit ? _pClass + kMonoClassRuntimeInfo64 : _pClass + kMonoClassRuntimeInfo, _is64bit);
+        // this should be fine
         return ReadPointer(_task, _is64bit ? runtimeInfoPtr + kMonoClassRuntimeInfoDomainVtables64 : runtimeInfoPtr + kMonoClassRuntimeInfoDomainVtables, _is64bit);
     }
     
@@ -289,6 +291,7 @@ namespace hearthmirror {
         printf("MonoClass::getFields - 5\n");
 		
 		// add parent fields (if available)
+        // Not sure if parent is off by 64 bit?
         MonoClass* parent = getParent();
         if (parent) {
 			std::vector<MonoClassField*> parent_fields = parent->getFields();

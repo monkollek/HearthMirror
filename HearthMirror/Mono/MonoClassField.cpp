@@ -122,8 +122,10 @@ namespace hearthmirror {
             }
             proc_address vtable = 0;
             try {
+                printf("MonoClassField::getValue - 4\n");
                 vtable = parent->getVTable();
             } catch (std::exception& ex) {
+                printf("MonoClassField::getValue - 5\n");
                 delete parent;
                 delete type;
                 return MonoValue(0);
@@ -135,7 +137,7 @@ namespace hearthmirror {
                 delete type;
                 return MonoValue(0);
             }
-            
+            printf("MonoClassField::getValue - 6\n");
             proc_address data = ReadPointer(_task, _is64bit ? vtable + kMonoVTableData64 : vtable + kMonoVTableData, _is64bit);
             
             if (isRef) {
