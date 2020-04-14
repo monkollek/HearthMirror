@@ -251,23 +251,28 @@ namespace hearthmirror {
     }
 
     std::vector<MonoClassField*> MonoClass::getFields() const {
+        printf("MonoClass::getFields - 1\n");
 		std::vector<MonoClassField*> result;
 		
 		// Add own fields first
         uint32_t nFields = getNumFields();
+        printf("Number of fields: %d\n", nFields);
         if (nFields > 1000) {
             // this is an ugly hack to prevent leak
             return result;
         }
+        printf("MonoClass::getFields - 2\n");
         proc_address pFields = ReadPointer(_task, _is64bit ? _pClass + kMonoClassFields64 : _pClass + kMonoClassFields, _is64bit);
 		if (pFields != 0) {
 			// add own fields first
             try {
+                printf("MonoClass::getFields - 3\n");
                 for (uint32_t i = 0; i < nFields; i++) {
                     MonoClassField* mcf = new MonoClassField(_task, _is64bit ? pFields + (uint32_t) i*kMonoClassFieldSizeof64 : pFields + (uint32_t) i*kMonoClassFieldSizeof, _is64bit);
                     result.push_back(mcf);
                 }
             } catch (std::runtime_error& e) {
+                printf("MonoClass::getFields - 4\n");
                 auto it = result.begin();
                 while (it != result.end()) {
                     delete *it;
@@ -275,6 +280,7 @@ namespace hearthmirror {
                 }
             }
 		}
+        printf("MonoClass::getFields - 5\n");
 		
 		// add parent fields (if available)
         MonoClass* parent = getParent();
