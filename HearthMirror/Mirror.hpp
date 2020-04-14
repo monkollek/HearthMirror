@@ -388,6 +388,7 @@ class HEARTHMIRROR_API Mirror {
 
     private:
         MirrorData* m_mirrorData = NULL;
+        int getNetCacheCollection(Collection *c);
 };
     
 }

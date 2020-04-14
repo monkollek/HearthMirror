@@ -961,6 +961,65 @@ namespace hearthmirror {
 
         return result;
     }
+
+    int Mirror::getNetCacheCollection(Collection *c){
+        if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
+
+        MonoValue stacksmv = GETOBJECT({"NetCache+NetCacheCollection","<Stacks>k__BackingField"});
+
+        if (IsMonoValueEmpty(stacksmv)) return 1;
+
+        MonoObject* stacks = stacksmv.value.obj.o;
+        MonoValue itemsmv = (*stacks)["_items"];
+        MonoValue sizemv = (*stacks)["_size"];
+
+       if (IsMonoValueEmpty(itemsmv) || IsMonoValueEmpty(sizemv)) return 2;
+        int size = sizemv.value.i32;
+        
+        for (int i=0; i< size; i++) { // or itemsmv.arrsize?
+            MonoValue stackmv = itemsmv.value.arr[i];
+            if (IsMonoValueEmpty(stackmv)) return 3;
+            MonoObject* stack = stackmv.value.obj.o;
+            
+            MonoValue countmv = (*stack)["<Count>k__BackingField"];
+            if (IsMonoValueEmpty(countmv)) {
+                return 4;
+            }
+            int count = countmv.value.i32;
+            DeleteMonoValue(countmv);
+            
+            MonoValue defmv = (*stack)["<Def>k__BackingField"];
+            if (IsMonoValueEmpty(defmv)) {
+                return 5;
+            }
+            MonoObject* def = defmv.value.obj.o;
+            
+            MonoValue namemv = (*def)["<Name>k__BackingField"];
+            MonoValue premiummv = (*def)["<Premium>k__BackingField"];
+
+            if (IsMonoValueEmpty(namemv) || IsMonoValueEmpty(premiummv)) {
+                DeleteMonoValue(defmv);
+                return 6;
+            }
+            
+            std::u16string name = namemv.str;
+            bool premium = premiummv.value.b;
+            c->cards.push_back(Card(name,count,premium));
+            
+            DeleteMonoValue(defmv);
+            DeleteMonoValue(namemv);
+            DeleteMonoValue(premiummv);
+        }
+
+        DeleteMonoValue(sizemv);
+        DeleteMonoValue(itemsmv);
+        DeleteMonoValue(stacksmv);
+
+
+
+        return 0;
+
+    }
     
     Collection Mirror::getCollection() {
         printf("In Mirror::getCollection - 1\n");
@@ -976,6 +1035,9 @@ namespace hearthmirror {
 
         printf("In Mirror::getCollection - 3\n");
         Collection result;
+
+        //getNetCacheCollection(&result);
+
         
         for (unsigned int i=0; i < valueSlots.arrsize; i++) {
             MonoValue mv = valueSlots[i];
@@ -1094,10 +1156,13 @@ namespace hearthmirror {
             }
         }
         
+
+
         // free all memory
         DeleteMonoValue(valueSlots);
         
         return result;
+        
     }
     
     std::vector<HeroLevel> Mirror::getHeroLevels() {
