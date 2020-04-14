@@ -76,6 +76,8 @@ namespace hearthmirror {
         }
 		
         printf("MonoClassField::getStaticValue - 4\n");
+        printf("Monotype: %d\n",type->getType());
+
         delete type;
         return ret;
     }
