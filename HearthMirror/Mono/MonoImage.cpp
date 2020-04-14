@@ -60,6 +60,7 @@ namespace hearthmirror {
                 std::string cfname = klass->getFullName();
                 //std::string nspace = klass->getNameSpace();
                 //printf("In MonoImage::loadClasses - 7 full_name: %s namespace: %s\n", cfname.c_str(), nspace.c_str());
+                printf("In MonoImage::loadClasses - 7 full_name: %s\n", cfname.c_str());
 				if (cfname != "") {
 					_classes[cfname] = klass;
 				}
