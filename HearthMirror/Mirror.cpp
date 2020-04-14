@@ -1032,12 +1032,14 @@ namespace hearthmirror {
         //MonoValue valueSlots = GETOBJECT({"NetCache","s_instance","m_netCache","valueSlots"});
         // NetCache+NetCacheFeatures+CacheCollection
         printf("In Mirror::getCollection - 2 Parsing Class\n");
-        MonoValue valueSlots = GETOBJECT({"NetCache+NetCacheCollection","m_netCache","valueSlots"});
+        //MonoValue valueSlots = GETOBJECT({"NetCache+NetCacheCollection","m_netCache","valueSlots"});
+        /*
         if (IsMonoValueEmpty(valueSlots) || !IsMonoValueArray(valueSlots)) {
             throw std::domain_error("Net cache can't be found");
         }
-
-        printf("In Mirror::getCollection - 3\n");
+        */
+        //printf("In Mirror::getCollection - 3\n");
+        
         Collection result;
 
         getNetCacheCollection(&result);
