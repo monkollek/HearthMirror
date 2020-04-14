@@ -192,7 +192,8 @@ namespace hearthmirror {
     
     // This appears not to be off by 64 bits 
     MonoClass* MonoClass::getNestedIn() {
-        proc_address pNestedIn = ReadPointer(_task, _is64bit ? _pClass + kMonoClassNestedIn64 : _pClass + kMonoClassNestedIn, _is64bit);
+        // check if it's off
+        proc_address pNestedIn = ReadPointer(_task, _is64bit ? _pClass + kMonoClassNestedIn64 + 8: _pClass + kMonoClassNestedIn, _is64bit);
         return pNestedIn == 0 ? NULL : new MonoClass(_task, pNestedIn, _is64bit);
     }
     
