@@ -303,6 +303,28 @@ namespace hearthmirror {
         return result;
     }
     
+    MonoClass* MonoClass::getEmbeddedMonoClass(const std::string& key){
+        std::vector<MonoClassField*> fields = getFields();
+        MonoClass *ret = NULL;
+        
+        for (MonoClassField* mcf : fields) {
+            if (mcf->getName() == key) {
+                try {
+                    printf("MonoClass::getEmbeddedMonoClass - Found key: %s\n", key.c_str());
+                    MonoType* type = mcf->getType();
+                    proc_address genericClass = type->getData();
+                    ret = new MonoClass(_task, ReadPointer(_task, genericClass, _is64bit), _is64bit);
+
+                } catch (std::exception ex) {
+                    // could not read
+                    printf("MonoClass::getEmbeddedMonoClass - failed to read\n");
+                }
+            }
+            delete mcf;
+        }
+        return ret;   
+    }
+
     MonoValue MonoClass::operator[](const std::string& key) {
         printf("MonoClass::operator - 1\n");
         std::vector<MonoClassField*> fields = getFields();

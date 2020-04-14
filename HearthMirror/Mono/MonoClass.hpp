@@ -44,6 +44,7 @@ namespace hearthmirror {
         std::vector<MonoClassField*> getFields() const;
         
         MonoValue operator[](const std::string& key);
+        MonoClass* getEmbeddedMonoClass(const std::string& key);
         
     private:
 		const HANDLE _task;
