@@ -84,7 +84,7 @@ namespace hearthmirror {
             MonoClass* container = new MonoClass(_task, ReadPointer(_task, genericClass, _is64bit), _is64bit);
 
             printf("GENERICINST has %d fields\n", container->getNumFields());
-            std::vector<MonoClassField*> tmp = container->getNumFields();
+            std::vector<MonoClassField*> tmp = container->getFields();
 
         }
 
