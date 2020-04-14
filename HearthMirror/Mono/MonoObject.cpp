@@ -20,6 +20,7 @@ namespace hearthmirror {
     }
     
     std::map<std::string, MonoValue> MonoObject::getFields() {
+        printf("In MonoObject::getFields - 1");
         MonoClass* c = getClass();
         std::vector<MonoClassField*> fields = c->getFields();
         delete c;
@@ -32,6 +33,7 @@ namespace hearthmirror {
 				if (!type->isStatic()) {
 					auto name = f->getName();
 					if (!name.empty()) {
+                        printf("In MonoObject::getFields - 2 Parse field: %s\n",name.c_str());
 						res[name] = f->getValue(this);
 					}
 				}
@@ -45,6 +47,7 @@ namespace hearthmirror {
     }
     
     MonoValue MonoObject::operator[](const std::string& key) {
+        printf("In MonoObject::operator - 1");
         std::map<std::string, MonoValue> fields = getFields();
         MonoValue res(0);
 		

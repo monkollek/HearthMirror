@@ -963,9 +963,11 @@ namespace hearthmirror {
     }
 
     int Mirror::getNetCacheCollection(Collection *c){
+        printf("In Mirror::getNetCacheCollection - 1\n");
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
 
         MonoValue stacksmv = GETOBJECT({"NetCache+NetCacheCollection","<Stacks>k__BackingField"});
+        printf("In Mirror::getNetCacheCollection - 2\n");
 
         if (IsMonoValueEmpty(stacksmv)) return 1;
 
@@ -973,9 +975,11 @@ namespace hearthmirror {
         MonoValue itemsmv = (*stacks)["_items"];
         MonoValue sizemv = (*stacks)["_size"];
 
+        printf("In Mirror::getNetCacheCollection - 3\n");
        if (IsMonoValueEmpty(itemsmv) || IsMonoValueEmpty(sizemv)) return 2;
         int size = sizemv.value.i32;
-        
+
+        printf("In Mirror::getNetCacheCollection - 4\n");        
         for (int i=0; i< size; i++) { // or itemsmv.arrsize?
             MonoValue stackmv = itemsmv.value.arr[i];
             if (IsMonoValueEmpty(stackmv)) return 3;
