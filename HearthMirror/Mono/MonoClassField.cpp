@@ -74,10 +74,17 @@ namespace hearthmirror {
                 return MonoValue(0);
             }
         }
-		
-        printf("MonoClassField::getStaticValue - 4\n");
+		else if(type->getType() == MonoTypeEnum::MONO_TYPE_SZARRAY){
+            printf("MonoClassField::getStaticValue - 4\n");
+            proc_address genericClass = type->getData();
+            ret = ReadValue(type->getType(),proc_address);
+
+        }
+
+        printf("MonoClassField::getStaticValue - 5\n");
         printf("Monotype: %d\n",type->getType());
 
+        /*
         if(type->getType() == MonoTypeEnum::MONO_TYPE_GENERICINST){
             printf("MonoClassField::getStaticValue - 5\n");
             proc_address genericClass = type->getData();
@@ -87,7 +94,7 @@ namespace hearthmirror {
             std::vector<MonoClassField*> tmp = container->getFields();
 
         }
-
+        */
         delete type;
         return ret;
     }
@@ -263,6 +270,7 @@ namespace hearthmirror {
     }
     
     MonoValue MonoClassField::ReadValue(MonoTypeEnum type, proc_address addr) {
+        printf("MonoClassField::ReadValue - 1\n");
         MonoValue result;
         result.type = type;
         switch(type)
@@ -318,15 +326,18 @@ namespace hearthmirror {
                 return result;
             }
             case MonoTypeEnum::MONO_TYPE_SZARRAY: {
+                printf("MonoClassField::ReadValue - 2\n");
                 addr = ReadPointer(_task, addr, _is64bit); // deref object
                 if (addr == 0) {
                     return MonoValue(0);
                 }
+                printf("MonoClassField::ReadValue - 3\n");
                 proc_address vt = ReadPointer(_task, addr, _is64bit);
                 proc_address pArrClass = ReadPointer(_task, vt, _is64bit);
                 MonoClass* arrClass = new MonoClass(_task, pArrClass, _is64bit);
                 MonoClass* elClass = new MonoClass(_task, ReadPointer(_task, pArrClass, _is64bit), _is64bit);
-       
+                
+                printf("MonoClassField::ReadValue - 4\n");
                 uint32_t count = ReadInt32(_task, addr + (_is64bit ? kMonoArrayMaxLength64 : kMonoArrayMaxLength));
                 proc_address start = addr + (_is64bit ? kMonoArrayVector64 : kMonoArrayVector);
                 result.arrsize = count;
@@ -369,7 +380,7 @@ namespace hearthmirror {
                         }
                     }
                 }
-                
+                printf("MonoClassField::ReadValue - 5\n");
                 delete arrClass;
                 delete elClass;
                 return result;
