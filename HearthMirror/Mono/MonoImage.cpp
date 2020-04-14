@@ -35,35 +35,35 @@ namespace hearthmirror {
     }
 
     void MonoImage::loadClasses() {
-        printf("In MonoImage::loadClasses - 1\n");
+        //printf("In MonoImage::loadClasses - 1\n");
         for (auto it = _classes.begin(); it != _classes.end(); it++) {
             delete it->second;
         }
         _classes.clear();
 
-        printf("In MonoImage::loadClasses - 2\n");        
+        //printf("In MonoImage::loadClasses - 2\n");        
         proc_address classCache = _is64bit ? _pImage + kMonoImageClassCache64 : _pImage + kMonoImageClassCache;
         int32_t size = ReadInt32(_task, _is64bit ? classCache + kMonoInternalHashTableSize64 : classCache + kMonoInternalHashTableSize);
         proc_address table = ReadPointer(_task, _is64bit ? classCache + kMonoInternalHashTableTable64 : classCache + kMonoInternalHashTableTable, _is64bit);
 
-        printf("In MonoImage::loadClasses - 3\n");
+        //printf("In MonoImage::loadClasses - 3\n");
 
         for (uint32_t i = 0; i < size; i++) {
             proc_address pClass = ReadPointer(_task, _is64bit ? table + 8*i : table + 4*i, _is64bit);
-            printf("In MonoImage::loadClasses - 4\n");
+            //printf("In MonoImage::loadClasses - 4\n");
 
             while (pClass != 0) {
-                printf("In MonoImage::loadClasses - 5\n");
+                //printf("In MonoImage::loadClasses - 5\n");
                 MonoClass* klass = new MonoClass(_task, pClass, _is64bit);
                 klass->getNextMonoClass();
-                printf("In MonoImage::loadClasses - 6\n");
+                //printf("In MonoImage::loadClasses - 6\n");
                 std::string cfname = klass->getFullName();
                 std::string nspace = klass->getNameSpace();
-                printf("In MonoImage::loadClasses - 7 name: %s namespace: %s\n", cfname.c_str(), nspace.c_str());
+                //printf("In MonoImage::loadClasses - 7 name: %s namespace: %s\n", cfname.c_str(), nspace.c_str());
 				if (cfname != "") {
 					_classes[cfname] = klass;
 				}
-                printf("In MonoImage::loadClasses - 8\n");
+                //printf("In MonoImage::loadClasses - 8\n");
                 /*
                 It is very likely that kMonoClassNextClassCache64 offset is incorrect due to changes in structure to
                 FakeMonoClass64
@@ -149,7 +149,7 @@ namespace hearthmirror {
             try {
                 printf("Creating new MonoImage\n");
                 *monoimage = new MonoImage(*handle, pImage, is64bit);
-                printf("Created MonoImage and now calling hasClasses\n");
+                printf("Created MonoImage and now calling has Classes\n");
                 if ((*monoimage)->hasClasses()) break;
                 printf("monoimage has no classes\n");
                 delete *monoimage;
