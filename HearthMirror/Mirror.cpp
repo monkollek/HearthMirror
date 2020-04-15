@@ -982,15 +982,15 @@ namespace hearthmirror {
         //MonoClass* embedClass = baseclass->getEmbeddedMonoClass("<Balance>k__BackingField");
         //MonoValue mv = (*embedClass)["_items"];
 
-        //MonoClass* baseclass = monoImage->get("InputManager");
-        //MonoValue mv = (*baseclass)["s_instance"];
+        MonoClass* baseclass = monoImage->get("NetCache");
+        MonoValue mv = (*baseclass)["s_instance"];
         
-        bool tmp = GETBOOL({"InputManager","s_instance","m_dragging"}, m_mirrorData->monoImage);
-        printf("test bool: %d\n",tmp);
+        //bool tmp = GETBOOL({"InputManager","s_instance","m_dragging"}, m_mirrorData->monoImage);
+        //printf("test bool: %d\n",tmp);
         //if (IsMonoValueEmpty(mv)) return 1;
 
-        MonoValue mv = GETOBJECT({"Network","s_instance","m_lastGameServerInfo"});
-        if (IsMonoValueEmpty(mv)) throw std::domain_error("Game server info can't be found");
+        //MonoValue mv = GETOBJECT({"Network","s_instance","m_lastGameServerInfo"});
+        //if (IsMonoValueEmpty(mv)) throw std::domain_error("Game server info can't be found");
 
 
         printf("MonoValue is non-empty\n");
