@@ -87,7 +87,7 @@ namespace hearthmirror {
             proc_address genericClass = type->getData();
             int32_t offset = getOffset();
 
-            ret.value.i64 = ReadInt64(_task, addr);
+            ret.value.i64 = ReadInt64(_task, genericClass);
             ret.type = MonoTypeEnum::MONO_TYPE_I8;
 
             printf("I8 value: %d\n", ret.value.i64);
