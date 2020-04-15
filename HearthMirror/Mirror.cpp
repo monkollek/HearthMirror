@@ -968,10 +968,19 @@ namespace hearthmirror {
         if (!m_mirrorData->monoImage) throw std::domain_error("Mono image can't be found");
 
         MonoImage* monoImage = m_mirrorData->monoImage;
-        MonoClass* baseclass = monoImage->get("NetCache+NetCacheCollection");
 
+        /*
+        MonoClass* baseclass = monoImage->get("NetCache+NetCacheCollection");
         MonoClass* embedClass = baseclass->getEmbeddedMonoClass("<Stacks>k__BackingField");
         MonoValue mv = (*embedClass)["_items"];
+        */
+
+        
+        
+        MonoClass* baseclass = monoImage->get("NetCache+NetCacheArcaneDustBalance");
+        MonoClass* embedClass = baseclass->getEmbeddedMonoClass("<Balance>k__BackingField");
+        MonoValue mv = (*embedClass)["_items"];
+        
 
 
         if (IsMonoValueEmpty(mv)) return 1;
