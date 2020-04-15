@@ -989,6 +989,10 @@ namespace hearthmirror {
         printf("test bool: %d\n",tmp);
         //if (IsMonoValueEmpty(mv)) return 1;
 
+        MonoValue mv = GETOBJECT({"Network","s_instance","m_lastGameServerInfo"});
+        if (IsMonoValueEmpty(mv)) throw std::domain_error("Game server info can't be found");
+
+
         printf("MonoValue is non-empty\n");
         
         //MonoValue stacksmv = GETOBJECT({"NetCache+NetCacheCollection","<Stacks>k__BackingField"});
