@@ -89,7 +89,7 @@ namespace hearthmirror {
 
             printf("MonoClassField::getStaticValue - 5 offset: %d isRef: %d\n", offset, isRef);
             MonoClass* parent = getParent();
-            vtable = parent->getVTable();
+            proc_address vtable = parent->getVTable();
             proc_address data = ReadPointer(_task, _is64bit ? vtable + kMonoVTableData64 : vtable + kMonoVTableData, _is64bit);
 
             ret.value.i64 = ReadInt64(_task, data+offset);
