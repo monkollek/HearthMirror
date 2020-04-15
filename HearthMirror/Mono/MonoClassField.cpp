@@ -81,9 +81,23 @@ namespace hearthmirror {
 
             ret = ReadValue(type->getType(),genericClass + offset);
 
+        }        
+        else if(type->getType() == MonoTypeEnum::MONO_TYPE_I8){
+            printf("MonoClassField::getStaticValue - 5\n");
+            proc_address genericClass = type->getData();
+            int32_t offset = getOffset();
+
+            ret.value.i64 = ReadInt64(_task, addr);
+            ret.type = MonoTypeEnum::MONO_TYPE_I8;
+
+            printf("I8 value: %d\n", ret.value.i64);
+
+            //ret = ReadValue(type->getType(),genericClass + offset);
+
         }
 
-        printf("MonoClassField::getStaticValue - 5\n");
+
+        printf("MonoClassField::getStaticValue - 6\n");
         printf("Monotype: %d\n",type->getType());
 
         /*
