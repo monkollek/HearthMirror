@@ -982,11 +982,12 @@ namespace hearthmirror {
         //MonoClass* embedClass = baseclass->getEmbeddedMonoClass("<Balance>k__BackingField");
         //MonoValue mv = (*embedClass)["_items"];
 
-        MonoClass* baseclass = monoImage->get("InputManager");
-        MonoValue mv = (*baseclass)["s_instance"];
+        //MonoClass* baseclass = monoImage->get("InputManager");
+        //MonoValue mv = (*baseclass)["s_instance"];
         
-
-        if (IsMonoValueEmpty(mv)) return 1;
+        bool tmp = GETBOOL({"InputManager","s_instance","m_dragging"}, m_mirrorData->monoImage);
+        printf("test bool: %d\n",tmp);
+        //if (IsMonoValueEmpty(mv)) return 1;
 
         printf("MonoValue is non-empty\n");
         
