@@ -977,12 +977,14 @@ namespace hearthmirror {
 
         
         
-        MonoClass* baseclass = monoImage->get("NetCache+NetCacheArcaneDustBalance");
-        MonoValue mv = (*baseclass)["<Balance>k__BackingField"];
+        //MonoClass* baseclass = monoImage->get("NetCache+NetCacheArcaneDustBalance");
+        //MonoValue mv = (*baseclass)["<Balance>k__BackingField"];
         //MonoClass* embedClass = baseclass->getEmbeddedMonoClass("<Balance>k__BackingField");
         //MonoValue mv = (*embedClass)["_items"];
-        
 
+        MonoClass* baseclass = monoImage->get("InputManager");
+        MonoValue mv = (*baseclass)["s_instance"];
+        
 
         if (IsMonoValueEmpty(mv)) return 1;
 
