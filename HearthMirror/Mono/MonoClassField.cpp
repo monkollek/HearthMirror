@@ -339,6 +339,8 @@ namespace hearthmirror {
                 MonoClass* arrClass = new MonoClass(_task, pArrClass, _is64bit);
                 MonoClass* elClass = new MonoClass(_task, ReadPointer(_task, pArrClass, _is64bit), _is64bit);
                 
+                printf("arrClass: %s elClass: %s\n", arrClass->getFullName().c_str(),elClass->getFullName().c_str())
+
                 printf("MonoClassField::ReadValue - 4\n");
                 uint32_t count = ReadInt32(_task, addr + (_is64bit ? kMonoArrayMaxLength64 : kMonoArrayMaxLength));
                 proc_address start = addr + (_is64bit ? kMonoArrayVector64 : kMonoArrayVector);
