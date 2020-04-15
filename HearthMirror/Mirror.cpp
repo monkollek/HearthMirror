@@ -978,8 +978,9 @@ namespace hearthmirror {
         
         
         MonoClass* baseclass = monoImage->get("NetCache+NetCacheArcaneDustBalance");
-        MonoClass* embedClass = baseclass->getEmbeddedMonoClass("<Balance>k__BackingField");
-        MonoValue mv = (*embedClass)["_items"];
+        MonoValue mv = (*embedClass)["<Balance>k__BackingField"];
+        //MonoClass* embedClass = baseclass->getEmbeddedMonoClass("<Balance>k__BackingField");
+        //MonoValue mv = (*embedClass)["_items"];
         
 
 
