@@ -231,7 +231,7 @@ namespace hearthmirror {
     
     // Will be off by 64 bits
     int32_t MonoClass::size() {
-        return ReadInt32(_task, _is64bit ? _pClass + kMonoClassSizes64 : _pClass + kMonoClassSizes);
+        return ReadInt32(_task, _is64bit ? _pClass + kMonoClassSizes64 + 8 : _pClass + kMonoClassSizes);
     }
     // This appears not to be off by 64 bits
     MonoClass* MonoClass::getParent() const {
@@ -240,8 +240,9 @@ namespace hearthmirror {
             return pParent == 0 ? NULL : new MonoClass(_task, pParent, _is64bit);
     }
     
+    // Will be off by 64 bits
     MonoType* MonoClass::byValArg() {
-        return new MonoType(_task, _is64bit ? _pClass + kMonoClassByvalArg64 : _pClass + kMonoClassByvalArg, _is64bit);
+        return new MonoType(_task, _is64bit ? _pClass + kMonoClassByvalArg64 + 8 : _pClass + kMonoClassByvalArg, _is64bit);
     }
 	
 	/** Number of own fields */

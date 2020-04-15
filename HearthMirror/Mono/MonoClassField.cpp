@@ -346,7 +346,7 @@ namespace hearthmirror {
                     printf("MonoClassField::ReadValue - 6\n");
                     result.value.arr = new MonoValue[count];
                     for (uint32_t i = 0; i < count; i++) {
-                        printf("arrClass->size: %d", arrClass->size());
+                        printf("arrClass->size: %d\n", arrClass->size());
                         proc_address ea = start + (i * arrClass->size());
                         if(elClass->isValueType()) {
                             printf("MonoClassField::ReadValue - 7\n");
@@ -368,7 +368,7 @@ namespace hearthmirror {
                             MonoType* bvmt = elClass->byValArg();
                             auto bvmtType = bvmt->getType();
                             delete bvmt;
-                            printf("MonoClassField::ReadValue - 9\n");
+                            printf("MonoClassField::ReadValue - 9 bvwtType: %d\n", bvmtType);
                             if (bvmtType == MONO_TYPE_SZARRAY) {
                                 printf("MonoClassField::ReadValue - 10\n");
                                 result[i] = ReadValue(MONO_TYPE_SZARRAY, ea);
