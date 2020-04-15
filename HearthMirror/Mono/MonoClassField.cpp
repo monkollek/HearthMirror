@@ -88,8 +88,11 @@ namespace hearthmirror {
             bool isRef = type->byRef();
 
             printf("MonoClassField::getStaticValue - 5 offset: %d isRef: %d\n", offset, isRef);
+            MonoClass* parent = getParent();
+            vtable = parent->getVTable();
+            proc_address data = ReadPointer(_task, _is64bit ? vtable + kMonoVTableData64 : vtable + kMonoVTableData, _is64bit);
 
-            ret.value.i64 = ReadInt64(_task, genericClass+offset);
+            ret.value.i64 = ReadInt64(_task, data+offset);
             ret.type = MonoTypeEnum::MONO_TYPE_I8;
 
             printf("I8 value: %d\n", ret.value.i64);
